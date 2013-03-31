@@ -30,6 +30,30 @@ Crafty.c('Block', {
   }
 });
 
+Crafty.c('WaypointHitBox', {
+  init: function() {
+    this.requires('Actor');
+    this.z = -1;
+    this.w = 10;
+    this.h = 10;
+  },
+
+  attachToWaypoint: function(waypoint) {
+    waypoint.attach(this);
+    this.x = waypoint.x + 43;
+    this.y = waypoint.y + 43;
+  }
+
+});
+
+Crafty.c('Waypoint', {
+  init: function() {
+    this.requires('Actor, spr_waypoint');
+    this.z = -1;
+    Crafty.e('WaypointHitBox').attachToWaypoint(this);
+  }
+});
+
 Crafty.c('ShowFPS', {
   init: function() {
     this.requires('2D, DOM, FPS, Text, Grid');
@@ -98,7 +122,11 @@ Crafty.c('Car', {
     this.requires('Actor, Keyboard, Collision, spr_car, SpriteAnimation')
       .stopOnSolids()
 
-      .bind('KeyDown', function () {
+    this.onHit('WaypointHitBox', function() {
+      console.log("WaypointHitBox Hit!");
+    });
+
+    this.bind('KeyDown', function () {
         if (this.isDown('LEFT_ARROW')) {
           this.directionIncrement = -11.25;
         } else if (this.isDown('RIGHT_ARROW')) {

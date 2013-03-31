@@ -7,6 +7,9 @@ Crafty.scene('Game', function() {
   this.player = Crafty.e('Car').at(3, 18);
   this.player.setName("Player");
 
+  this.waypoint = Crafty.e('Waypoint').at(5, 18);
+  this.waypoint.setName("Waypoint");
+
   this.block = Crafty.e('Block').at(1, 1);
 
   this.showFps = Crafty.e('ShowFPS');
@@ -46,6 +49,9 @@ Crafty.scene('Loading', function(){
     }, 0, 0);
     Crafty.sprite(96, 'assets/block.png', {
       spr_block:  [0, 0]
+    }, 0, 0);
+    Crafty.sprite(96, 'assets/waypoint.png', {
+      spr_waypoint:  [0, 0]
     }, 0, 0);
     Crafty.scene('Game');
   })
