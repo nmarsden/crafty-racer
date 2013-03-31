@@ -57,11 +57,6 @@ Crafty.scene('Loading', function(){
     engine_rev_faster:  ['assets/engine_rev_faster2.ogg'],
     wheel_spin:         ['assets/wheel_spin.ogg'],
     music:              ['assets/Happy Bee.mp3']
-
-//    engine_idle: ['assets/vwbuggy_short.mp3'],
-//    engine_rev: ['assets/engine_rev4.ogg'],
-//    engine_rev_faster: ['assets/engine_rev5.ogg'],
-//    wheel_spin: ['assets/car_skidding_short.mp3'],
   });
 
 });
