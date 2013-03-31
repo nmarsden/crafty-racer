@@ -54,6 +54,38 @@ Crafty.c('Waypoint', {
   }
 });
 
+Crafty.c('Navigator', {
+  init: function() {
+    this.requires('Actor, spr_navigator');
+
+    this.setWaypointPosition(100, 100);
+
+    this.bind("EnterFrame", function() {
+      this.x = Game.viewportWidth() - this.w - Crafty.viewport.x;
+      this.y = Game.viewportHeight() - this.h - Crafty.viewport.y;
+      this.origin(96/2, 96/2);
+    });
+
+    this.bind("PlayerMoved", function(playerPosition) {
+      if (!this.waypointPosition) {
+        this.rotation = 0;
+      } else {
+        // calculate angle between player and waypoint
+        var deltaX = playerPosition.x - this.waypointPosition.x;
+        var deltaY = playerPosition.y - this.waypointPosition.y;
+        var angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+
+        this.rotation = (angle - 90) % 360;
+      }
+    });
+  },
+
+  setWaypointPosition:function (x, y) {
+    this.waypointPosition = {x: x, y: y};
+  }
+
+});
+
 Crafty.c('ShowFPS', {
   init: function() {
     this.requires('2D, DOM, FPS, Text, Grid');
@@ -208,6 +240,8 @@ Crafty.c('Car', {
 
           Crafty.viewport.scroll('_x', Crafty.viewport.width/2 - this.x - this.w/2);
           Crafty.viewport.scroll('_y', Crafty.viewport.height/2 - this.y - this.h/2);
+
+          Crafty.trigger("PlayerMoved",{x:this.x, y:this.y});
         }
       });
       // Init sprites

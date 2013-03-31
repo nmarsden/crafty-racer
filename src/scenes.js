@@ -10,6 +10,10 @@ Crafty.scene('Game', function() {
   this.waypoint = Crafty.e('Waypoint').at(5, 18);
   this.waypoint.setName("Waypoint");
 
+  this.navigator = Crafty.e('Navigator');
+  this.navigator.setName("Navigator");
+  this.navigator.setWaypointPosition(this.waypoint.x, this.waypoint.y);
+
   this.block = Crafty.e('Block').at(1, 1);
 
   this.showFps = Crafty.e('ShowFPS');
@@ -52,6 +56,9 @@ Crafty.scene('Loading', function(){
     }, 0, 0);
     Crafty.sprite(96, 'assets/waypoint.png', {
       spr_waypoint:  [0, 0]
+    }, 0, 0);
+    Crafty.sprite(96, 'assets/navigator.png', {
+      spr_navigator:  [0, 0]
     }, 0, 0);
     Crafty.scene('Game');
   })

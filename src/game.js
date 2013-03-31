@@ -22,6 +22,14 @@ Game = {
     return this.map_grid.height * this.map_grid.tile.height;
   },
 
+  viewportWidth:function () {
+    return Game.width() / 4;
+  },
+
+  viewportHeight:function () {
+    return Game.height() / 4;
+  },
+
   playMusic:function () {
     Crafty.audio.play('music', -1, 1.0);
   },
@@ -81,7 +89,7 @@ Game = {
     Game.initOptions();
 
     Crafty.init(Game.width(), Game.height());
-    Crafty.viewport.init(Game.width() / 4, Game.height() / 4);
+    Crafty.viewport.init(Game.viewportWidth(), Game.viewportHeight());
     Crafty.viewport.bounds = {
       min:{x:0, y:0},
       max:{x:Game.width(), y:Game.height()}
