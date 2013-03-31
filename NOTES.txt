@@ -1,0 +1,47 @@
+Goal
+====
+Waypoints must be reached before time runs out
+
+Entities
+========
+* Countdown - indicates remaining time to reach the waypoint
+            - flashes when time is running low
+
+* Navigator - indicates direction of the waypoint
+
+* Distance - indicates the distance to the waypoint
+
+* Time power up - adds time to countdown
+
+* Speed power up - increases the top speed of the car for a few seconds
+
+* Waypoint  - 10 waypoints per level
+            - only the current waypoint is displayed
+            - disappears when reached by car, and next waypoint displayed
+            - 10th (last) waypoint is indicated in some way (differnt colour and/or flashing, etc..)
+
+Level Completion
+================
+- level is completed when the last waypoint is reached
+- player is awarded either 1, 2, or 3 stars depending on how well they did
+- next level is unlocked
+- player can choose to play 'Next Level' or 'Quit to Menu'
+
+Menu Screen
+===========
+- player can choose to turn on/off music
+- player can choose to turn on/off sound effects
+- player can choose which level to play
+- player is able to navigate list of levels
+  - locked levels are indicated and cannot be selected to play
+  - completed levels indicate the maximum number of stars achieved
+
+Saving State
+============
+Local storage is used to automatically save any state that needs to be remembered
+Saves state for the following:-
+- sound: on/off
+- sfx: on/off
+- for each completed level:-
+    - max time remaining
+    - max stars awarded
