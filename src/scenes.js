@@ -52,9 +52,9 @@ Crafty.scene('Loading', function(){
 
   // Define our sounds for later use
   Crafty.audio.add({
-    engine_idle:        ['assets/engine_idle2.ogg'],
+    engine_idle:        ['assets/engine_idle.ogg'],
     engine_rev:         ['assets/engine_rev.ogg'],
-    engine_rev_faster:  ['assets/engine_rev_faster2.ogg'],
+    engine_rev_faster:  ['assets/engine_rev_faster.ogg'],
     wheel_spin:         ['assets/wheel_spin.ogg'],
     music:              ['assets/Happy Bee.mp3']
   });
