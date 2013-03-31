@@ -86,6 +86,50 @@ Crafty.c('Navigator', {
 
 });
 
+
+// TODO Countdown needs to take into account game being paused
+Crafty.c('Countdown', {
+  init: function() {
+    this.requires('2D, DOM, Text');
+    this.DOM($("#countdown")[0]);
+    this.x = Game.viewportWidth() - 85;
+    this.y = 5;
+    this.complete = false;
+
+    this.startTime = Date.now();
+    this.totalTime = 20000;
+
+    this.bind("EnterFrame", function() {
+      if (this.complete) {
+        return;
+      }
+      var timeElapsed = Date.now() - this.startTime;
+      var timeLeft = this.totalTime - timeElapsed;
+
+      var timeLeftMs = timeLeft / 10;
+      var secs = Math.floor(timeLeftMs / 100);
+      var msecs = Math.floor(timeLeftMs - (secs * 100));
+
+      if (secs < 0 || msecs < 0) {
+        this.complete = true;
+        secs = 0;
+        msecs = 0;
+      }
+      var secsPadding = "";
+      var msecsPadding = "";
+      if (secs < 10) {
+        secsPadding = "0";
+      }
+      if (msecs < 10) {
+        msecsPadding = "0";
+      }
+      this.text(secsPadding + secs + ":" + msecsPadding + msecs);
+    });
+
+  }
+});
+
+
 Crafty.c('ShowFPS', {
   init: function() {
     this.requires('2D, DOM, FPS, Text, Grid');

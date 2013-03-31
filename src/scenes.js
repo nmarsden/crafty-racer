@@ -10,6 +10,9 @@ Crafty.scene('Game', function() {
   this.waypoint = Crafty.e('Waypoint').at(5, 18);
   this.waypoint.setName("Waypoint");
 
+  this.countdown = Crafty.e('Countdown');
+  this.countdown.setName("Countdown");
+
   this.navigator = Crafty.e('Navigator');
   this.navigator.setName("Navigator");
   this.navigator.setWaypointPosition(this.waypoint.x, this.waypoint.y);
