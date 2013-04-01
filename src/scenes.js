@@ -7,7 +7,7 @@ Crafty.scene('Game', function() {
   this.player = Crafty.e('Car').at(3, 18);
   this.player.setName("Player");
 
-  this.waypoint = Crafty.e('Waypoint').at(5, 18);
+  this.waypoint = Crafty.e('Waypoint').at(5, 5);
   this.waypoint.setName("Waypoint");
 
   this.countdown = Crafty.e('Countdown');
@@ -18,22 +18,23 @@ Crafty.scene('Game', function() {
   this.navigator.setName("Navigator");
   this.navigator.setWaypointPosition(this.waypoint.x, this.waypoint.y);
 
-  this.block = Crafty.e('Block').at(1, 1);
+//  this.block = Crafty.e('Block').at(1, 1);
 
-  this.showFps = Crafty.e('ShowFPS');
-  this.showFps.setName("ShowFPS");
+  // uncomment to show FPS
+//  this.showFps = Crafty.e('ShowFPS');
+//  this.showFps.setName("ShowFPS");
 
   Crafty.viewport.scroll('_x', Crafty.viewport.width/2 - this.player.x - this.player.w/2);
   Crafty.viewport.scroll('_y', Crafty.viewport.height/2 - this.player.y - this.player.h/2);
 
-  for(var x=0; x<=Game.map_grid.width; x++) {
-    Crafty.e('Block').at(x, 0);
-    Crafty.e('Block').at(x, Game.map_grid.height);
-  }
-  for(var y=1; y<Game.map_grid.height; y++) {
-    Crafty.e('Block').at(0, y);
-    Crafty.e('Block').at(Game.map_grid.width, y);
-  }
+//  for(var x=0; x<=Game.map_grid.width; x++) {
+//    Crafty.e('Block').at(x, 0);
+//    Crafty.e('Block').at(x, Game.map_grid.height);
+//  }
+//  for(var y=1; y<Game.map_grid.height; y++) {
+//    Crafty.e('Block').at(0, y);
+//    Crafty.e('Block').at(Game.map_grid.width, y);
+//  }
 
   Game.playMusic();
 

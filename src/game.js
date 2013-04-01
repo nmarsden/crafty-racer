@@ -94,8 +94,7 @@ Game = {
       min:{x:0, y:0},
       max:{x:Game.width(), y:Game.height()}
     };
-    Crafty.background('rgb(83,83,83)');
-    //Crafty.background('rgb(23,23,23)');
+    Crafty.background('rgb(130,192,255)');
     Crafty.scene('Loading');
 
     Crafty.debugBar.show();

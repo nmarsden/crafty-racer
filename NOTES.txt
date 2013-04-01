@@ -18,7 +18,7 @@ Entities
 * Waypoint  - 10 waypoints per level
             - only the current waypoint is displayed
             - disappears when reached by car, and next waypoint displayed
-            - 10th (last) waypoint is indicated in some way (differnt colour and/or flashing, etc..)
+            - 10th (last) waypoint is indicated in some way (different colour and/or flashing, etc..)
 
 Level Completion
 ================
