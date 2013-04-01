@@ -12,6 +12,7 @@ Crafty.scene('Game', function() {
 
   this.countdown = Crafty.e('Countdown');
   this.countdown.setName("Countdown");
+  this.countdown.start(10000);
 
   this.navigator = Crafty.e('Navigator');
   this.navigator.setName("Navigator");

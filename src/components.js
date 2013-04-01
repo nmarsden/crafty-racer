@@ -57,6 +57,7 @@ Crafty.c('Waypoint', {
 Crafty.c('Navigator', {
   init: function() {
     this.requires('Actor, spr_navigator');
+    this.z = 2;
 
     this.setWaypointPosition(100, 100);
 
@@ -86,8 +87,6 @@ Crafty.c('Navigator', {
 
 });
 
-
-// TODO Countdown needs to take into account game being paused
 Crafty.c('Countdown', {
   init: function() {
     this.requires('2D, DOM, Text');
@@ -95,40 +94,64 @@ Crafty.c('Countdown', {
     this.x = Game.viewportWidth() - 85;
     this.y = 5;
     this.complete = false;
+    this.paused = false;
 
     this.startTime = Date.now();
-    this.totalTime = 20000;
+    this.totalTime = 0;
 
     this.bind("EnterFrame", function() {
-      if (this.complete) {
+      if (this.complete || this.paused) {
         return;
       }
-      var timeElapsed = Date.now() - this.startTime;
-      var timeLeft = this.totalTime - timeElapsed;
-
-      var timeLeftMs = timeLeft / 10;
-      var secs = Math.floor(timeLeftMs / 100);
-      var msecs = Math.floor(timeLeftMs - (secs * 100));
-
-      if (secs < 0 || msecs < 0) {
+      var timeLeft = this._timeLeft();
+      this._updateText(timeLeft);
+      if (timeLeft < 0) {
         this.complete = true;
-        secs = 0;
-        msecs = 0;
+        // TODO trigger TimesUp event
       }
-      var secsPadding = "";
-      var msecsPadding = "";
-      if (secs < 10) {
-        secsPadding = "0";
-      }
-      if (msecs < 10) {
-        msecsPadding = "0";
-      }
-      this.text(secsPadding + secs + ":" + msecsPadding + msecs);
     });
 
+    this.bind("Pause", function() {
+      this.paused = true;
+      this.totalTime = this._timeLeft();
+    })
+
+    this.bind("Unpause", function() {
+      this.startTime = Date.now();
+      this.paused = false;
+    })
+  },
+
+  _timeLeft:function() {
+    var timeElapsed = Date.now() - this.startTime;
+    return this.totalTime - timeElapsed;
+  },
+
+  _updateText:function(timeLeft) {
+    var timeLeftMs = timeLeft / 10;
+    var secs = Math.floor(timeLeftMs / 100);
+    var msecs = Math.floor(timeLeftMs - (secs * 100));
+
+    if (secs < 0 || msecs < 0) {
+      secs = 0;
+      msecs = 0;
+    }
+    var secsPadding = "";
+    var msecsPadding = "";
+    if (secs < 10) {
+      secsPadding = "0";
+    }
+    if (msecs < 10) {
+      msecsPadding = "0";
+    }
+    this.text(secsPadding + secs + ":" + msecsPadding + msecs);
+  },
+
+  start:function(duration) {
+    this.totalTime = duration;
+    this.startTime = Date.now();
   }
 });
-
 
 Crafty.c('ShowFPS', {
   init: function() {
