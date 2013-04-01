@@ -111,6 +111,8 @@ Crafty.scene('Victory', function() {
   };
   Crafty.bind('KeyDown', this.restart_game);
 
+  Game.stopAllSoundsExcept();
+
 }, function() {
   // Remove our event binding from above so that we don't
   //  end up having multiple redundant event watchers after
