@@ -36,9 +36,20 @@ Crafty.scene('Game', function() {
 //    Crafty.e('Block').at(Game.map_grid.width, y);
 //  }
 
+  // Show the victory screen once all waypoints are reached
+  this.show_victory = function() {
+    Crafty.scene('Victory');
+  }
+
+  this.bind('WaypointReached', this.show_victory);
+
   Game.playMusic();
 
 }, function() {
+  // Remove our event binding from above so that we don't
+  //  end up having multiple redundant event watchers after
+  //  multiple restarts of the game
+  this.unbind('WaypointReached', this.show_victory);
 });
 
 
@@ -77,4 +88,32 @@ Crafty.scene('Loading', function(){
     music:              ['assets/Happy Bee.mp3']
   });
 
+});
+
+// Victory scene
+// -------------
+Crafty.scene('Victory', function() {
+  var victoryText = Crafty.e('2D, DOM, Text');
+  victoryText.text('Goal Reached!')
+  var x = Crafty.viewport.width/2 - Crafty.viewport.x - 30;
+  var y = Crafty.viewport.height/2 - Crafty.viewport.y - 30;
+  victoryText.attr({ x: x, y: y })
+
+  // After a short delay, watch for the player to press a key, then restart
+  // the game when a key is pressed
+  var delay = true;
+  setTimeout(function() { delay = false; }, 1000);
+
+  this.restart_game = function() {
+    if (!delay) {
+      Crafty.scene('Game');
+    }
+  };
+  Crafty.bind('KeyDown', this.restart_game);
+
+}, function() {
+  // Remove our event binding from above so that we don't
+  //  end up having multiple redundant event watchers after
+  //  multiple restarts of the game
+  this.unbind('KeyDown', this.restart_game);
 });

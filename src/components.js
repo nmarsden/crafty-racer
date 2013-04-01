@@ -42,6 +42,14 @@ Crafty.c('WaypointHitBox', {
     waypoint.attach(this);
     this.x = waypoint.x + 43;
     this.y = waypoint.y + 43;
+  },
+
+  reached: function() {
+    // TODO play a sound to indicate a waypoint has been reached
+    // TODO destroy this waypoint
+    //this.destroy();
+    //Crafty.audio.play('knock');
+    Crafty.trigger('WaypointReached', this);
   }
 
 });
@@ -87,10 +95,31 @@ Crafty.c('Navigator', {
 
 });
 
+Crafty.c('ShowFPS', {
+  init: function() {
+    this.requires('2D, DOM, FPS, Text, Grid');
+    this.attr({maxValues:10});
+
+    this.bind("MessureFPS", function(fps){
+      this.text("FPS: "+fps.value); //Display Current FPS
+      //console.log(this.values); // Display last x Values
+    });
+
+    this.bind("EnterFrame", function() {
+      this.x = -Crafty.viewport.x;
+      this.y = -Crafty.viewport.y + 10;
+
+      //console.log("ShowFPS:", "x", this.x, "y", this.y);
+    });
+
+  }
+});
+
 Crafty.c('Countdown', {
   init: function() {
     this.requires('2D, DOM, Text');
-    this.DOM($("#countdown")[0]);
+    var element = $("#countdown")[0];
+    this.DOM(element);
     this.x = Game.viewportWidth() - 85;
     this.y = 5;
     this.complete = false;
@@ -114,12 +143,26 @@ Crafty.c('Countdown', {
     this.bind("Pause", function() {
       this.paused = true;
       this.totalTime = this._timeLeft();
-    })
+    });
 
     this.bind("Unpause", function() {
       this.startTime = Date.now();
       this.paused = false;
-    })
+    });
+
+    this.bind('WaypointReached', function() {
+      // Hack: We clear the _element here before the scene ends to avoid an error (and also prevent
+      // our DOM element being removed)
+      // Long Explanation:
+      // When a scene ends, all the entities are removed, and removing an entity with a DOM component
+      // results in the DOM component's undraw() method attempting to remove the _element from the stage via...
+      //  <code>Crafty.stage.inner.removeChild(this._element);</code>
+      // which causes a NotFoundError
+      // In our case, since our DOM element is explicitly defined in the HTML and we are setting this
+      // component's element via the DOM() method, the element has not been added to the stage, and in any case,
+      // we don't want to remove the element when this component is removed
+      this._element = null;
+    });
   },
 
   _timeLeft:function() {
@@ -153,42 +196,40 @@ Crafty.c('Countdown', {
   }
 });
 
-Crafty.c('ShowFPS', {
-  init: function() {
-    this.requires('2D, DOM, FPS, Text, Grid');
-    this.attr({maxValues:10});
-
-    this.bind("MessureFPS", function(fps){
-      this.text("FPS: "+fps.value); //Display Current FPS
-      //console.log(this.values); // Display last x Values
-    });
-
-    this.bind("EnterFrame", function() {
-      this.x = -Crafty.viewport.x;
-      this.y = -Crafty.viewport.y + 10;
-
-      //console.log("ShowFPS:", "x", this.x, "y", this.y);
-    });
-
-  }
-});
-
 Crafty.c('PauseControl', {
   init: function() {
     this.requires('2D, DOM, Keyboard, Text, Grid');
     this.paused = false;
-    this.DOM($("#paused")[0]);
+    var element = $("#paused")[0];
+    this.DOM(element);
+
     this.bind('KeyDown', function () {
       if (this.isDown('SPACE')) {
         this.togglePause();
       }
     });
+
     this.bind("EnterFrame", function() {
       if (this.paused) {
         // Actually pause the game only after PAUSED text has been rendered
         Crafty.pause();
       }
     });
+
+    this.bind('WaypointReached', function() {
+      // Hack: We clear the _element here before the scene ends to avoid an error (and also prevent
+      // our DOM element being removed)
+      // Long Explanation:
+      // When a scene ends, all the entities are removed, and removing an entity with a DOM component
+      // results in the DOM component's undraw() method attempting to remove the _element from the stage via...
+      //  <code>Crafty.stage.inner.removeChild(this._element);</code>
+      // which causes a NotFoundError
+      // In our case, since our DOM element is explicitly defined in the HTML and we are setting this
+      // component's element via the DOM() method, the element has not been added to the stage, and in any case,
+      // we don't want to remove the element when this component is removed
+      this._element = null;
+    });
+
   },
 
   togglePause: function() {
@@ -206,7 +247,6 @@ Crafty.c('PauseControl', {
     }
   }
 
-
 });
 
 Crafty.c('Car', {
@@ -221,81 +261,99 @@ Crafty.c('Car', {
     this.requires('Actor, Keyboard, Collision, spr_car, SpriteAnimation')
       .stopOnSolids()
 
-    this.onHit('WaypointHitBox', function() {
-      console.log("WaypointHitBox Hit!");
-    });
+    this.onHit('WaypointHitBox', this.waypointReached);
 
-    this.bind('KeyDown', function () {
-        if (this.isDown('LEFT_ARROW')) {
-          this.directionIncrement = -11.25;
-        } else if (this.isDown('RIGHT_ARROW')) {
-          this.directionIncrement = 11.25;
-        }
-        if (!this.moving && this.isDown('UP_ARROW')) {
-          this.moving = true;
-          this.movingStartTime = Date.now();
-        }
-       })
-      .bind('KeyUp', function(e) {
-        if(e.key == Crafty.keys['LEFT_ARROW']) {
-          this.directionIncrement = 0;
-        } else if (e.key == Crafty.keys['RIGHT_ARROW']) {
-          this.directionIncrement = 0;
-        } else if (e.key == Crafty.keys['UP_ARROW']) {
-          this.moving = false;
-        } else if (e.key == Crafty.keys['DOWN_ARROW']) {
-        }
-      })
-      .bind("EnterFrame", function() {
+    this.bind('KeyDown', this._keyDown);
 
-        var spriteNumber = this.spriteNumberFor(this.direction);
-        if (this.directionIncrement == 0) {
-          this.animate('Straight_'+spriteNumber, 1, -1);
-        } else if (this.directionIncrement > 0) {
-          this.animate('TurnRight_'+spriteNumber, 1, -1);
-        } else if (this.directionIncrement < 0) {
-          this.animate('TurnLeft_'+spriteNumber, 1, -1);
-        }
+    this.bind('KeyUp', this._keyUp);
 
-        if (this.moving) {
-          this.speed = 4;
-          if (this.directionIncrement == 0) {
-            var timeMoving = Date.now() - this.movingStartTime;
-            if (timeMoving < 500) {
-              Game.playSoundEffect('engine_rev', 1.0);
-            } else {
-              Game.playSoundEffect('engine_rev_faster', 1.0);
-              this.speed = 8;
-            }
-          } else {
-            Game.playSoundEffect('wheel_spin', 1.0);
-          }
+    this.bind("EnterFrame", this._enterFrame);
+
+    // Init sprites
+    var pos, spriteSheet;
+    for (pos = 0; pos< 32; pos++) {
+      spriteSheet = this.spriteSheetXY(pos);
+      this.animate('Straight_'+pos,  spriteSheet.x, spriteSheet.y, spriteSheet.x)
+      spriteSheet = this.spriteSheetXY(32 + pos);
+      this.animate('TurnLeft_'+pos,  spriteSheet.x, spriteSheet.y, spriteSheet.x)
+      spriteSheet = this.spriteSheetXY(64 + pos);
+      this.animate('TurnRight_'+pos,  spriteSheet.x, spriteSheet.y, spriteSheet.x)
+    }
+
+  },
+
+  _keyDown: function() {
+      if (this.isDown('LEFT_ARROW')) {
+        this.directionIncrement = -11.25;
+      } else if (this.isDown('RIGHT_ARROW')) {
+        this.directionIncrement = 11.25;
+      }
+      if (!this.moving && this.isDown('UP_ARROW')) {
+        this.moving = true;
+        this.movingStartTime = Date.now();
+      }
+  },
+
+  _keyUp: function(e) {
+    if(e.key == Crafty.keys['LEFT_ARROW']) {
+      this.directionIncrement = 0;
+    } else if (e.key == Crafty.keys['RIGHT_ARROW']) {
+      this.directionIncrement = 0;
+    } else if (e.key == Crafty.keys['UP_ARROW']) {
+      this.moving = false;
+    } else if (e.key == Crafty.keys['DOWN_ARROW']) {
+    }
+  },
+
+  _enterFrame: function() {
+    var spriteNumber = this.spriteNumberFor(this.direction);
+    if (this.directionIncrement == 0) {
+      this.animate('Straight_'+spriteNumber, 1, -1);
+    } else if (this.directionIncrement > 0) {
+      this.animate('TurnRight_'+spriteNumber, 1, -1);
+    } else if (this.directionIncrement < 0) {
+      this.animate('TurnLeft_'+spriteNumber, 1, -1);
+    }
+
+    if (this.moving) {
+      this.speed = 4;
+      if (this.directionIncrement == 0) {
+        var timeMoving = Date.now() - this.movingStartTime;
+        if (timeMoving < 500) {
+          Game.playSoundEffect('engine_rev', 1.0);
         } else {
-          Game.playSoundEffect('engine_idle', 0.3);
+          Game.playSoundEffect('engine_rev_faster', 1.0);
+          this.speed = 8;
         }
+      } else {
+        Game.playSoundEffect('wheel_spin', 1.0);
+      }
+    } else {
+      Game.playSoundEffect('engine_idle', 0.3);
+    }
 
-        if (this.moving) {
-          this.direction += this.directionIncrement;
-          if (this.direction > 180) this.direction = -180 + 11.25;
-          if (this.direction < -180) this.direction = 180 - 11.25;
-          this.movement.x = Math.round(Math.cos(this.direction * (Math.PI / 180)) * 1000 * this.speed) / 1000;
-          this.movement.y = Math.round(Math.sin(this.direction * (Math.PI / 180)) * 1000 * this.speed) / 1000;
+    if (this.moving) {
+      this.direction += this.directionIncrement;
+      if (this.direction > 180) this.direction = -180 + 11.25;
+      if (this.direction < -180) this.direction = 180 - 11.25;
+      this.movement.x = Math.round(Math.cos(this.direction * (Math.PI / 180)) * 1000 * this.speed) / 1000;
+      this.movement.y = Math.round(Math.sin(this.direction * (Math.PI / 180)) * 1000 * this.speed) / 1000;
 
-          this.x += this.movement.x;
-          this.y += this.movement.y;
+      this.x += this.movement.x;
+      this.y += this.movement.y;
 
-          // TODO Use pre-calculated bounding box based on direction
-          // TODO Determine why bounding box is not honoured
+      // TODO Use pre-calculated bounding box based on direction
+      // TODO Determine why bounding box is not honoured
 //          var boundingBox = this.boundingPolygon(this.direction, this.w, this.h);
 //          this.collision(boundingBox);
 
-          var bb = this.boundingPolygon(this.direction, this.w, this.h);
-          var points = bb.points;
+      var bb = this.boundingPolygon(this.direction, this.w, this.h);
+      var points = bb.points;
 
-          this.map = bb;
-          this.map.shift(this.x, this.y);
+      this.map = bb;
+      this.map.shift(this.x, this.y);
 
-          // TODO Attempting to set _mbr to ensure bounding box is used unfortunately causes rending issues for the car for some unknown reason
+      // TODO Attempting to set _mbr to ensure bounding box is used unfortunately causes rending issues for the car for some unknown reason
 //          this._mbr = {
 //            _x: points[0][0], //minx,
 //            _y: points[0][1], //miny,
@@ -303,25 +361,20 @@ Crafty.c('Car', {
 //            _h: points[2][1] - points[0][1] //maxy - miny
 //          };
 
-          //console.log("Player:", "x", this.x, "y", this.y);
+      //console.log("Player:", "x", this.x, "y", this.y);
 
-          Crafty.viewport.scroll('_x', Crafty.viewport.width/2 - this.x - this.w/2);
-          Crafty.viewport.scroll('_y', Crafty.viewport.height/2 - this.y - this.h/2);
+      Crafty.viewport.scroll('_x', Crafty.viewport.width/2 - this.x - this.w/2);
+      Crafty.viewport.scroll('_y', Crafty.viewport.height/2 - this.y - this.h/2);
 
-          Crafty.trigger("PlayerMoved",{x:this.x, y:this.y});
-        }
-      });
-      // Init sprites
-      var pos, spriteSheet;
-      for (pos = 0; pos< 32; pos++) {
-        spriteSheet = this.spriteSheetXY(pos);
-        this.animate('Straight_'+pos,  spriteSheet.x, spriteSheet.y, spriteSheet.x)
-        spriteSheet = this.spriteSheetXY(32 + pos);
-        this.animate('TurnLeft_'+pos,  spriteSheet.x, spriteSheet.y, spriteSheet.x)
-        spriteSheet = this.spriteSheetXY(64 + pos);
-        this.animate('TurnRight_'+pos,  spriteSheet.x, spriteSheet.y, spriteSheet.x)
-      }
+      Crafty.trigger("PlayerMoved",{x:this.x, y:this.y});
+    }
+  },
 
+  waypointReached: function(data) {
+    //console.log("Waypoint reached");
+
+    var waypoint = data[0].obj;
+    waypoint.reached();
   },
 
   roundPoints: function(points) {
