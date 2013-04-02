@@ -38,10 +38,17 @@ Crafty.scene('Game', function() {
 
   // Show the victory screen once all waypoints are reached
   this.show_victory = function() {
+    Crafty.trigger('SceneEnding', this);
     Crafty.scene('Victory');
   }
-
   this.bind('WaypointReached', this.show_victory);
+
+  // Show the game over screen when time is up
+  this.show_game_over = function() {
+    Crafty.trigger('SceneEnding', this);
+    Crafty.scene('GameOver');
+  }
+  this.bind('TimesUp', this.show_game_over);
 
   Game.playMusic();
 
@@ -50,6 +57,7 @@ Crafty.scene('Game', function() {
   //  end up having multiple redundant event watchers after
   //  multiple restarts of the game
   this.unbind('WaypointReached', this.show_victory);
+  this.unbind('TimesUp', this.show_game_over);
 });
 
 
@@ -93,11 +101,53 @@ Crafty.scene('Loading', function(){
 // Victory scene
 // -------------
 Crafty.scene('Victory', function() {
-  var victoryText = Crafty.e('2D, DOM, Text');
-  victoryText.text('Goal Reached!')
-  var x = Crafty.viewport.width/2 - Crafty.viewport.x - 30;
-  var y = Crafty.viewport.height/2 - Crafty.viewport.y - 30;
-  victoryText.attr({ x: x, y: y })
+  var levelComplete = Crafty.e('2D, DOM, Text');
+  levelComplete.text('LEVEL COMPLETE!')
+  x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
+  y = Crafty.viewport.height/2 - Crafty.viewport.y - 60;
+  levelComplete.attr({ x: x, y: y, w: 320 })
+  levelComplete.textFont({ type: 'normal', weight: 'bold', size: '50px', family: 'Arial' })
+  levelComplete.textColor('#0061FF');
+
+  // After a short delay, watch for the player to press a key, then restart
+  // the game when a key is pressed
+  var delay = true;
+  setTimeout(function() { delay = false; }, 1000);
+
+  this.restart_game = function() {
+    if (!delay) {
+      Crafty.scene('Game');
+    }
+  };
+  Crafty.bind('KeyDown', this.restart_game);
+
+  Game.stopAllSoundsExcept();
+
+}, function() {
+  // Remove our event binding from above so that we don't
+  //  end up having multiple redundant event watchers after
+  //  multiple restarts of the game
+  this.unbind('KeyDown', this.restart_game);
+});
+
+// GameOver scene
+// -------------
+Crafty.scene('GameOver', function() {
+  var timesUpText = Crafty.e('2D, DOM, Text');
+  timesUpText.text('Times Up')
+  var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
+  var y = Crafty.viewport.height/2 - Crafty.viewport.y - 60;
+  timesUpText.attr({ x: x, y: y, w: 320 })
+  timesUpText.textFont({ type: 'normal', weight: 'bold', size: '40px', family: 'Arial' })
+  timesUpText.textColor('#0061FF');
+
+  var gameOverText = Crafty.e('2D, DOM, Text');
+  gameOverText.text('GAME OVER!')
+  x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
+  y = Crafty.viewport.height/2 - Crafty.viewport.y;
+  gameOverText.attr({ x: x, y: y, w: 320 })
+  gameOverText.textFont({ type: 'normal', weight: 'bold', size: '50px', family: 'Arial' })
+  gameOverText.textColor('#0061FF');
 
   // After a short delay, watch for the player to press a key, then restart
   // the game when a key is pressed

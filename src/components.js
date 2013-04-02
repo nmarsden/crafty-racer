@@ -133,10 +133,11 @@ Crafty.c('Countdown', {
         return;
       }
       var timeLeft = this._timeLeft();
-      this._updateText(timeLeft);
-      if (timeLeft < 0) {
+      if (timeLeft <= 0) {
         this.complete = true;
-        // TODO trigger TimesUp event
+        Crafty.trigger('TimesUp', this);
+      } else {
+        this._updateText(timeLeft);
       }
     });
 
@@ -150,7 +151,7 @@ Crafty.c('Countdown', {
       this.paused = false;
     });
 
-    this.bind('WaypointReached', function() {
+    this.bind('SceneEnding', function() {
       // Hack: We clear the _element here before the scene ends to avoid an error (and also prevent
       // our DOM element being removed)
       // Long Explanation:
@@ -216,7 +217,7 @@ Crafty.c('PauseControl', {
       }
     });
 
-    this.bind('WaypointReached', function() {
+    this.bind('SceneEnding', function() {
       // Hack: We clear the _element here before the scene ends to avoid an error (and also prevent
       // our DOM element being removed)
       // Long Explanation:
