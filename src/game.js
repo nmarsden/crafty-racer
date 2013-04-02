@@ -14,6 +14,13 @@ Game = {
     sfx:true
   },
 
+  levels:[],
+  levelIndex:0,
+  waypointIndex:0,
+  waypoint:null,
+  navigator:null,
+  countdown:null,
+
   width:function () {
     return this.map_grid.width * this.map_grid.tile.width;
   },
@@ -85,8 +92,69 @@ Game = {
     });
   },
 
+  initLevels:function () {
+    this.levels[0] = {waypoints: [{x:5,y:5},{x:10,y:10}]};
+    this.levels[1] = {waypoints: [{x:3,y:3},{x:1,y:1}]};
+  },
+
+  initWaypoint: function () {
+    var waypoint = this.levels[this.levelIndex].waypoints[this.waypointIndex];
+    this.waypoint = Crafty.e('Waypoint').at(waypoint.x, waypoint.y);
+    this.waypoint.setName("Waypoint");
+  },
+
+  initNavigator: function () {
+    this.navigator = Crafty.e('Navigator');
+    this.navigator.setName("Navigator");
+  },
+
+  initCountdown: function () {
+    this.countdown = Crafty.e('Countdown');
+    this.countdown.setName("Countdown");
+  },
+
+  initLevel: function () {
+    this.waypointIndex = 0;
+    Game.initNavigator();
+    Game.initCountdown();
+    Game.resetWaypoint();
+  },
+
+  isLevelComplete: function () {
+    return this.levels[this.levelIndex].waypoints.length === (this.waypointIndex + 1);
+  },
+
+  getLevelCompleteMessage: function () {
+    return 'LEVEL ' + (Game.levelIndex+1) + ' COMPLETE!';
+  },
+
+  nextWaypoint: function () {
+    this.waypointIndex++;
+    Game.resetWaypoint();
+  },
+
+  resetWaypoint: function () {
+    this.waypoint && this.waypoint.destroy();
+    Game.initWaypoint();
+    this.navigator.setWaypointPosition(this.waypoint.x, this.waypoint.y);
+    this.countdown.start(10000);
+  },
+
+  isGameComplete: function () {
+    return this.levels.length === (this.levelIndex + 1);
+  },
+
+  resetLevels: function() {
+    this.levelIndex = 0;
+  },
+
+  nextLevel: function() {
+    this.levelIndex++;
+  },
+
   start:function () {
     Game.initOptions();
+    Game.initLevels();
 
     Crafty.init(Game.width(), Game.height());
     Crafty.viewport.init(Game.viewportWidth(), Game.viewportHeight());

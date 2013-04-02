@@ -7,16 +7,7 @@ Crafty.scene('Game', function() {
   this.player = Crafty.e('Car').at(3, 18);
   this.player.setName("Player");
 
-  this.waypoint = Crafty.e('Waypoint').at(5, 5);
-  this.waypoint.setName("Waypoint");
-
-  this.countdown = Crafty.e('Countdown');
-  this.countdown.setName("Countdown");
-  this.countdown.start(10000);
-
-  this.navigator = Crafty.e('Navigator');
-  this.navigator.setName("Navigator");
-  this.navigator.setWaypointPosition(this.waypoint.x, this.waypoint.y);
+  Game.initLevel();
 
 //  this.block = Crafty.e('Block').at(1, 1);
 
@@ -38,8 +29,12 @@ Crafty.scene('Game', function() {
 
   // Show the victory screen once all waypoints are reached
   this.show_victory = function() {
-    Crafty.trigger('SceneEnding', this);
-    Crafty.scene('Victory');
+    if (Game.isLevelComplete()) {
+      Crafty.trigger('SceneEnding', this);
+      Crafty.scene('Victory');
+    } else {
+      Game.nextWaypoint();
+    }
   }
   this.bind('WaypointReached', this.show_victory);
 
@@ -102,7 +97,7 @@ Crafty.scene('Loading', function(){
 // -------------
 Crafty.scene('Victory', function() {
   var levelComplete = Crafty.e('2D, DOM, Text');
-  levelComplete.text('LEVEL COMPLETE!')
+  levelComplete.text(Game.getLevelCompleteMessage)
   x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
   y = Crafty.viewport.height/2 - Crafty.viewport.y - 60;
   levelComplete.attr({ x: x, y: y, w: 320 })
@@ -116,6 +111,11 @@ Crafty.scene('Victory', function() {
 
   this.restart_game = function() {
     if (!delay) {
+      if (Game.isGameComplete()) {
+        Game.resetLevels();
+      } else {
+        Game.nextLevel();
+      }
       Crafty.scene('Game');
     }
   };
