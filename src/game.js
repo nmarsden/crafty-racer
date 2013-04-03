@@ -38,7 +38,9 @@ Game = {
   },
 
   playMusic:function () {
-    Crafty.audio.play('music', -1, 1.0);
+    if (Game.options.music) {
+      Crafty.audio.play('music', -1, 1.0);
+    }
   },
 
   unpauseMusic:function () {
