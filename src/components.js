@@ -132,10 +132,10 @@ Crafty.c('ShowFPS', {
 Crafty.c('Countdown', {
   init: function() {
     this.requires('2D, DOM, Text');
-    var element = $("#countdown")[0];
-    this.DOM(element);
-    this.x = Game.viewportWidth() - 85;
-    this.y = 5;
+    this.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'Arial' });
+    this.textColor('#FFFFFF');
+    this.attr({ w: 100 });
+
     this.complete = false;
     this.paused = false;
 
@@ -143,6 +143,10 @@ Crafty.c('Countdown', {
     this.totalTime = 0;
 
     this.bind("EnterFrame", function() {
+      var x = Crafty.viewport.width - Crafty.viewport.x - this.w;
+      var y = - Crafty.viewport.y + 105;
+      this.attr({ x: x, y: y - 100 });
+
       if (this.complete || this.paused) {
         return;
       }
@@ -163,20 +167,6 @@ Crafty.c('Countdown', {
     this.bind("Unpause", function() {
       this.startTime = Date.now();
       this.paused = false;
-    });
-
-    this.bind('SceneEnding', function() {
-      // Hack: We clear the _element here before the scene ends to avoid an error (and also prevent
-      // our DOM element being removed)
-      // Long Explanation:
-      // When a scene ends, all the entities are removed, and removing an entity with a DOM component
-      // results in the DOM component's undraw() method attempting to remove the _element from the stage via...
-      //  <code>Crafty.stage.inner.removeChild(this._element);</code>
-      // which causes a NotFoundError
-      // In our case, since our DOM element is explicitly defined in the HTML and we are setting this
-      // component's element via the DOM() method, the element has not been added to the stage, and in any case,
-      // we don't want to remove the element when this component is removed
-      this._element = null;
     });
   },
 

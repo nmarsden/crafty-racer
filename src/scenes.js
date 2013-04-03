@@ -30,7 +30,6 @@ Crafty.scene('Game', function() {
   // Show the victory screen once all waypoints are reached
   this.show_victory = function() {
     if (Game.isLevelComplete()) {
-      Crafty.trigger('SceneEnding', this);
       Crafty.scene('Victory');
     } else {
       Game.nextWaypoint();
@@ -40,7 +39,6 @@ Crafty.scene('Game', function() {
 
   // Show the game over screen when time is up
   this.show_game_over = function() {
-    Crafty.trigger('SceneEnding', this);
     Crafty.scene('GameOver');
   }
   this.bind('TimesUp', this.show_game_over);
