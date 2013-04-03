@@ -18,6 +18,20 @@ Crafty.c('Grid', {
   }
 });
 
+Crafty.c('FlashingText', {
+  init: function() {
+    this.requires('Text');
+    this.css({
+      '-moz-animation-duration': '2s',
+      '-webkit-animation-duration': '2s',
+      '-moz-animation-name': 'flash',
+      '-webkit-animation-name': 'flash',
+      '-moz-animation-iteration-count': 'infinite',
+      '-webkit-animation-iteration-count': 'infinite'
+    });
+  }
+});
+
 Crafty.c('Actor', {
   init: function() {
     this.requires('2D, Canvas, Grid');
@@ -224,19 +238,10 @@ Crafty.c('PauseControl', {
     this.pauseText.textFont({ type: 'normal', weight: 'normal', size: '60px', family: 'Arial' })
     this.pauseText.textColor('#0061FF');
 
-    this.pressAnyKey = Crafty.e('2D, DOM, Text');
+    this.pressAnyKey = Crafty.e('2D, DOM, FlashingText');
     this.pressAnyKey.attr({ w: 320 })
     this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '20px', family: 'Arial' })
     this.pressAnyKey.textColor('#0061FF');
-
-    this.pressAnyKey.css({
-      '-moz-animation-duration': '2s',
-      '-webkit-animation-duration': '2s',
-      '-moz-animation-name': 'flash',
-      '-webkit-animation-name': 'flash',
-      '-moz-animation-iteration-count': 'infinite',
-      '-webkit-animation-iteration-count': 'infinite'
-    });
 
     this.bind('KeyDown', function () {
       if (this.isDown('SPACE')) {

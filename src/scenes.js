@@ -104,20 +104,11 @@ Crafty.scene('Victory', function() {
   levelComplete.textFont({ type: 'normal', weight: 'bold', size: '50px', family: 'Arial' })
   levelComplete.textColor('#0061FF');
 
-  var pressAnyKey = Crafty.e('2D, DOM, Text');
+  var pressAnyKey = Crafty.e('2D, DOM, FlashingText');
   pressAnyKey.attr({ x: x, y: y + 120, w: 320 })
   pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
   pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '20px', family: 'Arial' })
   pressAnyKey.textColor('#0061FF');
-
-  pressAnyKey.css({
-    '-moz-animation-duration': '2s',
-    '-webkit-animation-duration': '2s',
-    '-moz-animation-name': 'flash',
-    '-webkit-animation-name': 'flash',
-    '-moz-animation-iteration-count': 'infinite',
-    '-webkit-animation-iteration-count': 'infinite'
-  });
 
   // After a short delay, watch for the player to press a key, then restart
   // the game when a key is pressed
@@ -164,20 +155,11 @@ Crafty.scene('GameOver', function() {
   gameOverText.textFont({ type: 'normal', weight: 'bold', size: '50px', family: 'Arial' })
   gameOverText.textColor('#0061FF');
 
-  var pressAnyKey = Crafty.e('2D, DOM, Text');
+  var pressAnyKey = Crafty.e('2D, DOM, FlashingText');
   pressAnyKey.attr({ x: x, y: y + 60, w: 320 })
   pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
   pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '20px', family: 'Arial' })
   pressAnyKey.textColor('#0061FF');
-
-  pressAnyKey.css({
-    '-moz-animation-duration': '2s',
-    '-webkit-animation-duration': '2s',
-    '-moz-animation-name': 'flash',
-    '-webkit-animation-name': 'flash',
-    '-moz-animation-iteration-count': 'infinite',
-    '-webkit-animation-iteration-count': 'infinite'
-  });
 
   // After a short delay, watch for the player to press a key, then restart
   // the game when a key is pressed
