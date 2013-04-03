@@ -20,6 +20,7 @@ Game = {
   waypoint:null,
   navigator:null,
   countdown:null,
+  levelIndicator:null,
 
   width:function () {
     return this.map_grid.width * this.map_grid.tile.width;
@@ -115,10 +116,16 @@ Game = {
     this.countdown.setName("Countdown");
   },
 
+  initLevelIndicator: function () {
+    this.levelIndicator = Crafty.e('LevelIndicator');
+    this.levelIndicator.setName("LevelIndicator");
+  },
+
   initLevel: function () {
     this.waypointIndex = 0;
     Game.initNavigator();
     Game.initCountdown();
+    Game.initLevelIndicator();
     Game.resetWaypoint();
   },
 
@@ -126,8 +133,12 @@ Game = {
     return this.levels[this.levelIndex].waypoints.length === (this.waypointIndex + 1);
   },
 
+  getLevelNumber: function() {
+    return Game.levelIndex + 1;
+  },
+
   getLevelCompleteMessage: function () {
-    return 'LEVEL ' + (Game.levelIndex+1) + ' COMPLETE!';
+    return 'LEVEL ' + Game.getLevelNumber() + ' COMPLETE!';
   },
 
   nextWaypoint: function () {

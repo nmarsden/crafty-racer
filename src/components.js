@@ -197,12 +197,46 @@ Crafty.c('Countdown', {
   }
 });
 
+Crafty.c('LevelIndicator', {
+  init: function() {
+    this.requires('2D, DOM, Text');
+    this.h = 30;
+    this.w = 100;
+    this.textFont({ type: 'normal', weight: 'bold', size: '20px', family: 'Arial' });
+    this.css('text-align', 'left');
+    this.textColor('#0061FF');
+    this.text("LEVEL " + Game.getLevelNumber());
+
+    this.bind("EnterFrame", function() {
+      this.x = 10 - Crafty.viewport.x;
+      this.y = Game.viewportHeight() - this.h - Crafty.viewport.y;
+    });
+  }
+});
+
 Crafty.c('PauseControl', {
   init: function() {
-    this.requires('2D, DOM, Keyboard, Text, Grid');
+    this.requires('2D, DOM, Keyboard');
     this.paused = false;
-    var element = $("#paused")[0];
-    this.DOM(element);
+
+    this.pauseText = Crafty.e('2D, DOM, Text');
+    this.pauseText.attr({ w: 320 })
+    this.pauseText.textFont({ type: 'normal', weight: 'normal', size: '60px', family: 'Arial' })
+    this.pauseText.textColor('#0061FF');
+
+    this.pressAnyKey = Crafty.e('2D, DOM, Text');
+    this.pressAnyKey.attr({ w: 320 })
+    this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '20px', family: 'Arial' })
+    this.pressAnyKey.textColor('#0061FF');
+
+    this.pressAnyKey.css({
+      '-moz-animation-duration': '2s',
+      '-webkit-animation-duration': '2s',
+      '-moz-animation-name': 'flash',
+      '-webkit-animation-name': 'flash',
+      '-moz-animation-iteration-count': 'infinite',
+      '-webkit-animation-iteration-count': 'infinite'
+    });
 
     this.bind('KeyDown', function () {
       if (this.isDown('SPACE')) {
@@ -217,31 +251,26 @@ Crafty.c('PauseControl', {
       }
     });
 
-    this.bind('SceneEnding', function() {
-      // Hack: We clear the _element here before the scene ends to avoid an error (and also prevent
-      // our DOM element being removed)
-      // Long Explanation:
-      // When a scene ends, all the entities are removed, and removing an entity with a DOM component
-      // results in the DOM component's undraw() method attempting to remove the _element from the stage via...
-      //  <code>Crafty.stage.inner.removeChild(this._element);</code>
-      // which causes a NotFoundError
-      // In our case, since our DOM element is explicitly defined in the HTML and we are setting this
-      // component's element via the DOM() method, the element has not been added to the stage, and in any case,
-      // we don't want to remove the element when this component is removed
-      this._element = null;
-    });
-
   },
 
   togglePause: function() {
     this.paused = !this.paused;
     if (this.paused) {
       Crafty.audio.mute();
-      this.x = Game.width() / 8 - (40 * 6)/2;
-      this.text('PAUSED');
-      this.css("visibility", "visible");
+
+      var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
+      var y = Crafty.viewport.height/2 - Crafty.viewport.y;
+
+      this.pauseText.attr({ x: x, y: y - 100 });
+      this.pauseText.text("PAUSED");
+
+      this.pressAnyKey.attr({ x: x, y: y + 30 });
+      this.pressAnyKey.text("PRESS SPACE TO CONTINUE");
+
     } else {
-      this.css("visibility", "hidden");
+      this.pauseText.text("");
+      this.pressAnyKey.text("");
+
       Crafty.audio.unmute();
       // Actually unpause the game
       Crafty.pause();
