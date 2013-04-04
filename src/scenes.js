@@ -86,6 +86,7 @@ Crafty.scene('Loading', function(){
     engine_rev:         ['assets/engine_rev.ogg'],
     engine_rev_faster:  ['assets/engine_rev_faster.ogg'],
     wheel_spin:         ['assets/wheel_spin.ogg'],
+    woop:               ['assets/woop.ogg'],
     music:              ['assets/Happy Bee.mp3']
   });
 

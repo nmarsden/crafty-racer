@@ -32,6 +32,44 @@ Crafty.c('FlashingText', {
   }
 });
 
+Crafty.c('TipText', {
+  init: function() {
+    this.requires('2D, DOM, Text');
+    this.delay = 10;
+    this.animating = false;
+    this.startTime = Date.now();
+    this.attr({ w: 320 })
+    this.textFont({ type: 'normal', weight: 'bold', size: '20px', family: 'Arial' })
+    this.textColor('#0061FF');
+
+    var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
+    var y = Crafty.viewport.height/2 - Crafty.viewport.y;
+
+    this.attr({ x: x, y: y - 100 });
+    this.text("WOOHOO!");
+    this.css({
+      'transition-property': 'opacity, top',
+      'transition-duration': '4s, 1s',
+      'transition-timing-function': 'ease'
+    });
+
+    this.bind("EnterFrame", function() {
+      var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
+      var y = Crafty.viewport.height/2 - Crafty.viewport.y;
+      this.attr({ x: x, y: y - 100 });
+
+      if (this.animating) {
+        return;
+      }
+      var timeElapsed = Date.now() - this.startTime;
+      if (timeElapsed > this.delay) {
+        this.animating = true;
+        this.css({ 'top': '-50px', 'opacity': '0.0' });
+      }
+    });
+  }
+});
+
 Crafty.c('Actor', {
   init: function() {
     this.requires('2D, Canvas, Grid');
@@ -59,10 +97,9 @@ Crafty.c('WaypointHitBox', {
   },
 
   reached: function() {
-    // TODO play a sound to indicate a waypoint has been reached
-    // TODO destroy this waypoint
-    //this.destroy();
-    //Crafty.audio.play('knock');
+    Crafty.audio.play('woop');
+    Crafty.e('TipText').setName("TipText");
+
     Crafty.trigger('WaypointReached', this);
   }
 
@@ -72,6 +109,17 @@ Crafty.c('Waypoint', {
   init: function() {
     this.requires('Actor, spr_waypoint');
     this.z = -1;
+
+    // Uncomment to slowly rotate waypoint
+    // ===================================
+    /*
+    this.origin(96/2, 96/2);
+
+    this.bind("EnterFrame", function() {
+      this.rotation = (this.rotation + 1) % 360;
+    });
+    */
+
     Crafty.e('WaypointHitBox').attachToWaypoint(this);
   }
 });

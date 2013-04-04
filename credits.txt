@@ -10,6 +10,7 @@ Graphics:
 Sound FX:
 * freeSFX (http://www.freesfx.co.uk)
 * Partners In Rhyme (http://www.partnersinrhyme.com && http://autospeak.com)
+* SoundBible (http://soundbible.com)
 
 Music:
 * Incompetech (http://incompetech.com/music/royalty-free/)
@@ -24,3 +25,4 @@ Sound FX
 car_skidding.mp3 - http://www.freesfx.co.uk/download/?type=mp3&id=810
 auto_car_rev_up_squeal_away.mp3 - http://www.freesfx.co.uk/download/?type=mp3&id=804
 vwbuggy.wav - http://autospeak.com/grpsnda/vwbuggy.wav
+woopwoop.mp3 - http://soundbible.com/1377-Woop-Woop.html

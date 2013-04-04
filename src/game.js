@@ -63,7 +63,7 @@ Game = {
 
   playSoundEffect:function (effectName, volume) {
     if (Game.options.sfx) {
-      Game.stopAllSoundsExcept(effectName, "music");
+      Game.stopAllSoundsExcept(effectName, "music", "woop");
       Crafty.audio.play(effectName, -1, volume);
     }
   },
@@ -96,8 +96,11 @@ Game = {
   },
 
   initLevels:function () {
-    this.levels[0] = {waypoints: [{x:5,y:5},{x:10,y:10}]};
-    this.levels[1] = {waypoints: [{x:3,y:3},{x:1,y:1}]};
+    this.levels[0] = {waypoints: [{x:5,y:5},{x:10,y:10},{x:5,y:10},{x:7,y:7},{x:7,y:12}]};
+    this.levels[1] = {waypoints: [{x:10,y:10},{x:5,y:10},{x:7,y:7},{x:7,y:12},{x:5,y:5}]};
+    this.levels[2] = {waypoints: [{x:5,y:10},{x:7,y:7},{x:7,y:12},{x:5,y:5},{x:10,y:10}]};
+    this.levels[3] = {waypoints: [{x:7,y:7},{x:7,y:12},{x:5,y:5},{x:10,y:10},{x:5,y:10}]};
+    this.levels[4] = {waypoints: [{x:7,y:12},{x:5,y:5},{x:10,y:10},{x:5,y:10},{x:7,y:7}]};
   },
 
   initWaypoint: function () {
