@@ -128,16 +128,13 @@ Crafty.c('Navigator', {
   init: function() {
     this.requires('Actor, spr_navigator');
     this.z = 2;
-
+    this.origin(96/2, 96/2);
+    this.updatePosition();
     this.setWaypointPosition(100, 100);
 
-    this.bind("EnterFrame", function() {
-      this.x = Game.viewportWidth() - this.w - Crafty.viewport.x;
-      this.y = Game.viewportHeight() - this.h - Crafty.viewport.y;
-      this.origin(96/2, 96/2);
-    });
-
     this.bind("PlayerMoved", function(playerPosition) {
+      this.updatePosition();
+
       if (!this.waypointPosition) {
         this.rotation = 0;
       } else {
@@ -149,6 +146,11 @@ Crafty.c('Navigator', {
         this.rotation = (angle - 90) % 360;
       }
     });
+  },
+
+  updatePosition: function() {
+    this.x = Game.viewportWidth() - this.w - Crafty.viewport.x + 5;
+    this.y = Game.viewportHeight() - this.h - Crafty.viewport.y + 5;
   },
 
   setWaypointPosition:function (x, y) {
@@ -183,6 +185,7 @@ Crafty.c('Countdown', {
     this.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'Arial' });
     this.textColor('#FFFFFF');
     this.attr({ w: 100 });
+    this._updatePosition();
 
     this.complete = false;
     this.paused = false;
@@ -190,11 +193,9 @@ Crafty.c('Countdown', {
     this.startTime = Date.now();
     this.totalTime = 0;
 
-    this.bind("EnterFrame", function() {
-      var x = Crafty.viewport.width - Crafty.viewport.x - this.w;
-      var y = - Crafty.viewport.y + 105;
-      this.attr({ x: x, y: y - 100 });
+    this.bind("PlayerMoved", this._updatePosition);
 
+    this.bind("EnterFrame", function() {
       if (this.complete || this.paused) {
         return;
       }
@@ -216,6 +217,12 @@ Crafty.c('Countdown', {
       this.startTime = Date.now();
       this.paused = false;
     });
+  },
+
+  _updatePosition:function () {
+    var x = Crafty.viewport.width - Crafty.viewport.x - this.w - 5;
+    var y = - Crafty.viewport.y + 105;
+    this.attr({ x: x, y: y - 100 });
   },
 
   _timeLeft:function() {
@@ -258,11 +265,14 @@ Crafty.c('LevelIndicator', {
     this.css('text-align', 'left');
     this.textColor('#0061FF');
     this.text("LEVEL " + Game.getLevelNumber());
+    this.updatePosition();
 
-    this.bind("EnterFrame", function() {
-      this.x = 10 - Crafty.viewport.x;
-      this.y = Game.viewportHeight() - this.h - Crafty.viewport.y;
-    });
+    this.bind("PlayerMoved", this.updatePosition);
+  },
+
+  updatePosition: function() {
+    this.x = 10 - Crafty.viewport.x;
+    this.y = Game.viewportHeight() - this.h - Crafty.viewport.y;
   }
 });
 
@@ -322,6 +332,9 @@ Crafty.c('PauseControl', {
 
 });
 
+// TODO Fix bug where sometimes the car gets stuck when trying to move away from an obstacle which is behind the car.
+// TODO  - possible solution 1: allow car to be reversed so that you can reverse away from the obstacle rather than trying to steer away
+// TODO  - possible solution 2: change the logic in the stopMovement() function
 Crafty.c('Car', {
   init: function() {
     this.speed = 4;
@@ -333,6 +346,9 @@ Crafty.c('Car', {
 
     this.requires('Actor, Keyboard, Collision, spr_car, SpriteAnimation')
       .stopOnSolids()
+
+    this.attr({z:1000});
+    this.collision( new Crafty.polygon([35,15],[63,15],[63,68],[35,68]) );
 
     this.onHit('WaypointHitBox', this.waypointReached);
 
@@ -415,24 +431,14 @@ Crafty.c('Car', {
       this.x += this.movement.x;
       this.y += this.movement.y;
 
+      //set z-index
+      var z = this._y;
+      //console.log("Car:", "z", z);
+      this.z = Math.floor(z);
+
       // TODO Use pre-calculated bounding box based on direction
-      // TODO Determine why bounding box is not honoured
-//          var boundingBox = this.boundingPolygon(this.direction, this.w, this.h);
-//          this.collision(boundingBox);
-
-      var bb = this.boundingPolygon(this.direction, this.w, this.h);
-      var points = bb.points;
-
-      this.map = bb;
-      this.map.shift(this.x, this.y);
-
-      // TODO Attempting to set _mbr to ensure bounding box is used unfortunately causes rending issues for the car for some unknown reason
-//          this._mbr = {
-//            _x: points[0][0], //minx,
-//            _y: points[0][1], //miny,
-//            _w: points[1][0] - points[0][0], //maxx - minx,
-//            _h: points[2][1] - points[0][1] //maxy - miny
-//          };
+      var boundingBox = this.boundingPolygon(this.direction, this.w, this.h);
+      this.collision(boundingBox);
 
       //console.log("Player:", "x", this.x, "y", this.y);
 
@@ -475,21 +481,17 @@ Crafty.c('Car', {
   // Stops the movement
   stopMovement: function() {
     if (this.moving) {
+      //console.log("StopMovement called:", "x", this.x, "y", this.y);
       this.x -= this.movement.x;
       this.y -= this.movement.y;
     }
   },
 
   boundingPolygon: function(direction, w, h) {
-//    var LEFT_PADDING = 40;
-//    var TOP_PADDING = 40;
-//    var RIGHT_PADDING = 40;
-//    var BOTTOM_PADDING = 40;
-
-    var LEFT_PADDING = 29;
-    var TOP_PADDING = 10;
-    var RIGHT_PADDING = 24;
-    var BOTTOM_PADDING = 20;
+    var LEFT_PADDING = 35;
+    var TOP_PADDING = 15;
+    var RIGHT_PADDING = 35;
+    var BOTTOM_PADDING = 30;
 
     var DEG_TO_RAD = Math.PI / 180;
     var polygon = new Crafty.polygon(

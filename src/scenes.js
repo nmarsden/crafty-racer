@@ -4,28 +4,50 @@ Crafty.scene('Game', function() {
   this.pauseControl = Crafty.e('PauseControl');
   this.pauseControl.setName("PauseControl");
 
-  this.player = Crafty.e('Car').at(3, 18);
+  Crafty.viewport.scroll('_x', 0);
+  Crafty.viewport.scroll('_y', 0);
+
+  Crafty.e("2D, Canvas, TiledMapBuilder").setMapDataSource( SOURCE_FROM_TILED_MAP_EDITOR )
+    .createWorld( function( tiledmap ){
+
+      // Set properties of entities on the 'Solid_Sides' layer
+      for (var obstacle = 0; obstacle < tiledmap.getEntitiesInLayer('Solid_Sides').length; obstacle++){
+        var entity = tiledmap.getEntitiesInLayer('Solid_Sides')[obstacle];
+
+        //Set z-index for correct view: front, back
+        entity.z = Math.floor(entity._y );
+
+        // Set collision settings
+        entity.addComponent("Collision, Solid")
+        entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
+
+        // Hide collision marker
+        if (entity.__image === "assets/Collision_Marker.png") {
+          entity._visible = false;
+        }
+      }
+
+      // Set properties of entities on the 'Solid_Tops' layer
+      for (var obstacle = 0; obstacle < tiledmap.getEntitiesInLayer('Solid_Tops').length; obstacle++){
+
+        //Set z-index for correct view: front, back
+        var solidTop = tiledmap.getEntitiesInLayer('Solid_Tops')[obstacle];
+        solidTop.z = Math.floor(solidTop._y + solidTop._h);
+      }
+
+    });
+
+  this.player = Crafty.e('Car').at(1,7);
   this.player.setName("Player");
-
-  Game.initLevel();
-
-//  this.block = Crafty.e('Block').at(1, 1);
-
-  // uncomment to show FPS
-//  this.showFps = Crafty.e('ShowFPS');
-//  this.showFps.setName("ShowFPS");
 
   Crafty.viewport.scroll('_x', Crafty.viewport.width/2 - this.player.x - this.player.w/2);
   Crafty.viewport.scroll('_y', Crafty.viewport.height/2 - this.player.y - this.player.h/2);
 
-//  for(var x=0; x<=Game.map_grid.width; x++) {
-//    Crafty.e('Block').at(x, 0);
-//    Crafty.e('Block').at(x, Game.map_grid.height);
-//  }
-//  for(var y=1; y<Game.map_grid.height; y++) {
-//    Crafty.e('Block').at(0, y);
-//    Crafty.e('Block').at(Game.map_grid.width, y);
-//  }
+  Game.initLevel();
+
+  // uncomment to show FPS
+//  this.showFps = Crafty.e('ShowFPS');
+//  this.showFps.setName("ShowFPS");
 
   // Show the victory screen once all waypoints are reached
   this.show_victory = function() {
@@ -63,7 +85,11 @@ Crafty.scene('Loading', function(){
 
   Crafty.load([
     'assets/car.png',
-    'assets/block.png'
+    'assets/block.png',
+    'assets/waypoint.png',
+    'assets/navigator.png',
+    "assets/Iso_Cubes_01_128x128_Alt_00_003.png",
+    "assets/Iso_Cubes_01_128x128_Alt_00_004.png"
   ], function(){
     Crafty.sprite(98, 'assets/car.png', {
       spr_car:  [6, 1]

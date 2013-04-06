@@ -153,7 +153,8 @@ Game = {
     this.waypoint && this.waypoint.destroy();
     Game.initWaypoint();
     this.navigator.setWaypointPosition(this.waypoint.x, this.waypoint.y);
-    this.countdown.start(10000);
+    this.countdown.start(1000000);
+//    this.countdown.start(10000);
   },
 
   isGameComplete: function () {
@@ -174,6 +175,7 @@ Game = {
 
     Crafty.init(Game.width(), Game.height());
     Crafty.viewport.init(Game.viewportWidth(), Game.viewportHeight());
+    Crafty.viewport.clampToEntities=false;
     Crafty.viewport.bounds = {
       min:{x:0, y:0},
       max:{x:Game.width(), y:Game.height()}
