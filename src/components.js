@@ -511,6 +511,9 @@ Crafty.c('Car', {
 
       Crafty.trigger("PlayerMoved",{x:this.x, y:this.y});
     }
+
+    //console.log("EnterFrame: player: x", this.x, "y", this.y, "z", this.z, "w", this.w, "h", this.h);
+
   },
 
   waypointReached: function(data) {

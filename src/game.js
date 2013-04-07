@@ -21,6 +21,7 @@ Game = {
   navigator:null,
   countdown:null,
   levelIndicator:null,
+  NUMBER_OF_WAYPOINTS:10,
 
   width:function () {
     return this.map_grid.width * this.map_grid.tile.width;
@@ -96,16 +97,17 @@ Game = {
   },
 
   initLevels:function () {
-    this.levels[0] = {waypoints: [{x:5,y:5},{x:10,y:10},{x:5,y:10},{x:7,y:7},{x:7,y:12}]};
-    this.levels[1] = {waypoints: [{x:10,y:10},{x:5,y:10},{x:7,y:7},{x:7,y:12},{x:5,y:5}]};
-    this.levels[2] = {waypoints: [{x:5,y:10},{x:7,y:7},{x:7,y:12},{x:5,y:5},{x:10,y:10}]};
-    this.levels[3] = {waypoints: [{x:7,y:7},{x:7,y:12},{x:5,y:5},{x:10,y:10},{x:5,y:10}]};
-    this.levels[4] = {waypoints: [{x:7,y:12},{x:5,y:5},{x:10,y:10},{x:5,y:10},{x:7,y:7}]};
+    this.levels[0] = {waypoints: {}};
+    this.levels[1] = {waypoints: {}};
+    this.levels[2] = {waypoints: {}};
   },
 
   initWaypoint: function () {
     var waypoint = this.levels[this.levelIndex].waypoints[this.waypointIndex];
-    this.waypoint = Crafty.e('Waypoint').at(waypoint.x, waypoint.y);
+    this.waypoint = Crafty.e('Waypoint');
+    this.waypoint.x = waypoint.x;
+    this.waypoint.y = waypoint.y;
+    //this.waypoint = Crafty.e('Waypoint').at(waypoint.x, waypoint.y);
     this.waypoint.setName("Waypoint");
   },
 
@@ -133,7 +135,7 @@ Game = {
   },
 
   isLevelComplete: function () {
-    return this.levels[this.levelIndex].waypoints.length === (this.waypointIndex + 1);
+    return this.NUMBER_OF_WAYPOINTS === (this.waypointIndex + 1);
   },
 
   getLevelNumber: function() {
@@ -142,6 +144,11 @@ Game = {
 
   getLevelCompleteMessage: function () {
     return 'LEVEL ' + Game.getLevelNumber() + ' COMPLETE!';
+  },
+
+  addWaypoint: function (idx, x, y) {
+    var level = this.levels[this.levelIndex];
+    level.waypoints[idx] = {x: x, y: y};
   },
 
   nextWaypoint: function () {
@@ -153,8 +160,8 @@ Game = {
     this.waypoint && this.waypoint.destroy();
     Game.initWaypoint();
     this.navigator.setWaypointPosition(this.waypoint.x, this.waypoint.y);
-    this.countdown.start(1000000);
-//    this.countdown.start(10000);
+//    this.countdown.start(1000000);
+    this.countdown.start(10000);
   },
 
   isGameComplete: function () {

@@ -1,6 +1,8 @@
 // Game scene
 // -------------
 Crafty.scene('Game', function() {
+  var playerPos = {x:0, y:0};
+  var WAYPOINT_TILE_FIRST_GID = 7;
   this.pauseControl = Crafty.e('PauseControl');
   this.pauseControl.setName("PauseControl");
 
@@ -35,11 +37,42 @@ Crafty.scene('Game', function() {
         solidTop.z = Math.floor(solidTop._y + solidTop._h);
       }
 
+      // Set properties of entities on the 'Objects' layer
+      for (var obstacle = 0; obstacle < tiledmap.getEntitiesInLayer('Objects').length; obstacle++){
+        var entity = tiledmap.getEntitiesInLayer('Objects')[obstacle];
+
+        // Setup player and hide player marker
+        if (entity.__image === "assets/Player_Marker.png") {
+          playerPos.x = entity._x + 15;
+          playerPos.y = entity._y - 17;
+
+          entity._visible = false;
+        }
+
+        var getWaypointIndex = function(entity) {
+          for (var index=0; index<10; index++) {
+            if (entity.has("Tile" + (WAYPOINT_TILE_FIRST_GID + index))) {
+              return index;
+            }
+          }
+        };
+
+        // Setup waypoints and hide waypoint markers
+        if (entity.__image === "assets/Waypoints_Marker.png") {
+          var waypointIndex = getWaypointIndex(entity);
+          Game.addWaypoint(waypointIndex, entity._x + 32, entity._y - 16);
+          entity._visible = false;
+        }
+      }
+
     });
 
-  this.player = Crafty.e('Car').at(1,7);
+  this.player = Crafty.e('Car');
+  this.player.x = playerPos.x;
+  this.player.y = playerPos.y;
   this.player.setName("Player");
 
+  //console.log("player: x", this.player.x, "y", this.player.y, "z", this.player.z, "w", this.player.w, "h", this.player.h);
   Crafty.viewport.scroll('_x', Crafty.viewport.width/2 - this.player.x - this.player.w/2);
   Crafty.viewport.scroll('_y', Crafty.viewport.height/2 - this.player.y - this.player.h/2);
 
