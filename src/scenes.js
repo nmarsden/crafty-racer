@@ -9,7 +9,7 @@ Crafty.scene('Game', function() {
   Crafty.viewport.scroll('_x', 0);
   Crafty.viewport.scroll('_y', 0);
 
-  Crafty.e("2D, Canvas, TiledMapBuilder").setMapDataSource( SOURCE_FROM_TILED_MAP_EDITOR )
+  Crafty.e("2D, Canvas, TiledMapBuilder").setMapDataSource( LEVELS[Game.levelIndex] )
     .createWorld( function( tiledmap ){
 
       // Set properties of entities on the 'Solid_Sides' layer

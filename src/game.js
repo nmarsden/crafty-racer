@@ -22,6 +22,7 @@ Game = {
   countdown:null,
   levelIndicator:null,
   NUMBER_OF_WAYPOINTS:10,
+  waypoints:{},
 
   width:function () {
     return this.map_grid.width * this.map_grid.tile.width;
@@ -96,14 +97,8 @@ Game = {
     });
   },
 
-  initLevels:function () {
-    this.levels[0] = {waypoints: {}};
-    this.levels[1] = {waypoints: {}};
-    this.levels[2] = {waypoints: {}};
-  },
-
   initWaypoint: function () {
-    var waypoint = this.levels[this.levelIndex].waypoints[this.waypointIndex];
+    var waypoint = this.waypoints[this.waypointIndex];
     this.waypoint = Crafty.e('Waypoint');
     this.waypoint.x = waypoint.x;
     this.waypoint.y = waypoint.y;
@@ -147,8 +142,7 @@ Game = {
   },
 
   addWaypoint: function (idx, x, y) {
-    var level = this.levels[this.levelIndex];
-    level.waypoints[idx] = {x: x, y: y};
+    this.waypoints[idx] = {x: x, y: y};
   },
 
   nextWaypoint: function () {
@@ -165,7 +159,7 @@ Game = {
   },
 
   isGameComplete: function () {
-    return this.levels.length === (this.levelIndex + 1);
+    return LEVELS.length === (this.levelIndex + 1);
   },
 
   resetLevels: function() {
@@ -178,7 +172,6 @@ Game = {
 
   start:function () {
     Game.initOptions();
-    Game.initLevels();
 
     Crafty.init(Game.width(), Game.height());
     Crafty.viewport.init(Game.viewportWidth(), Game.viewportHeight());
