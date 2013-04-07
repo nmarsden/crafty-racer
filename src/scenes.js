@@ -52,6 +52,7 @@ Crafty.scene('Game', function() {
   // Show the victory screen once all waypoints are reached
   this.show_victory = function() {
     if (Game.isLevelComplete()) {
+      Game.stopAllSoundsExcept('woop');
       Crafty.scene('Victory');
     } else {
       Game.nextWaypoint();
@@ -86,7 +87,7 @@ Crafty.scene('Loading', function(){
   Crafty.load([
     'assets/car.png',
     'assets/block.png',
-    'assets/waypoint.png',
+    'assets/waypoint_animation.png',
     'assets/navigator.png',
     "assets/Iso_Cubes_01_128x128_Alt_00_003.png",
     "assets/Iso_Cubes_01_128x128_Alt_00_004.png"
@@ -97,7 +98,7 @@ Crafty.scene('Loading', function(){
     Crafty.sprite(96, 'assets/block.png', {
       spr_block:  [0, 0]
     }, 0, 0);
-    Crafty.sprite(96, 'assets/waypoint.png', {
+    Crafty.sprite(64, 'assets/waypoint_animation.png', {
       spr_waypoint:  [0, 0]
     }, 0, 0);
     Crafty.sprite(96, 'assets/navigator.png', {
@@ -121,44 +122,13 @@ Crafty.scene('Loading', function(){
 // Victory scene
 // -------------
 Crafty.scene('Victory', function() {
-  var levelComplete = Crafty.e('2D, DOM, Text');
-  levelComplete.text(Game.getLevelCompleteMessage)
-  var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
-  var y = Crafty.viewport.height/2 - Crafty.viewport.y - 60;
-  levelComplete.attr({ x: x, y: y, w: 320 })
-  levelComplete.textFont({ type: 'normal', weight: 'bold', size: '50px', family: 'Arial' })
-  levelComplete.textColor('#0061FF');
 
-  var pressAnyKey = Crafty.e('2D, DOM, FlashingText');
-  pressAnyKey.attr({ x: x, y: y + 120, w: 320 })
-  pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
-  pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '20px', family: 'Arial' })
-  pressAnyKey.textColor('#0061FF');
-
-  // After a short delay, watch for the player to press a key, then restart
-  // the game when a key is pressed
-  var delay = true;
-  setTimeout(function() { delay = false; }, 1000);
-
-  this.restart_game = function() {
-    if (!delay) {
-      if (Game.isGameComplete()) {
-        Game.resetLevels();
-      } else {
-        Game.nextLevel();
-      }
-      Crafty.scene('Game');
-    }
-  };
-  Crafty.bind('KeyDown', this.restart_game);
+  this.levelCompleteControl = Crafty.e('LevelCompleteControl');
+  this.levelCompleteControl.setName("LevelCompleteControl");
 
   Game.stopAllSoundsExcept();
 
 }, function() {
-  // Remove our event binding from above so that we don't
-  //  end up having multiple redundant event watchers after
-  //  multiple restarts of the game
-  this.unbind('KeyDown', this.restart_game);
 });
 
 // GameOver scene

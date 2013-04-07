@@ -107,8 +107,11 @@ Crafty.c('WaypointHitBox', {
 
 Crafty.c('Waypoint', {
   init: function() {
-    this.requires('Actor, spr_waypoint');
-    this.z = -1;
+    this.requires('Actor, spr_waypoint, SpriteAnimation');
+    this.z = 1000;
+
+    this.animate('ChangeColour', 0, 0, 10); //setup animation
+    this.animate('ChangeColour', 15, -1); // start animation
 
     // Uncomment to slowly rotate waypoint
     // ===================================
@@ -274,6 +277,67 @@ Crafty.c('LevelIndicator', {
     this.x = 10 - Crafty.viewport.x;
     this.y = Game.viewportHeight() - this.h - Crafty.viewport.y;
   }
+});
+
+Crafty.c('LevelCompleteControl', {
+  init: function() {
+    this.requires('2D, DOM, Text');
+    this.showLoadingMessage = false;
+    this.keyPressDelay = true;
+
+    this.levelComplete = Crafty.e('2D, DOM, Text');
+    this.levelComplete.text(Game.getLevelCompleteMessage)
+    var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
+    var y = Crafty.viewport.height/2 - Crafty.viewport.y - 60;
+    this.levelComplete.attr({ x: x, y: y, w: 320 })
+    this.levelComplete.textFont({ type: 'normal', weight: 'bold', size: '50px', family: 'Arial' })
+    this.levelComplete.textColor('#0061FF');
+
+    this.pressAnyKey = Crafty.e('2D, DOM, FlashingText');
+    this.pressAnyKey.attr({ x: x, y: y + 120, w: 320 })
+    this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
+    this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '20px', family: 'Arial' })
+    this.pressAnyKey.textColor('#0061FF');
+
+    // After a short delay, watch for the player to press a key, then restart
+    // the game when a key is pressed
+    setTimeout(this.enableKeyPress.bind(this), 1000);
+
+    this.bind('KeyDown', this.showLoading);
+
+    this.bind('EnterFrame', this.restartGame);
+
+    Game.stopAllSoundsExcept();
+  },
+
+  enableKeyPress: function() {
+    this.keyPressDelay = false;
+  },
+
+  enableRestart: function() {
+    this.showLoadingMessage = true;
+  },
+
+  showLoading: function() {
+    if (!this.keyPressDelay) {
+      this.pressAnyKey.text("");
+      this.levelComplete.text("Loading...");
+      // Introduce delay to ensure Loading... text is rendered before next level or restart
+      setTimeout(this.enableRestart.bind(this), 100);
+    }
+  },
+
+  restartGame: function() {
+    if (this.showLoadingMessage) {
+      if (Game.isGameComplete()) {
+        Game.resetLevels();
+      } else {
+        Game.nextLevel();
+      }
+      Crafty.scene('Game');
+    }
+  }
+
 });
 
 Crafty.c('PauseControl', {
