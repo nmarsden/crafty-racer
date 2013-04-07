@@ -306,8 +306,6 @@ Crafty.c('LevelCompleteControl', {
     this.bind('KeyDown', this.showLoading);
 
     this.bind('EnterFrame', this.restartGame);
-
-    Game.stopAllSoundsExcept();
   },
 
   enableKeyPress: function() {
@@ -320,8 +318,8 @@ Crafty.c('LevelCompleteControl', {
 
   showLoading: function() {
     if (!this.keyPressDelay) {
-      this.pressAnyKey.text("");
-      this.levelComplete.text("Loading...");
+      this.pressAnyKey.text("LOADING");
+      this.levelComplete.text("");
       // Introduce delay to ensure Loading... text is rendered before next level or restart
       setTimeout(this.enableRestart.bind(this), 100);
     }
@@ -334,6 +332,67 @@ Crafty.c('LevelCompleteControl', {
       } else {
         Game.nextLevel();
       }
+      Crafty.scene('Game');
+    }
+  }
+
+});
+
+Crafty.c('GameOverControl', {
+  init: function() {
+    this.requires('2D, DOM, Text');
+    this.showLoadingMessage = false;
+    this.keyPressDelay = true;
+
+    this.levelComplete = Crafty.e('2D, DOM, Text');
+    this.levelComplete.text("TIMES UP");
+    var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
+    var y = Crafty.viewport.height/2 - Crafty.viewport.y - 60;
+    this.levelComplete.attr({ x: x, y: y, w: 320 })
+    this.levelComplete.textFont({ type: 'normal', weight: 'bold', size: '30px', family: 'Arial' })
+    this.levelComplete.textColor('#0061FF');
+
+    this.gameOverText = Crafty.e('2D, DOM, Text');
+    this.gameOverText.text('GAME OVER!')
+    this.gameOverText.attr({ x: x, y: y + 40, w: 320 })
+    this.gameOverText.textFont({ type: 'normal', weight: 'bold', size: '50px', family: 'Arial' })
+    this.gameOverText.textColor('#0061FF');
+
+    this.pressAnyKey = Crafty.e('2D, DOM, FlashingText');
+    this.pressAnyKey.attr({ x: x, y: y + 120, w: 320 })
+    this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
+    this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '20px', family: 'Arial' })
+    this.pressAnyKey.textColor('#0061FF');
+
+    // After a short delay, watch for the player to press a key, then restart
+    // the game when a key is pressed
+    setTimeout(this.enableKeyPress.bind(this), 1000);
+
+    this.bind('KeyDown', this.showLoading);
+
+    this.bind('EnterFrame', this.restartGame);
+  },
+
+  enableKeyPress: function() {
+    this.keyPressDelay = false;
+  },
+
+  enableRestart: function() {
+    this.showLoadingMessage = true;
+  },
+
+  showLoading: function() {
+    if (!this.keyPressDelay) {
+      this.levelComplete.text("");
+      this.gameOverText.text("");
+      this.pressAnyKey.text("LOADING");
+      // Introduce delay to ensure Loading... text is rendered before next level or restart
+      setTimeout(this.enableRestart.bind(this), 100);
+    }
+  },
+
+  restartGame: function() {
+    if (this.showLoadingMessage) {
       Crafty.scene('Game');
     }
   }

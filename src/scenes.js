@@ -95,9 +95,12 @@ Crafty.scene('Game', function() {
 
   // Show the game over screen when time is up
   this.show_game_over = function() {
+    Game.stopAllSoundsExcept();
     Crafty.scene('GameOver');
   }
   this.bind('TimesUp', this.show_game_over);
+
+  //console.log("Crafty.DrawManager.total2D:", Crafty.DrawManager.total2D);
 
   Game.playMusic();
 
@@ -113,11 +116,24 @@ Crafty.scene('Game', function() {
 // Loading scene
 // -------------
 Crafty.scene('Loading', function(){
-  Crafty.e('2D, DOM, Text')
-    .text('Loading; please wait...')
-    .attr({ x: 0, y: Game.height()/2 - 24, w: Game.width() });
+
+  Crafty.viewport.scroll('_x', 0);
+  Crafty.viewport.scroll('_y', 0);
+
+  Crafty.e('2D, DOM, FlashingText')
+    .text('LOADING')
+    .textFont({ type: 'normal', weight: 'normal', size: '20px', family: 'Arial' })
+    .textColor('#0061FF')
+    .attr({ w: 320 })
+    .attr({ x: Crafty.viewport.width/2 - Crafty.viewport.x - 160, y: Crafty.viewport.height/2 - Crafty.viewport.y + 60});
 
   Crafty.load([
+    'assets/engine_idle.ogg',
+    'assets/engine_rev.ogg',
+    'assets/engine_rev_faster.ogg',
+    'assets/wheel_spin.ogg',
+    'assets/woop.ogg',
+    'assets/Happy Bee.mp3',
     'assets/car.png',
     'assets/block.png',
     'assets/waypoint_animation.png',
@@ -137,18 +153,23 @@ Crafty.scene('Loading', function(){
     Crafty.sprite(96, 'assets/navigator.png', {
       spr_navigator:  [0, 0]
     }, 0, 0);
-    Crafty.scene('Game');
-  })
 
-  // Define our sounds for later use
-  Crafty.audio.add({
-    engine_idle:        ['assets/engine_idle.ogg'],
-    engine_rev:         ['assets/engine_rev.ogg'],
-    engine_rev_faster:  ['assets/engine_rev_faster.ogg'],
-    wheel_spin:         ['assets/wheel_spin.ogg'],
-    woop:               ['assets/woop.ogg'],
-    music:              ['assets/Happy Bee.mp3']
+    // Define our sounds for later use
+    Crafty.audio.add({
+      engine_idle:        ['assets/engine_idle.ogg'],
+      engine_rev:         ['assets/engine_rev.ogg'],
+      engine_rev_faster:  ['assets/engine_rev_faster.ogg'],
+      wheel_spin:         ['assets/wheel_spin.ogg'],
+      woop:               ['assets/woop.ogg'],
+      music:              ['assets/Happy Bee.mp3']
+    });
+
+    Crafty.scene('Game');
+  }, function(e) {
+    // Progress
+    //console.log("Progress:", e.percent);
   });
+
 
 });
 
@@ -159,53 +180,15 @@ Crafty.scene('Victory', function() {
   this.levelCompleteControl = Crafty.e('LevelCompleteControl');
   this.levelCompleteControl.setName("LevelCompleteControl");
 
-  Game.stopAllSoundsExcept();
-
 }, function() {
 });
 
 // GameOver scene
 // -------------
 Crafty.scene('GameOver', function() {
-  var timesUpText = Crafty.e('2D, DOM, Text');
-  timesUpText.text('Times Up')
-  var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
-  var y = Crafty.viewport.height/2 - Crafty.viewport.y - 60;
-  timesUpText.attr({ x: x, y: y, w: 320 })
-  timesUpText.textFont({ type: 'normal', weight: 'bold', size: '40px', family: 'Arial' })
-  timesUpText.textColor('#0061FF');
 
-  var gameOverText = Crafty.e('2D, DOM, Text');
-  gameOverText.text('GAME OVER!')
-  x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
-  y = Crafty.viewport.height/2 - Crafty.viewport.y - 20;
-  gameOverText.attr({ x: x, y: y, w: 320 })
-  gameOverText.textFont({ type: 'normal', weight: 'bold', size: '50px', family: 'Arial' })
-  gameOverText.textColor('#0061FF');
-
-  var pressAnyKey = Crafty.e('2D, DOM, FlashingText');
-  pressAnyKey.attr({ x: x, y: y + 60, w: 320 })
-  pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
-  pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '20px', family: 'Arial' })
-  pressAnyKey.textColor('#0061FF');
-
-  // After a short delay, watch for the player to press a key, then restart
-  // the game when a key is pressed
-  var delay = true;
-  setTimeout(function() { delay = false; }, 1000);
-
-  this.restart_game = function() {
-    if (!delay) {
-      Crafty.scene('Game');
-    }
-  };
-  Crafty.bind('KeyDown', this.restart_game);
-
-  Game.stopAllSoundsExcept();
+  this.gameOverControl = Crafty.e('GameOverControl');
+  this.gameOverControl.setName("GameOverControl");
 
 }, function() {
-  // Remove our event binding from above so that we don't
-  //  end up having multiple redundant event watchers after
-  //  multiple restarts of the game
-  this.unbind('KeyDown', this.restart_game);
 });
