@@ -223,7 +223,7 @@ Crafty.c('Countdown', {
   },
 
   _updatePosition:function () {
-    var x = Crafty.viewport.width - Crafty.viewport.x - this.w - 5;
+    var x = Crafty.viewport.width - Crafty.viewport.x - this.w; // - 5;
     var y = - Crafty.viewport.y + 105;
     this.attr({ x: x, y: y - 100 });
   },

@@ -1,11 +1,11 @@
 Game = {
   // This defines our grid's size and the size of each of its tiles
   map_grid:{
-    width:7 * 4,
-    height:5 * 4,
+    width: 100, //7 * 4,
+    height: 100, //5 * 4,
     tile:{
-      width:98,
-      height:98
+      width:128,
+      height:64
     }
   },
 
@@ -33,11 +33,11 @@ Game = {
   },
 
   viewportWidth:function () {
-    return Game.width() / 4;
+    return 1024;
   },
 
   viewportHeight:function () {
-    return Game.height() / 4;
+    return 640;
   },
 
   playMusic:function () {
@@ -183,7 +183,8 @@ Game = {
     Crafty.background('rgb(130,192,255)');
     Crafty.scene('Loading');
 
-    Crafty.debugBar.show();
+    // Uncomment to show debug bar
+    //Crafty.debugBar.show();
   }
 
 }
