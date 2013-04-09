@@ -82,18 +82,14 @@ Crafty.c('Block', {
   }
 });
 
-Crafty.c('WaypointHitBox', {
+Crafty.c('Waypoint', {
   init: function() {
-    this.requires('Actor');
-    this.z = -1;
-    this.w = 10;
-    this.h = 10;
-  },
+    this.requires('Actor, spr_waypoint, SpriteAnimation, Collision');
+    this.collision( new Crafty.polygon([32,0],[64,16],[64,48],[32,64],[0,48],[0,16]) );
+    this.z = 1000;
 
-  attachToWaypoint: function(waypoint) {
-    waypoint.attach(this);
-    this.x = waypoint.x + 43;
-    this.y = waypoint.y + 43;
+    this.animate('ChangeColour', 0, 0, 10); //setup animation
+    this.animate('ChangeColour', 15, -1); // start animation
   },
 
   reached: function() {
@@ -103,28 +99,6 @@ Crafty.c('WaypointHitBox', {
     Crafty.trigger('WaypointReached', this);
   }
 
-});
-
-Crafty.c('Waypoint', {
-  init: function() {
-    this.requires('Actor, spr_waypoint, SpriteAnimation');
-    this.z = 1000;
-
-    this.animate('ChangeColour', 0, 0, 10); //setup animation
-    this.animate('ChangeColour', 15, -1); // start animation
-
-    // Uncomment to slowly rotate waypoint
-    // ===================================
-    /*
-    this.origin(96/2, 96/2);
-
-    this.bind("EnterFrame", function() {
-      this.rotation = (this.rotation + 1) % 360;
-    });
-    */
-
-    Crafty.e('WaypointHitBox').attachToWaypoint(this);
-  }
 });
 
 Crafty.c('Navigator', {
@@ -455,9 +429,6 @@ Crafty.c('PauseControl', {
 
 });
 
-// TODO Fix bug where sometimes the car gets stuck when trying to move away from an obstacle which is behind the car.
-// TODO  - possible solution 1: allow car to be reversed so that you can reverse away from the obstacle rather than trying to steer away
-// TODO  - possible solution 2: change the logic in the stopMovement() function
 Crafty.c('Car', {
   init: function() {
     this.speed = 4;
@@ -473,7 +444,7 @@ Crafty.c('Car', {
     this.attr({z:1000});
     this.collision( new Crafty.polygon([35,15],[63,15],[63,68],[35,68]) );
 
-    this.onHit('WaypointHitBox', this.waypointReached);
+    this.onHit('Waypoint', this.waypointReached);
 
     this.bind('KeyDown', this._keyDown);
 
@@ -605,12 +576,17 @@ Crafty.c('Car', {
   },
 
   // Stops the movement
-  stopMovement: function() {
+  stopMovement: function(hitData) {
+    // undo previous movement
     if (this.moving) {
-      //console.log("StopMovement called:", "x", this.x, "y", this.y);
       this.x -= this.movement.x;
       this.y -= this.movement.y;
     }
+    // move away from obstacle
+    // Note: not exactly sure what 'normal' is, but adding it x and y seems to avoid the car getting stuck :-)
+    var hd = hitData[0];
+    this.x += hd.normal.x;
+    this.y += hd.normal.y;
   },
 
   boundingPolygon: function(direction, w, h) {
