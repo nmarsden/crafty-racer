@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="isometric" width="10" height="10" tilewidth="128" tileheight="64">
+ <properties>
+  <property name="NoOverlappingRules" value="true"/>
+ </properties>
+ <tileset firstgid="1" name="Ground" tilewidth="128" tileheight="64">
+  <image source="../../../Users/Neil/Downloads/Iso_Cubic/Iso_Cubes_01_128x128_Alt_00_004.png" width="128" height="128"/>
+ </tileset>
+ <tileset firstgid="3" name="Solid" tilewidth="128" tileheight="64">
+  <image source="../../../Users/Neil/Downloads/Iso_Cubic/Iso_Cubes_01_128x128_Alt_00_003.png" width="128" height="128"/>
+ </tileset>
+ <tileset firstgid="5" name="Collision" tilewidth="128" tileheight="64">
+  <image source="../assets/Collision_Marker.png" width="128" height="64"/>
+ </tileset>
+ <tileset firstgid="6" name="Player" tilewidth="128" tileheight="64">
+  <image source="../assets/Player_Marker.png" width="128" height="64"/>
+ </tileset>
+ <tileset firstgid="7" name="Waypoint" tilewidth="128" tileheight="64">
+  <image source="../assets/Waypoints_Marker.png" width="1280" height="64"/>
+  <tile id="0">
+   <properties>
+    <property name="waypoint" value="1"/>
+   </properties>
+  </tile>
+  <tile id="1">
+   <properties>
+    <property name="waypoint" value="2"/>
+   </properties>
+  </tile>
+  <tile id="2">
+   <properties>
+    <property name="waypoint" value="3"/>
+   </properties>
+  </tile>
+  <tile id="3">
+   <properties>
+    <property name="waypoint" value="4"/>
+   </properties>
+  </tile>
+  <tile id="4">
+   <properties>
+    <property name="waypoint" value="5"/>
+   </properties>
+  </tile>
+  <tile id="5">
+   <properties>
+    <property name="waypoint" value="6"/>
+   </properties>
+  </tile>
+  <tile id="6">
+   <properties>
+    <property name="waypoint" value="7"/>
+   </properties>
+  </tile>
+  <tile id="7">
+   <properties>
+    <property name="waypoint" value="8"/>
+   </properties>
+  </tile>
+  <tile id="8">
+   <properties>
+    <property name="waypoint" value="9"/>
+   </properties>
+  </tile>
+  <tile id="9">
+   <properties>
+    <property name="waypoint" value="10"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="regions" width="10" height="10">
+  <data encoding="base64" compression="zlib">
+   eJxjYCAesNFI7ShAAAAROAAN
+  </data>
+ </layer>
+ <layer name="input_Solid_Sides" width="10" height="10">
+  <data encoding="base64" compression="zlib">
+   eJxjYKANYKGRucMdAAAGcAAF
+  </data>
+ </layer>
+ <layer name="output_Solid_Tops" width="10" height="10">
+  <data encoding="base64" compression="zlib">
+   eJxjYCAeMJOgdhSQBwAFvAAE
+  </data>
+ </layer>
+</map>

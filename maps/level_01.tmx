@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="isometric" width="100" height="100" tilewidth="128" tileheight="64">
+ <tileset firstgid="1" name="Ground" tilewidth="128" tileheight="64">
+  <image source="../assets/Iso_Cubes_01_128x128_Alt_00_004.png" width="128" height="128"/>
+ </tileset>
+ <tileset firstgid="3" name="Solid" tilewidth="128" tileheight="64">
+  <image source="../assets/Iso_Cubes_01_128x128_Alt_00_003.png" width="128" height="128"/>
+ </tileset>
+ <tileset firstgid="5" name="Collision" tilewidth="128" tileheight="64">
+  <image source="../assets/Collision_Marker.png" width="128" height="64"/>
+ </tileset>
+ <tileset firstgid="6" name="Player" tilewidth="128" tileheight="64">
+  <image source="../assets/Player_Marker.png" width="128" height="64"/>
+ </tileset>
+ <tileset firstgid="7" name="Waypoint" tilewidth="128" tileheight="64">
+  <image source="../assets/Waypoints_Marker.png" width="1280" height="64"/>
+  <tile id="0">
+   <properties>
+    <property name="waypoint" value="1"/>
+   </properties>
+  </tile>
+  <tile id="1">
+   <properties>
+    <property name="waypoint" value="2"/>
+   </properties>
+  </tile>
+  <tile id="2">
+   <properties>
+    <property name="waypoint" value="3"/>
+   </properties>
+  </tile>
+  <tile id="3">
+   <properties>
+    <property name="waypoint" value="4"/>
+   </properties>
+  </tile>
+  <tile id="4">
+   <properties>
+    <property name="waypoint" value="5"/>
+   </properties>
+  </tile>
+  <tile id="5">
+   <properties>
+    <property name="waypoint" value="6"/>
+   </properties>
+  </tile>
+  <tile id="6">
+   <properties>
+    <property name="waypoint" value="7"/>
+   </properties>
+  </tile>
+  <tile id="7">
+   <properties>
+    <property name="waypoint" value="8"/>
+   </properties>
+  </tile>
+  <tile id="8">
+   <properties>
+    <property name="waypoint" value="9"/>
+   </properties>
+  </tile>
+  <tile id="9">
+   <properties>
+    <property name="waypoint" value="10"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="Ground_Sides" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJzt3EGKwkAARUHJ/Q89zE6jSJsx3W9IFQRcSfMfEoTo7QbQt60+AA/0aNGjRY8WPVr0aNGjRY8WPVr0aNGjRY8WPVr0aNGjRY+WmT22u4vXZm2jwRg9WvRocf9oOWub/fYajDljp/17ajFOjxY9WmzVokeLHi16tOjRokeLHi16tOjRokeLHi16tOjRokeLHi16tOjRokeLHi16tOjRokeLHi16PD7b+u6adZarK21QOssqpQ1KZ1nl3Qaz99FDjxo9WkoblM6ySmmD0llW2Xavff9Yq7RB6SyrlDYonQU9avRo0aNFjxY9WvRo0aNFjxY9WvRo0aNFjxY9WvRo0aNFjxY9WvRo0aNFjxY9WvRo0WOekeceX/X49PlITceM7PSN/1rXY8xfe4zurMcYn4//5xtb6vHs6G8V9DjH0U30OIceLbUeV29U6nH1Fr9qPTQ5xv2jRY+W0d9eu+ZdP+RfAjs=
+  </data>
+ </layer>
+ <layer name="Ground_Tops" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJzt0TEOwjAQRcFw/0vTWikiKOJ9kFnp9faf43C1eykRj1Y8WvFoxaMVj1Y8WvFoxaMVj1Y8WvFoxaMVj1Y8WvFoxaMVj1a7PNab/nM5Hq14tLJRq10e603/udwdG523P9/0n8vxaMWjlY1a8WjFoxWPVjxa8WjFoxWPVjxa8WjFoxWPVjxa8WjFoxWPVjxa8WjFoxWPVjxa8WjFoxWPVjw+Ox48ntrVBjx48OBRqrRB6S02aL3FBq23TG9wdTx4aD4erXi04tGKRyserXi04tGKRyserXi04tGKRyserXi04tGKRyserXi04tGKRyserXi04tGKx/6t1+PBQzx+NR6teNy767fb8uDxhHi04tGKx3/EoxWPVjxaud69AcHUJRA=
+  </data>
+ </layer>
+ <layer name="Objects" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJztztkJgEAUBLD98r76r9YSVBCGp0kFaQ24cqQDAAAAwCN7OgAAAADctqUDAAAAAPCiNR0AAOKWdACAX5rTAQAAAACglCkdAAAoakwHAAAAAAob0gEAAACAwvp0AAAAAKCwLh0A4DNOE58Aeg==
+  </data>
+ </layer>
+ <layer name="Solid_Sides" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJzt28GKwjAAAFEP+v+/vFdxa6m1Tcf2PchBUAwZhBjj43a7PYzUoEGPFj1a9GjRo0WPFj1a9GjRo0WPFj1a9GjRo0WPFj1a9GjRo0WPllE9/Ba5jB4terSMWqP7gPc4A5+Plj3W6Hnt7y+P9Zi3d4/Xx3rM06PFGrUUe9wnxrvnnU2xxys9WvRo0aNFjxY9WvRo+bbH0v1zwVV6rHndEfRo0aNFj5ar9vhkjHTFHmV6tOjRokeLHi21Hp/scb45L6nusWo9rk6PFj1a9GjR4/99vakxei5XpkfL3BroMZ4eLXq0lNagNJejlNagNJejlNagNJej2O+26ME7erTo0aJHix4tekw76g6EHtP0aNFje79yx+fZmXv8Ij1a9GjRo0WPFj1a9GjRo0WPFj22s8V3ej22o8d4c+dbW5x96bHOXueNeqyjxzXoMc6Se3Z6jKNHix6/R48WPfax9m68HvvQo0WPFj1a9DgHPVr0aNGjZcl/fY2x4w+SGwv+
+  </data>
+ </layer>
+ <layer name="Solid_Tops" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJzt2lsKgCAURdHA+c+578Cemp5oLfCvINoEdmtZAAAAAAAAAAD+pcy+AAjkuQBglFJZe8cxnh5Z9MiiRxY9suiRRY8srT2u7p+5pkePJ+dRp0cWPbLokeWNHncWW7170EaPLHpk0SOLHvPc2eO0zEvssQAAAAAAAADgnG/mWfTIokd//vEBAACA//FOn0WP8Y7mW2Zf87jnWfQAAAAAAADgy1ZbCAF7
+  </data>
+ </layer>
+</map>
