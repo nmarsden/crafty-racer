@@ -13,12 +13,35 @@ Entities
 
 * Time power up - adds time to countdown
 
-* Speed power up - increases the top speed of the car for a few seconds
+* Speed power up (NOS) - increases the top speed of the car for a few seconds
 
 * Waypoint  - 10 waypoints per level
             - only the current waypoint is displayed
             - disappears when reached by car, and next waypoint displayed
             - 10th (last) waypoint is indicated in some way (different colour and/or flashing, etc..)
+
+* Sand - causes the player to slow down
+
+* Ice - causes the player to slide around and lose control
+
+* Fire - causes damage
+
+* No Ground - causes player to fall and die
+
+* Teleporter  - teleports player to destination teleporter
+              - teleporters come in pairs and are bi-directional
+
+* One Time Ground - ground is automatically destroyed once travelled over
+
+* Vertical Platform   - platform moves down and back up every few seconds
+                      - maximum height is ground level
+                      - minimum height is one cube height down from ground level
+                      - player can only enter and exit the platform when it is at ground level
+                      - platform will not move while the player is not fully on board
+
+* Horizontal Platform - platform moves horizontally back and forth every few seconds
+                      - player can only enter and exit the platform when it is touching the stationary ground
+                      - platform will not move while the player is not fully on board
 
 Level Completion
 ================
