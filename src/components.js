@@ -257,28 +257,52 @@ Crafty.c('MainMenu', {
   init: function() {
     this.requires('Menu');
 
-    this.addMenuItem("Play", this.showLevelMenu, "P");
-    this.addMenuItem("Instructions", this.instructions, "I");
-    this.addMenuItem("Settings", this.settings, "S");
-    this.addMenuItem("Credits", this.credits, "C");
-
-    this.showMenu();
+    this.addMenuItem("Play", this.showLevelMenu.bind(this), "P");
+    this.addMenuItem("Instructions", this.comingSoonHandler("Instructions").bind(this), "I");
+    this.addMenuItem("Settings", this.comingSoonHandler("Settings").bind(this), "S");
+    this.addMenuItem("Credits", this.comingSoonHandler("Credits").bind(this), "C");
   },
 
   showLevelMenu: function() {
-    Crafty.scene('Game');
+    this.hideMenu()
+    this.levelSelectMenu = Crafty.e('LevelSelectMenu');
+    this.levelSelectMenu.setName("LevelSelectMenu");
+    this.levelSelectMenu.setMenuOptions({
+      parentMenu: this
+    });
+    this.levelSelectMenu.showMenu();
   },
 
-  instructions: function() {
+  comingSoonHandler: function(name) {
+    return function() {
+      this.hideMenu()
+
+      Crafty.e('Menu')
+        .setMenuOptions({
+          parentMenu: this
+        })
+        .addMenuItem(name + " Coming Soon", this.showMenu.bind(this))
+        .showMenu();
+    }
+  }
+});
+
+Crafty.c('LevelSelectMenu', {
+  init: function() {
+    this.requires('Menu');
+
+    var numberOfLevels = Game.numberOfLevels();
+    for (var i=0; i< numberOfLevels; i++) {
+      this.addMenuItem("Level " + (i+1), this.getLevelSelectHandler(i))
+    }
 
   },
 
-  settings: function() {
-
-  },
-
-  credits: function() {
-
+  getLevelSelectHandler: function(levelIndex) {
+    return function() {
+      Game.selectLevel(levelIndex);
+      Crafty.scene('Game');
+    }
   }
 });
 
@@ -291,12 +315,20 @@ Crafty.c('Menu', {
     this.colour = '#0061FF';
     this.selectedColour = '#FFFF00';
 
-    this.bind('KeyDown', this.handleKeyDown);
-    this.bind('SelectionChanged', this.handleSelectionChanged);
+    this.options = {
+      parentMenu: null,
+      escapeKeyHidesMenu: true
+    }
   },
 
   setMenuOptions: function(options) {
-
+    if (options.parentMenu != undefined) {
+      this.options.parentMenu = options.parentMenu;
+    }
+    if (options.escapeKeyHidesMenu != undefined) {
+      this.options.escapeKeyHidesMenu = options.escapeKeyHidesMenu;
+    }
+    return this;
   },
 
   addMenuItem: function(displayName, menuItemFunction, hotKey) {
@@ -305,6 +337,7 @@ Crafty.c('Menu', {
       menuItemFunction: menuItemFunction,
       hotKey: hotKey
     });
+    return this;
   },
 
   handleSelectionChanged: function(obj) {
@@ -343,6 +376,11 @@ Crafty.c('Menu', {
     var x = 51 - Crafty.viewport.x;
     var y = 51 - Crafty.viewport.y;
 
+    this.selectedMenuIndex = 0;
+
+    this.bind('KeyDown', this.handleKeyDown);
+    this.bind('SelectionChanged', this.handleSelectionChanged);
+
     // display overlay
     var overlay = Crafty.e('2D, DOM');
     overlay.attr({ x: x, y: y, w: Crafty.viewport.width-102, h: Crafty.viewport.height-102 });
@@ -352,9 +390,8 @@ Crafty.c('Menu', {
       'background-color': '#101010',
       'background-image': 'url(assets/menu_background.png)'
     });
-    overlay.alpha = 0.6;
 
-    // diplay menu items
+    // display menu items
     x = Crafty.viewport.width/2 - Crafty.viewport.x - (width / 2) - 10;
     y = Crafty.viewport.height/2 - Crafty.viewport.y - (totalHeight / 2); //150;
     for (var i=0; i<this.menuItems.length; i++) {
@@ -386,10 +423,14 @@ Crafty.c('Menu', {
       y += 80;
     }
 
-
     // display menu instructions bottom right
-    x = Game.viewportWidth() - 270 - Crafty.viewport.x;
-    y = Game.viewportHeight() - 162 - Crafty.viewport.y;
+    this.displayMenuInstructions();
+  },
+
+  displayMenuInstructions: function() {
+    var x = Game.viewportWidth() - 270 - Crafty.viewport.x;
+    var y = Game.viewportHeight() - 162 - Crafty.viewport.y;
+    var alpha = 0.5
 
     // - up arrow / down arrow: navigate
     var upArrow = Crafty.e('2D, DOM, spr_up_arrow');
@@ -406,7 +447,7 @@ Crafty.c('Menu', {
       'padding': '5px',
       'text-align': 'left'
     });
-    navigate.textColor(textColor);
+    navigate.textColor(this.colour);
     navigate.alpha = alpha;
 
     // - enter: select
@@ -421,13 +462,28 @@ Crafty.c('Menu', {
       'padding': '5px',
       'text-align': 'left'
     });
-    select.textColor(textColor);
+    select.textColor(this.colour);
     select.alpha = alpha;
-
   },
 
   hideMenu: function() {
+    // unbind event handlers
+    this.unbind('KeyDown', this.handleKeyDown);
+    this.unbind('SelectionChanged', this.handleSelectionChanged);
+    // hide menu items
+    for(var i=0; i<this.menuItems.length; i++) {
+      var entity = this.menuItems[i].entity;
+      entity._visible = false;
+      entity.css({
+        '-moz-animation-duration': '',
+        '-moz-animation-name': '',
+        '-moz-animation-iteration-count': '',
+        '-webkit-animation-duration': '',
+        '-webkit-animation-name': '',
+        '-webkit-animation-iteration-count': ''
+      });
 
+    }
   },
 
   menuItemSelectedViaHotKey: function() {
@@ -461,8 +517,11 @@ Crafty.c('Menu', {
       selectedMenuItem.menuItemFunction();
       this.hideMenu();
 
-    } else if (this.isDown('ESC')) {
+    } else if (this.options.escapeKeyHidesMenu && this.isDown('ESC')) {
       this.hideMenu();
+      if (this.options.parentMenu) {
+        this.options.parentMenu.showMenu();
+      }
     }
 
   }

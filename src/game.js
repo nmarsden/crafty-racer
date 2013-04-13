@@ -159,7 +159,11 @@ Game = {
   },
 
   isGameComplete: function () {
-    return LEVELS.length === (this.levelIndex + 1);
+    return this.numberOfLevels() === (this.levelIndex + 1);
+  },
+
+  numberOfLevels: function () {
+    return LEVELS.length;
   },
 
   resetLevels: function() {
@@ -168,6 +172,10 @@ Game = {
 
   nextLevel: function() {
     this.levelIndex++;
+  },
+
+  selectLevel: function(levelIndex) {
+    this.levelIndex = levelIndex;
   },
 
   start:function () {

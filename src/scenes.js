@@ -4,6 +4,10 @@ Crafty.scene('Menu', function() {
 
   this.mainMenu = Crafty.e('MainMenu');
   this.mainMenu.setName("MainMenu");
+  this.mainMenu.setMenuOptions({
+    escapeKeyHidesMenu: false
+  });
+  this.mainMenu.showMenu();
 
 });
 
