@@ -33,3 +33,8 @@ auto_car_rev_up_squeal_away.mp3 - http://www.freesfx.co.uk/download/?type=mp3&id
 vwbuggy.wav - http://autospeak.com/grpsnda/vwbuggy.wav
 woopwoop.mp3 - http://soundbible.com/1377-Woop-Woop.html
 beep_1.mp3 - http://www.freesfx.co.uk/sfx/electronic%20bleep
+
+Music
+Happy Bee - http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300014
+Enter the Party - http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100240
+Show Your Moves - http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100751

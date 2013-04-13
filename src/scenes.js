@@ -1,6 +1,7 @@
 // Menu scene
 // ----------
 Crafty.scene('Menu', function() {
+  Game.playMusic('menu_music');
 
   this.mainMenu = Crafty.e('MainMenu');
   this.mainMenu.setName("MainMenu");
@@ -115,7 +116,7 @@ Crafty.scene('Game', function() {
 
   //console.log("Crafty.DrawManager.total2D:", Crafty.DrawManager.total2D);
 
-  Game.playMusic();
+  Game.playMusic('level_music');
 
 }, function() {
   // Remove our event binding from above so that we don't
@@ -148,6 +149,8 @@ Crafty.scene('Loading', function(){
     'assets/woop.ogg',
     'assets/beep_1.mp3',
     'assets/Happy Bee.mp3',
+    'assets/Enter the party.mp3',
+    'assets/Show Your Moves.mp3',
     'assets/car.png',
     'assets/block.png',
     'assets/waypoint_animation.png',
@@ -200,7 +203,9 @@ Crafty.scene('Loading', function(){
       wheel_spin:         ['assets/wheel_spin.ogg'],
       woop:               ['assets/woop.ogg'],
       menu_nav:           ['assets/beep_1.mp3'],
-      music:              ['assets/Happy Bee.mp3']
+      level_music:        ['assets/Happy Bee.mp3'],
+      menu_music:         ['assets/Enter the Party.mp3'],
+      end_level_music:    ['assets/Show Your Moves.mp3']
     });
 
     Crafty.scene('Menu');
@@ -215,6 +220,7 @@ Crafty.scene('Loading', function(){
 // Victory scene
 // -------------
 Crafty.scene('Victory', function() {
+  Game.playMusic('end_level_music');
 
   this.levelCompleteControl = Crafty.e('LevelCompleteControl');
   this.levelCompleteControl.setName("LevelCompleteControl");

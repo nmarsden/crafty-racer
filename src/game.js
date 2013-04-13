@@ -40,18 +40,19 @@ Game = {
     return 640;
   },
 
-  playMusic:function () {
+  playMusic:function (music) {
+    Game.musicPlaying = music;
     if (Game.options.music) {
-      Crafty.audio.play('music', -1, 1.0);
+      Crafty.audio.play(Game.musicPlaying, -1, 1.0);
     }
   },
 
   unpauseMusic:function () {
-    Crafty.audio.unpause('music');
+    Crafty.audio.unpause(Game.musicPlaying);
   },
 
   pauseMusic:function () {
-    Crafty.audio.pause('music');
+    Crafty.audio.pause(Game.musicPlaying);
   },
 
   toggleMusic:function () {
@@ -63,10 +64,10 @@ Game = {
     }
   },
 
-  playSoundEffect:function (effectName, volume) {
+  playSoundEffect:function (effectName, repeat, volume) {
     if (Game.options.sfx) {
-      Game.stopAllSoundsExcept(effectName, "music", "woop");
-      Crafty.audio.play(effectName, -1, volume);
+      Game.stopAllSoundsExcept(effectName, Game.musicPlaying, "woop");
+      Crafty.audio.play(effectName, repeat, volume);
     }
   },
 
@@ -82,7 +83,7 @@ Game = {
   toggleSoundEffects:function () {
     Game.options.sfx = !Game.options.sfx;
     if (!Game.options.sfx) {
-      Game.stopAllSoundsExcept("music");
+      Game.stopAllSoundsExcept(Game.musicPlaying);
     }
   },
 

@@ -93,7 +93,7 @@ Crafty.c('Waypoint', {
   },
 
   reached: function() {
-    Crafty.audio.play('woop');
+    Game.playSoundEffect('woop', 1, 1.0);
     Crafty.e('TipText').setName("TipText");
 
     Crafty.trigger('WaypointReached', this);
@@ -341,7 +341,7 @@ Crafty.c('Menu', {
   },
 
   handleSelectionChanged: function(obj) {
-    Crafty.audio.play('menu_nav');
+    Game.playSoundEffect('menu_nav', 1, 1.0);
     var oldItem = this.menuItems[obj.oldIndex].entity;
     var newItem = this.menuItems[obj.newIndex].entity;
 
@@ -778,16 +778,16 @@ Crafty.c('Car', {
       if (this.directionIncrement == 0) {
         var timeMoving = Date.now() - this.movingStartTime;
         if (timeMoving < 500) {
-          Game.playSoundEffect('engine_rev', 1.0);
+          Game.playSoundEffect('engine_rev', -1, 1.0);
         } else {
-          Game.playSoundEffect('engine_rev_faster', 1.0);
+          Game.playSoundEffect('engine_rev_faster', -1, 1.0);
           this.speed = 8;
         }
       } else {
-        Game.playSoundEffect('wheel_spin', 1.0);
+        Game.playSoundEffect('wheel_spin', -1, 1.0);
       }
     } else {
-      Game.playSoundEffect('engine_idle', 0.3);
+      Game.playSoundEffect('engine_idle', -1, 0.3);
     }
 
     if (this.moving) {
