@@ -1,3 +1,12 @@
+// Menu scene
+// ----------
+Crafty.scene('Menu', function() {
+
+  this.mainMenu = Crafty.e('MainMenu');
+  this.mainMenu.setName("MainMenu");
+
+});
+
 // Game scene
 // -------------
 Crafty.scene('Game', function() {
@@ -133,13 +142,20 @@ Crafty.scene('Loading', function(){
     'assets/engine_rev_faster.ogg',
     'assets/wheel_spin.ogg',
     'assets/woop.ogg',
+    'assets/beep_1.mp3',
     'assets/Happy Bee.mp3',
     'assets/car.png',
     'assets/block.png',
     'assets/waypoint_animation.png',
     'assets/navigator.png',
     "assets/Iso_Cubes_01_128x128_Alt_00_003.png",
-    "assets/Iso_Cubes_01_128x128_Alt_00_004.png"
+    "assets/Iso_Cubes_01_128x128_Alt_00_004.png",
+    "assets/up_arrow_51x48.png",
+    "assets/right_arrow_51x48.png",
+    "assets/down_arrow_51x48.png",
+    "assets/left_arrow_51x48.png",
+    "assets/escape_key_51x48.png",
+    "assets/enter_key_100x48.png"
   ], function(){
     Crafty.sprite(98, 'assets/car.png', {
       spr_car:  [6, 1]
@@ -153,6 +169,24 @@ Crafty.scene('Loading', function(){
     Crafty.sprite(96, 'assets/navigator.png', {
       spr_navigator:  [0, 0]
     }, 0, 0);
+    Crafty.sprite(51, 48, 'assets/up_arrow_51x48.png', {
+      spr_up_arrow:  [0, 0]
+    }, 0, 0);
+    Crafty.sprite(51, 48, 'assets/right_arrow_51x48.png', {
+      spr_right_arrow:  [0, 0]
+    }, 0, 0);
+    Crafty.sprite(51, 48, 'assets/down_arrow_51x48.png', {
+      spr_down_arrow:  [0, 0]
+    }, 0, 0);
+    Crafty.sprite(51, 48, 'assets/left_arrow_51x48.png', {
+      spr_left_arrow:  [0, 0]
+    }, 0, 0);
+    Crafty.sprite(51, 48, 'assets/escape_key_51x48.png', {
+      spr_escape_key:  [0, 0]
+    }, 0, 0);
+    Crafty.sprite(51, 48, 'assets/enter_key_100x48.png', {
+      spr_enter_key:  [0, 0]
+    }, 0, 0);
 
     // Define our sounds for later use
     Crafty.audio.add({
@@ -161,10 +195,11 @@ Crafty.scene('Loading', function(){
       engine_rev_faster:  ['assets/engine_rev_faster.ogg'],
       wheel_spin:         ['assets/wheel_spin.ogg'],
       woop:               ['assets/woop.ogg'],
+      menu_nav:           ['assets/beep_1.mp3'],
       music:              ['assets/Happy Bee.mp3']
     });
 
-    Crafty.scene('Game');
+    Crafty.scene('Menu');
   }, function(e) {
     // Progress
     //console.log("Progress:", e.percent);

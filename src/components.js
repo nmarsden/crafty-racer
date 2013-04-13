@@ -253,6 +253,222 @@ Crafty.c('LevelIndicator', {
   }
 });
 
+Crafty.c('MainMenu', {
+  init: function() {
+    this.requires('Menu');
+
+    this.addMenuItem("Play", this.showLevelMenu, "P");
+    this.addMenuItem("Instructions", this.instructions, "I");
+    this.addMenuItem("Settings", this.settings, "S");
+    this.addMenuItem("Credits", this.credits, "C");
+
+    this.showMenu();
+  },
+
+  showLevelMenu: function() {
+    Crafty.scene('Game');
+  },
+
+  instructions: function() {
+
+  },
+
+  settings: function() {
+
+  },
+
+  credits: function() {
+
+  }
+});
+
+Crafty.c('Menu', {
+  init: function() {
+    this.requires('2D, DOM, Text, Keyboard');
+    this.z = 2000;
+    this.menuItems = [];
+    this.selectedMenuIndex = 0;
+    this.colour = '#0061FF';
+    this.selectedColour = '#FFFF00';
+
+    this.bind('KeyDown', this.handleKeyDown);
+    this.bind('SelectionChanged', this.handleSelectionChanged);
+  },
+
+  setMenuOptions: function(options) {
+
+  },
+
+  addMenuItem: function(displayName, menuItemFunction, hotKey) {
+    this.menuItems.push({
+      displayName: displayName,
+      menuItemFunction: menuItemFunction,
+      hotKey: hotKey
+    });
+  },
+
+  handleSelectionChanged: function(obj) {
+    Crafty.audio.play('menu_nav');
+    var oldItem = this.menuItems[obj.oldIndex].entity;
+    var newItem = this.menuItems[obj.newIndex].entity;
+
+    oldItem.textColor(this.colour);
+    oldItem.tween({alpha: 0.5}, 60);
+    oldItem.css({
+      '-moz-animation-duration': '',
+      '-moz-animation-name': '',
+      '-moz-animation-iteration-count': '',
+      '-webkit-animation-duration': '',
+      '-webkit-animation-name': '',
+      '-webkit-animation-iteration-count': ''
+    });
+
+    newItem.textColor(this.selectedColour);
+    newItem.tween({alpha: 1.0}, 5);
+    newItem.css({
+      '-moz-animation-duration': '1s',
+      '-moz-animation-name': 'selected_menu_item',
+      '-moz-animation-iteration-count': 'infinite',
+      '-webkit-animation-duration': '1s',
+      '-webkit-animation-name': 'selected_menu_item',
+      '-webkit-animation-iteration-count': 'infinite'
+    });
+  },
+
+  showMenu: function() {
+    var width = 380;
+    var height = 60;
+    var alpha = 0.6;
+    var totalHeight = 80 * this.menuItems.length;
+    var x = 51 - Crafty.viewport.x;
+    var y = 51 - Crafty.viewport.y;
+
+    // display overlay
+    var overlay = Crafty.e('2D, DOM');
+    overlay.attr({ x: x, y: y, w: Crafty.viewport.width-102, h: Crafty.viewport.height-102 });
+    overlay.css({
+      'border-style': 'solid',
+      'border-color': this.colour,
+      'background-color': '#101010',
+      'background-image': 'url(assets/menu_background.png)'
+    });
+    overlay.alpha = 0.6;
+
+    // diplay menu items
+    x = Crafty.viewport.width/2 - Crafty.viewport.x - (width / 2) - 10;
+    y = Crafty.viewport.height/2 - Crafty.viewport.y - (totalHeight / 2); //150;
+    for (var i=0; i<this.menuItems.length; i++) {
+      var item = this.menuItems[i];
+      var menuItem = Crafty.e('2D, DOM, Text, Tween');
+      var textColor = (i === 0) ? this.selectedColour : this.colour;
+      var alpha = (i === 0) ? 1.0 : 0.5;
+      menuItem.text(item.displayName);
+      menuItem.attr({ x: x, y: y, w: width, h: height, alpha: alpha });
+      menuItem.textFont({ type: 'normal', weight: 'bold', size: '50px', family: 'Arial' });
+      menuItem.textColor(textColor);
+      if (i === 0) {
+        menuItem.css({
+          '-moz-animation-duration': '1s',
+          '-moz-animation-name': 'selected_menu_item',
+          '-moz-animation-iteration-count': 'infinite',
+          '-webkit-animation-duration': '1s',
+          '-webkit-animation-name': 'selected_menu_item',
+          '-webkit-animation-iteration-count': 'infinite'
+        });
+
+      }
+      menuItem.css({
+        'padding': '5px',
+        'text-shadow': 'rgb(179,218,255) 4px 4px 4px',
+        'text-transform': 'uppercase'
+      });
+      item.entity = menuItem;
+      y += 80;
+    }
+
+
+    // display menu instructions bottom right
+    x = Game.viewportWidth() - 270 - Crafty.viewport.x;
+    y = Game.viewportHeight() - 162 - Crafty.viewport.y;
+
+    // - up arrow / down arrow: navigate
+    var upArrow = Crafty.e('2D, DOM, spr_up_arrow');
+    upArrow.attr({ x: x, y: y,  w: 51, h: 48 });
+    upArrow.alpha = alpha;
+    var downArrow = Crafty.e('2D, DOM, spr_down_arrow');
+    downArrow.attr({ x: x+56, y: y, w: 51, h: 48 });
+    downArrow.alpha = alpha;
+    var navigate = Crafty.e('2D, DOM, Text');
+    navigate.text("navigate");
+    navigate.attr({ x: x+110, y: y, w: 100, h: 48 });
+    navigate.textFont({ type: 'normal', weight: 'normal', size: '25px', family: 'Arial' });
+    navigate.css({
+      'padding': '5px',
+      'text-align': 'left'
+    });
+    navigate.textColor(textColor);
+    navigate.alpha = alpha;
+
+    // - enter: select
+    var enterKey = Crafty.e('2D, DOM, spr_enter_key');
+    enterKey.attr({ x: x, y: y+53, w: 100, h: 48 });
+    enterKey.alpha = alpha;
+    var select = Crafty.e('2D, DOM, Text');
+    select.text("select");
+    select.attr({ x: x+110, y: y+53, w: 100, h: 48 });
+    select.textFont({ type: 'normal', weight: 'normal', size: '25px', family: 'Arial' });
+    select.css({
+      'padding': '5px',
+      'text-align': 'left'
+    });
+    select.textColor(textColor);
+    select.alpha = alpha;
+
+  },
+
+  hideMenu: function() {
+
+  },
+
+  menuItemSelectedViaHotKey: function() {
+
+  },
+
+  handleKeyDown: function() {
+    var selectedMenuItem = null;
+    var previousIndex = this.selectedMenuIndex;
+
+    if (this.isDown('UP_ARROW')) {
+      this.selectedMenuIndex--;
+      if (this.selectedMenuIndex < 0) {
+        this.selectedMenuIndex = this.menuItems.length - 1;
+      }
+      Crafty.trigger("SelectionChanged",{oldIndex:previousIndex, newIndex:this.selectedMenuIndex});
+
+    } else if (this.isDown('DOWN_ARROW')) {
+      this.selectedMenuIndex++;
+      if (this.selectedMenuIndex > this.menuItems.length - 1) {
+        this.selectedMenuIndex = 0;
+      }
+      Crafty.trigger("SelectionChanged",{oldIndex:previousIndex, newIndex:this.selectedMenuIndex});
+
+    } else if (this.isDown('ENTER')) {
+      selectedMenuItem = this.menuItems[this.selectedMenuIndex];
+      selectedMenuItem.menuItemFunction();
+      this.hideMenu();
+
+    } else if ((selectedMenuItem = this.menuItemSelectedViaHotKey()) != null) {
+      selectedMenuItem.menuItemFunction();
+      this.hideMenu();
+
+    } else if (this.isDown('ESC')) {
+      this.hideMenu();
+    }
+
+  }
+
+});
+
 Crafty.c('LevelCompleteControl', {
   init: function() {
     this.requires('2D, DOM, Text');

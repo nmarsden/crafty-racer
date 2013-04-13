@@ -9,6 +9,7 @@ Graphics:
 * Reiner “Tiles” Prokein (http://www.reinerstilesets.de)
 * Find Icons (http://findicons.com)
 * OpenGameArt.Org (http://opengameart.org)
+* WP Clipart (http://www.wpclipart.com)
 
 Sound FX:
 * freeSFX (http://www.freesfx.co.uk)
@@ -24,9 +25,11 @@ Asset Links
 Graphics
 red rally car - http://www.reinerstilesets.de/2d-grafiken/2d-vehicles/
 isometric cubes - http://opengameart.org/content/isometric-cubes-set-01
+keyboard keys - http://www.wpclipart.com/computer/keyboard_keys/
 
 Sound FX
 car_skidding.mp3 - http://www.freesfx.co.uk/download/?type=mp3&id=810
 auto_car_rev_up_squeal_away.mp3 - http://www.freesfx.co.uk/download/?type=mp3&id=804
 vwbuggy.wav - http://autospeak.com/grpsnda/vwbuggy.wav
 woopwoop.mp3 - http://soundbible.com/1377-Woop-Woop.html
+beep_1.mp3 - http://www.freesfx.co.uk/sfx/electronic%20bleep
