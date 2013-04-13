@@ -314,6 +314,7 @@ Crafty.c('Menu', {
     this.selectedMenuIndex = 0;
     this.colour = '#0061FF';
     this.selectedColour = '#FFFF00';
+    this.backgroundDrawn = false;
 
     this.options = {
       parentMenu: null,
@@ -381,15 +382,21 @@ Crafty.c('Menu', {
     this.bind('KeyDown', this.handleKeyDown);
     this.bind('SelectionChanged', this.handleSelectionChanged);
 
-    // display overlay
-    var overlay = Crafty.e('2D, DOM');
-    overlay.attr({ x: x, y: y, w: Crafty.viewport.width-102, h: Crafty.viewport.height-102 });
-    overlay.css({
-      'border-style': 'solid',
-      'border-color': this.colour,
-      'background-color': '#101010',
-      'background-image': 'url(assets/menu_background.png)'
-    });
+    if (this.options.parentMenu === null && !this.backgroundDrawn) {
+      // display overlay
+      this.backgroundDrawn = true;
+
+      var overlay = Crafty.e('2D, DOM');
+      overlay.attr({ x: x, y: y, w: Crafty.viewport.width-102, h: Crafty.viewport.height-102 });
+      overlay.css({
+        'border-style': 'solid',
+        'border-color': this.colour,
+        'background-color': '#101010',
+        'background-image': 'url(assets/menu_background.png)'
+      });
+      // display menu instructions bottom right
+      this.displayMenuInstructions();
+    }
 
     // display menu items
     x = Crafty.viewport.width/2 - Crafty.viewport.x - (width / 2) - 10;
@@ -423,8 +430,6 @@ Crafty.c('Menu', {
       y += 80;
     }
 
-    // display menu instructions bottom right
-    this.displayMenuInstructions();
   },
 
   displayMenuInstructions: function() {
