@@ -156,7 +156,7 @@ Game = {
     Game.initWaypoint();
     this.navigator.setWaypointPosition(this.waypoint.x, this.waypoint.y);
 //    this.countdown.start(1000000);
-    this.countdown.start(10000);
+    this.countdown.start(30000);
   },
 
   isGameComplete: function () {

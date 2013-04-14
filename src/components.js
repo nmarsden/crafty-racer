@@ -711,7 +711,25 @@ Crafty.c('PauseControl', {
 
 Crafty.c('Car', {
   init: function() {
-    this.speed = 4;
+    this.DIRECTION_CHANGE = 11.25;
+//    this.DIRECTION_CHANGE = 45;
+//    this.DIRECTION_TO_SPRITE_NUMBER = {
+//      '-90':  16,
+//      '-135': 12,
+//      '-180':	8,
+//      '180':	8,
+//      '135':  4,
+//      '90':		0,
+//      '45':		28,
+//      '0':		24,
+//      '-45':	20
+//    };
+
+    this.LOW_SPEED = 4;
+    this.HIGH_SPEED = 10;
+    this.TURN_DELAY = 40;
+    this.turningStartTime = 0;
+    this.speed = this.LOW_SPEED;
     this.direction = -90;
     this.directionIncrement = 0;
     this.moving = false;
@@ -747,9 +765,11 @@ Crafty.c('Car', {
 
   _keyDown: function() {
       if (this.isDown('LEFT_ARROW')) {
-        this.directionIncrement = -11.25;
+        this.directionIncrement = -this.DIRECTION_CHANGE;
+        this.turningStartTime = Date.now();
       } else if (this.isDown('RIGHT_ARROW')) {
-        this.directionIncrement = 11.25;
+        this.directionIncrement = this.DIRECTION_CHANGE;
+        this.turningStartTime = Date.now();
       }
       if (!this.moving && this.isDown('UP_ARROW')) {
         this.moving = true;
@@ -779,14 +799,14 @@ Crafty.c('Car', {
     }
 
     if (this.moving) {
-      this.speed = 4;
+      this.speed = this.LOW_SPEED;
       if (this.directionIncrement == 0) {
         var timeMoving = Date.now() - this.movingStartTime;
         if (timeMoving < 500) {
           Game.playSoundEffect('engine_rev', -1, 1.0);
         } else {
           Game.playSoundEffect('engine_rev_faster', -1, 1.0);
-          this.speed = 8;
+          this.speed = this.HIGH_SPEED;
         }
       } else {
         Game.playSoundEffect('wheel_spin', -1, 1.0);
@@ -796,9 +816,13 @@ Crafty.c('Car', {
     }
 
     if (this.moving) {
-      this.direction += this.directionIncrement;
-      if (this.direction > 180) this.direction = -180 + 11.25;
-      if (this.direction < -180) this.direction = 180 - 11.25;
+      var timeTurning = Date.now() - this.turningStartTime;
+      if (timeTurning > this.TURN_DELAY) {
+        this.direction += this.directionIncrement;
+        this.turningStartTime = Date.now();
+      }
+      if (this.direction > 180) this.direction = -180 + this.DIRECTION_CHANGE;
+      if (this.direction < -180) this.direction = 180 - this.DIRECTION_CHANGE;
       this.movement.x = Math.round(Math.cos(this.direction * (Math.PI / 180)) * 1000 * this.speed) / 1000;
       this.movement.y = Math.round(Math.sin(this.direction * (Math.PI / 180)) * 1000 * this.speed) / 1000;
 
@@ -824,6 +848,9 @@ Crafty.c('Car', {
 
     //console.log("EnterFrame: player: x", this.x, "y", this.y, "z", this.z, "w", this.w, "h", this.h);
 
+
+    // Try clearing directionIncrement each frame
+    //this.directionIncrement = 0;
   },
 
   waypointReached: function(data) {
@@ -844,7 +871,9 @@ Crafty.c('Car', {
   },
 
   spriteNumberFor: function(direction) {
-    return ((direction / 11.25) + 24) % 32;  // -16 to +16
+    return ((direction / this.DIRECTION_CHANGE) + 24) % 32;  // -16 to +16
+
+    //return this.DIRECTION_TO_SPRITE_NUMBER[direction];
   },
 
   // Registers a stop-movement function to be called when
