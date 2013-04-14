@@ -104,7 +104,7 @@ Crafty.c('Waypoint', {
 Crafty.c('Navigator', {
   init: function() {
     this.requires('Actor, spr_navigator');
-    this.z = 2;
+    this.z = 5000;
     this.origin(96/2, 96/2);
     this.updatePosition();
     this.setWaypointPosition(100, 100);
