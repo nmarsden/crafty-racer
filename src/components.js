@@ -713,6 +713,7 @@ Crafty.c('Car', {
   init: function() {
     this.directionIndex = 28;  // NE
 
+    //this.SNAP_TO_DIRECTION_INDEXES = [0,5,8,12,16,20,24,27];
     this.DIRECTIONS = [
       { angle:-90.0, spriteNum:16 },  // N
       { angle:-102.7, spriteNum:15 },
@@ -720,9 +721,8 @@ Crafty.c('Car', {
       { angle:-128.1, spriteNum:13 },
       { angle:-140.8, spriteNum:12 },
       { angle:-153.4, spriteNum:11 }, // NW
-      { angle:-153.4, spriteNum:10 },
-      { angle:-162.3, spriteNum:9 },
-      { angle:-171.2, spriteNum:8 },  // W
+      { angle:-162.3, spriteNum:10 },
+      { angle:-171.2, spriteNum:9 },
       { angle:180.0, spriteNum:8 },   // W
       { angle:173.4, spriteNum:7 },
       { angle:166.7, spriteNum:6 },
