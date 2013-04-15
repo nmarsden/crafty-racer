@@ -711,26 +711,50 @@ Crafty.c('PauseControl', {
 
 Crafty.c('Car', {
   init: function() {
-    this.DIRECTION_CHANGE = 11.25;
-//    this.DIRECTION_CHANGE = 45;
-//    this.DIRECTION_TO_SPRITE_NUMBER = {
-//      '-90':  16,
-//      '-135': 12,
-//      '-180':	8,
-//      '180':	8,
-//      '135':  4,
-//      '90':		0,
-//      '45':		28,
-//      '0':		24,
-//      '-45':	20
-//    };
+    this.directionIndex = 28;  // NE
+
+    this.DIRECTIONS = [
+      { angle:-90.0, spriteNum:16 },  // N
+      { angle:-102.7, spriteNum:15 },
+      { angle:-115.4, spriteNum:14 },
+      { angle:-128.1, spriteNum:13 },
+      { angle:-140.8, spriteNum:12 },
+      { angle:-153.4, spriteNum:11 }, // NW
+      { angle:-153.4, spriteNum:10 },
+      { angle:-162.3, spriteNum:9 },
+      { angle:-171.2, spriteNum:8 },  // W
+      { angle:180.0, spriteNum:8 },   // W
+      { angle:173.4, spriteNum:7 },
+      { angle:166.7, spriteNum:6 },
+      { angle:160.1, spriteNum:5 },
+      { angle:153.4, spriteNum:4 },   // SW
+      { angle:137.5, spriteNum:3 },
+      { angle:121.6, spriteNum:2 },
+      { angle:105.7, spriteNum:1 },
+      { angle:90.0, spriteNum:0 },    // S
+      { angle:74.1, spriteNum:31 },
+      { angle:58.2, spriteNum:30 },
+      { angle:42.3, spriteNum:29 },
+      { angle:26.6, spriteNum:28 },   // SE
+      { angle:19.9, spriteNum:27 },
+      { angle:13.2, spriteNum:26 },
+      { angle:6.5, spriteNum:25 },
+      { angle:0.0, spriteNum:24 },    // E
+      { angle:-8.9, spriteNum:23 },
+      { angle:-17.8, spriteNum:22 },
+      { angle:-26.6, spriteNum:21 },  // NE
+      { angle:-39.3, spriteNum:20 },
+      { angle:-52.0, spriteNum:19 },
+      { angle:-64.7, spriteNum:18 },
+      { angle:-77.4, spriteNum:17 }
+    ];
 
     this.LOW_SPEED = 4;
     this.HIGH_SPEED = 10;
     this.TURN_DELAY = 40;
     this.turningStartTime = 0;
     this.speed = this.LOW_SPEED;
-    this.direction = -90;
+    this.direction = -26.6;
     this.directionIncrement = 0;
     this.moving = false;
     this.movingStartTime = 0;
@@ -765,10 +789,10 @@ Crafty.c('Car', {
 
   _keyDown: function() {
       if (this.isDown('LEFT_ARROW')) {
-        this.directionIncrement = -this.DIRECTION_CHANGE;
+        this.directionIncrement = -1;
         this.turningStartTime = Date.now();
       } else if (this.isDown('RIGHT_ARROW')) {
-        this.directionIncrement = this.DIRECTION_CHANGE;
+        this.directionIncrement = +1;
         this.turningStartTime = Date.now();
       }
       if (!this.moving && this.isDown('UP_ARROW')) {
@@ -789,7 +813,7 @@ Crafty.c('Car', {
   },
 
   _enterFrame: function() {
-    var spriteNumber = this.spriteNumberFor(this.direction);
+    var spriteNumber = this.DIRECTIONS[this.directionIndex].spriteNum;
     if (this.directionIncrement == 0) {
       this.animate('Straight_'+spriteNumber, 1, -1);
     } else if (this.directionIncrement > 0) {
@@ -818,11 +842,22 @@ Crafty.c('Car', {
     if (this.moving) {
       var timeTurning = Date.now() - this.turningStartTime;
       if (timeTurning > this.TURN_DELAY) {
-        this.direction += this.directionIncrement;
+        if (this.directionIncrement < 0) {
+          this.directionIndex++;
+        } else if (this.directionIncrement > 0) {
+          this.directionIndex--;
+        }
+        if (this.directionIndex === this.DIRECTIONS.length) {
+          this.directionIndex = 0;
+        }
+        if (this.directionIndex < 0) {
+          this.directionIndex = this.DIRECTIONS.length - 1;
+        }
+        this.direction = this.DIRECTIONS[this.directionIndex].angle;
+
         this.turningStartTime = Date.now();
       }
-      if (this.direction > 180) this.direction = -180 + this.DIRECTION_CHANGE;
-      if (this.direction < -180) this.direction = 180 - this.DIRECTION_CHANGE;
+
       this.movement.x = Math.round(Math.cos(this.direction * (Math.PI / 180)) * 1000 * this.speed) / 1000;
       this.movement.y = Math.round(Math.sin(this.direction * (Math.PI / 180)) * 1000 * this.speed) / 1000;
 
@@ -848,9 +883,6 @@ Crafty.c('Car', {
 
     //console.log("EnterFrame: player: x", this.x, "y", this.y, "z", this.z, "w", this.w, "h", this.h);
 
-
-    // Try clearing directionIncrement each frame
-    //this.directionIncrement = 0;
   },
 
   waypointReached: function(data) {
@@ -868,12 +900,6 @@ Crafty.c('Car', {
     var x = pos % 10,
         y = Math.floor(pos / 10);
     return {x: x, y: y};
-  },
-
-  spriteNumberFor: function(direction) {
-    return ((direction / this.DIRECTION_CHANGE) + 24) % 32;  // -16 to +16
-
-    //return this.DIRECTION_TO_SPRITE_NUMBER[direction];
   },
 
   // Registers a stop-movement function to be called when
