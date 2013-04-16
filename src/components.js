@@ -711,42 +711,41 @@ Crafty.c('PauseControl', {
 
 Crafty.c('Car', {
   init: function() {
-    this.directionIndex = 28;  // NE
-
-    //this.SNAP_TO_DIRECTION_INDEXES = [0,5,8,12,16,20,24,27];
+    this.directionIndex = 27;  // NE
+    this.snappedDirectionIndex = this.directionIndex;
     this.DIRECTIONS = [
-      { angle:-90.0, spriteNum:16 },  // N
-      { angle:-102.7, spriteNum:15 },
-      { angle:-115.4, spriteNum:14 },
-      { angle:-128.1, spriteNum:13 },
-      { angle:-140.8, spriteNum:12 },
-      { angle:-153.4, spriteNum:11 }, // NW
-      { angle:-162.3, spriteNum:10 },
-      { angle:-171.2, spriteNum:9 },
-      { angle:180.0, spriteNum:8 },   // W
-      { angle:173.4, spriteNum:7 },
-      { angle:166.7, spriteNum:6 },
-      { angle:160.1, spriteNum:5 },
-      { angle:153.4, spriteNum:4 },   // SW
-      { angle:137.5, spriteNum:3 },
-      { angle:121.6, spriteNum:2 },
-      { angle:105.7, spriteNum:1 },
-      { angle:90.0, spriteNum:0 },    // S
-      { angle:74.1, spriteNum:31 },
-      { angle:58.2, spriteNum:30 },
-      { angle:42.3, spriteNum:29 },
-      { angle:26.6, spriteNum:28 },   // SE
-      { angle:19.9, spriteNum:27 },
-      { angle:13.2, spriteNum:26 },
-      { angle:6.5, spriteNum:25 },
-      { angle:0.0, spriteNum:24 },    // E
-      { angle:-8.9, spriteNum:23 },
-      { angle:-17.8, spriteNum:22 },
-      { angle:-26.6, spriteNum:21 },  // NE
-      { angle:-39.3, spriteNum:20 },
-      { angle:-52.0, spriteNum:19 },
-      { angle:-64.7, spriteNum:18 },
-      { angle:-77.4, spriteNum:17 }
+      { angle:-90.0,  spriteNum:16, snapLeftIndex: 0,  snapRightIndex: 0 },   // N (0)
+      { angle:-102.7, spriteNum:15, snapLeftIndex: 5,  snapRightIndex: 0 },
+      { angle:-115.4, spriteNum:14, snapLeftIndex: 5,  snapRightIndex: 0 },
+      { angle:-128.1, spriteNum:13, snapLeftIndex: 5,  snapRightIndex: 0 },
+      { angle:-140.8, spriteNum:12, snapLeftIndex: 5,  snapRightIndex: 0 },
+      { angle:-153.4, spriteNum:11, snapLeftIndex: 5,  snapRightIndex: 5 },   // NW (5)
+      { angle:-162.3, spriteNum:10, snapLeftIndex: 8,  snapRightIndex: 5 },
+      { angle:-171.2, spriteNum:9,  snapLeftIndex: 8,  snapRightIndex: 5 },
+      { angle:180.0,  spriteNum:8,  snapLeftIndex: 8,  snapRightIndex: 8 },   // W (8)
+      { angle:173.4,  spriteNum:7,  snapLeftIndex: 12, snapRightIndex: 8 },
+      { angle:166.7,  spriteNum:6,  snapLeftIndex: 12, snapRightIndex: 8 },
+      { angle:160.1,  spriteNum:5,  snapLeftIndex: 12, snapRightIndex: 8 },
+      { angle:153.4,  spriteNum:4,  snapLeftIndex: 12, snapRightIndex: 12 },  // SW (12)
+      { angle:137.5,  spriteNum:3,  snapLeftIndex: 16, snapRightIndex: 12 },
+      { angle:121.6,  spriteNum:2,  snapLeftIndex: 16, snapRightIndex: 12 },
+      { angle:105.7,  spriteNum:1,  snapLeftIndex: 16, snapRightIndex: 12 },
+      { angle:90.0,   spriteNum:0,  snapLeftIndex: 16, snapRightIndex: 16 },  // S (16)
+      { angle:74.1,   spriteNum:31, snapLeftIndex: 20, snapRightIndex: 16 },
+      { angle:58.2,   spriteNum:30, snapLeftIndex: 20, snapRightIndex: 16 },
+      { angle:42.3,   spriteNum:29, snapLeftIndex: 20, snapRightIndex: 16 },
+      { angle:26.6,   spriteNum:28, snapLeftIndex: 20, snapRightIndex: 20 },  // SE (20)
+      { angle:19.9,   spriteNum:27, snapLeftIndex: 24, snapRightIndex: 20 },
+      { angle:13.2,   spriteNum:26, snapLeftIndex: 24, snapRightIndex: 20 },
+      { angle:6.5,    spriteNum:25, snapLeftIndex: 24, snapRightIndex: 20 },
+      { angle:0.0,    spriteNum:24, snapLeftIndex: 24, snapRightIndex: 24 },  // E (24)
+      { angle:-8.9,   spriteNum:23, snapLeftIndex: 27, snapRightIndex: 24 },
+      { angle:-17.8,  spriteNum:22, snapLeftIndex: 27, snapRightIndex: 24 },
+      { angle:-26.6,  spriteNum:21, snapLeftIndex: 27, snapRightIndex: 27 },  // NE (27)
+      { angle:-39.3,  spriteNum:20, snapLeftIndex: 0,  snapRightIndex: 27 },
+      { angle:-52.0,  spriteNum:19, snapLeftIndex: 0,  snapRightIndex: 27 },
+      { angle:-64.7,  spriteNum:18, snapLeftIndex: 0,  snapRightIndex: 27 },
+      { angle:-77.4,  spriteNum:17, snapLeftIndex: 0,  snapRightIndex: 27 }
     ];
 
     this.LOW_SPEED = 4;
@@ -803,8 +802,10 @@ Crafty.c('Car', {
 
   _keyUp: function(e) {
     if(e.key == Crafty.keys['LEFT_ARROW']) {
+      this.snappedDirectionIndex = this.DIRECTIONS[this.directionIndex].snapLeftIndex;
       this.directionIncrement = 0;
     } else if (e.key == Crafty.keys['RIGHT_ARROW']) {
+      this.snappedDirectionIndex = this.DIRECTIONS[this.directionIndex].snapRightIndex;
       this.directionIncrement = 0;
     } else if (e.key == Crafty.keys['UP_ARROW']) {
       this.moving = false;
@@ -820,6 +821,20 @@ Crafty.c('Car', {
       this.animate('TurnRight_'+spriteNumber, 1, -1);
     } else if (this.directionIncrement < 0) {
       this.animate('TurnLeft_'+spriteNumber, 1, -1);
+    }
+
+    // Adjust directionIndex to snap direction if necessary
+    if (this.directionIncrement === 0 && this.directionIndex != this.snappedDirectionIndex) {
+      if (this.snappedDirectionIndex === 0 & this.directionIndex > 10) {
+        this.directionIndex++;
+      } else if (this.snappedDirectionIndex - this.directionIndex > 0) {
+        this.directionIndex++;
+      } else {
+        this.directionIndex--;
+      }
+      if (this.directionIndex === this.DIRECTIONS.length) {
+        this.directionIndex = 0;
+      }
     }
 
     if (this.moving) {
