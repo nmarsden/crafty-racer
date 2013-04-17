@@ -900,8 +900,7 @@ Crafty.c('Car', {
   },
 
   _updateViewportWithPlayerInCenter: function () {
-    Crafty.viewport.scroll('_x', Crafty.viewport.width / 2 - this.x - this.w / 2);
-    Crafty.viewport.scroll('_y', Crafty.viewport.height / 2 - this.y - this.h / 2);
+    Crafty.viewport.scrollXY((Crafty.viewport.width / 2 - this.x - this.w / 2),(Crafty.viewport.height / 2 - this.y - this.h / 2));
   },
 
   _triggerPlayerMoved: function () {
