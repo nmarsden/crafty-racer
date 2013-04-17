@@ -813,17 +813,18 @@ Crafty.c('Car', {
     }
   },
 
-  _enterFrame: function() {
+  _changeSprite: function () {
     var spriteNumber = this.DIRECTIONS[this.directionIndex].spriteNum;
     if (this.directionIncrement == 0) {
-      this.animate('Straight_'+spriteNumber, 1, -1);
+      this.animate('Straight_' + spriteNumber, 1, -1);
     } else if (this.directionIncrement > 0) {
-      this.animate('TurnRight_'+spriteNumber, 1, -1);
+      this.animate('TurnRight_' + spriteNumber, 1, -1);
     } else if (this.directionIncrement < 0) {
-      this.animate('TurnLeft_'+spriteNumber, 1, -1);
+      this.animate('TurnLeft_' + spriteNumber, 1, -1);
     }
+  },
 
-    // Adjust directionIndex to snap direction if necessary
+  _adjustDirectionIndexForSnapToDirection: function () {
     if (this.directionIncrement === 0 && this.directionIndex != this.snappedDirectionIndex) {
       if (this.snappedDirectionIndex === 0 & this.directionIndex > 10) {
         this.directionIndex++;
@@ -836,7 +837,9 @@ Crafty.c('Car', {
         this.directionIndex = 0;
       }
     }
+  },
 
+  _adjustSpeedAndChangeSoundEffect: function () {
     if (this.moving) {
       this.speed = this.LOW_SPEED;
       if (this.directionIncrement == 0) {
@@ -853,56 +856,77 @@ Crafty.c('Car', {
     } else {
       Game.playSoundEffect('engine_idle', -1, 0.3);
     }
+  },
+
+  _updateDirection: function () {
+    var timeTurning = Date.now() - this.turningStartTime;
+    if (timeTurning > this.TURN_DELAY) {
+      if (this.directionIncrement < 0) {
+        this.directionIndex++;
+      } else if (this.directionIncrement > 0) {
+        this.directionIndex--;
+      }
+      if (this.directionIndex === this.DIRECTIONS.length) {
+        this.directionIndex = 0;
+      }
+      if (this.directionIndex < 0) {
+        this.directionIndex = this.DIRECTIONS.length - 1;
+      }
+      this.direction = this.DIRECTIONS[this.directionIndex].angle;
+
+      this.turningStartTime = Date.now();
+    }
+  },
+
+  _updateMovement: function () {
+    this.movement.x = Math.round(Math.cos(this.direction * (Math.PI / 180)) * 1000 * this.speed) / 1000;
+    this.movement.y = Math.round(Math.sin(this.direction * (Math.PI / 180)) * 1000 * this.speed) / 1000;
+  },
+
+  _updatePosition: function () {
+    this.x += this.movement.x;
+    this.y += this.movement.y;
+
+    //set z-index
+    var z = this._y;
+    //console.log("Car:", "z", z);
+    this.z = Math.floor(z);
+  },
+
+  _updateCollisionBoundingBox: function () {
+    // TODO Use pre-calculated bounding box based on direction
+    var boundingBox = this.boundingPolygon(this.direction, this.w, this.h);
+    this.collision(boundingBox);
+  },
+
+  _updateViewportWithPlayerInCenter: function () {
+    Crafty.viewport.scroll('_x', Crafty.viewport.width / 2 - this.x - this.w / 2);
+    Crafty.viewport.scroll('_y', Crafty.viewport.height / 2 - this.y - this.h / 2);
+  },
+
+  _triggerPlayerMoved: function () {
+    Crafty.trigger("PlayerMoved", {x: this.x, y: this.y});
+  },
+
+  _enterFrame: function() {
+    this._changeSprite();
+    this._adjustDirectionIndexForSnapToDirection();
+    this._adjustSpeedAndChangeSoundEffect();
 
     if (this.moving) {
-      var timeTurning = Date.now() - this.turningStartTime;
-      if (timeTurning > this.TURN_DELAY) {
-        if (this.directionIncrement < 0) {
-          this.directionIndex++;
-        } else if (this.directionIncrement > 0) {
-          this.directionIndex--;
-        }
-        if (this.directionIndex === this.DIRECTIONS.length) {
-          this.directionIndex = 0;
-        }
-        if (this.directionIndex < 0) {
-          this.directionIndex = this.DIRECTIONS.length - 1;
-        }
-        this.direction = this.DIRECTIONS[this.directionIndex].angle;
-
-        this.turningStartTime = Date.now();
-      }
-
-      this.movement.x = Math.round(Math.cos(this.direction * (Math.PI / 180)) * 1000 * this.speed) / 1000;
-      this.movement.y = Math.round(Math.sin(this.direction * (Math.PI / 180)) * 1000 * this.speed) / 1000;
-
-      this.x += this.movement.x;
-      this.y += this.movement.y;
-
-      //set z-index
-      var z = this._y;
-      //console.log("Car:", "z", z);
-      this.z = Math.floor(z);
-
-      // TODO Use pre-calculated bounding box based on direction
-      var boundingBox = this.boundingPolygon(this.direction, this.w, this.h);
-      this.collision(boundingBox);
-
+      this._updateDirection();
+      this._updateMovement();
+      this._updatePosition();
+      this._updateCollisionBoundingBox();
       //console.log("Player:", "x", this.x, "y", this.y);
-
-      Crafty.viewport.scroll('_x', Crafty.viewport.width/2 - this.x - this.w/2);
-      Crafty.viewport.scroll('_y', Crafty.viewport.height/2 - this.y - this.h/2);
-
-      Crafty.trigger("PlayerMoved",{x:this.x, y:this.y});
+      this._updateViewportWithPlayerInCenter();
+      this._triggerPlayerMoved();
     }
-
     //console.log("EnterFrame: player: x", this.x, "y", this.y, "z", this.z, "w", this.w, "h", this.h);
-
   },
 
   waypointReached: function(data) {
     //console.log("Waypoint reached");
-
     var waypoint = data[0].obj;
     waypoint.reached();
   },
