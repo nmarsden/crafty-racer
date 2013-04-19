@@ -308,13 +308,19 @@ Crafty.c('LevelSelectMenu', {
 
 Crafty.c('Menu', {
   init: function() {
-    this.requires('2D, DOM, Text, Keyboard');
+    this.requires('2D, Canvas, Text, Keyboard');
     this.z = 2000;
     this.menuItems = [];
     this.selectedMenuIndex = 0;
     this.colour = '#0061FF';
     this.selectedColour = '#FFFF00';
-    this.backgroundDrawn = false;
+
+    this.overlay = Crafty.e('2D, Canvas, spr_menu_background, Tween');
+    var x = 51 - Crafty.viewport.x;
+    var y = Crafty.viewport.y - 555;
+    this.overlay.attr({ x: x, y: y, w: Crafty.viewport.width-102, h: Crafty.viewport.height-102 });
+
+    this.displayMenuInstructions();
 
     this.options = {
       parentMenu: null,
@@ -374,33 +380,16 @@ Crafty.c('Menu', {
     var height = 60;
     var alpha = 0.6;
     var totalHeight = 80 * this.menuItems.length;
-    var x = 51 - Crafty.viewport.x;
-    var y = 51 - Crafty.viewport.y;
 
     this.selectedMenuIndex = 0;
 
     this.bind('KeyDown', this.handleKeyDown);
     this.bind('SelectionChanged', this.handleSelectionChanged);
 
-    if (this.options.parentMenu === null && !this.backgroundDrawn) {
-      // display overlay
-      this.backgroundDrawn = true;
-
-      var overlay = Crafty.e('2D, DOM');
-      overlay.attr({ x: x, y: y, w: Crafty.viewport.width-102, h: Crafty.viewport.height-102 });
-      overlay.css({
-        'border-style': 'solid',
-        'border-color': this.colour,
-        'background-color': '#101010',
-        'background-image': 'url(assets/menu_background.png)'
-      });
-      // display menu instructions bottom right
-      this.displayMenuInstructions();
-    }
-
     // display menu items
-    x = Crafty.viewport.width/2 - Crafty.viewport.x - (width / 2) - 10;
-    y = Crafty.viewport.height/2 - Crafty.viewport.y - (totalHeight / 2); //150;
+    var x = Crafty.viewport.width/2 - Crafty.viewport.x - (width / 2) - 10;
+    var y = this.overlay.y + Crafty.viewport.height/2 - (totalHeight / 2) - 55;
+
     for (var i=0; i<this.menuItems.length; i++) {
       var item = this.menuItems[i];
       var menuItem = Crafty.e('2D, DOM, Text, Tween');
@@ -419,7 +408,6 @@ Crafty.c('Menu', {
           '-webkit-animation-name': 'selected_menu_item',
           '-webkit-animation-iteration-count': 'infinite'
         });
-
       }
       menuItem.css({
         'padding': '5px',
@@ -427,21 +415,29 @@ Crafty.c('Menu', {
         'text-transform': 'uppercase'
       });
       item.entity = menuItem;
+
+      this.overlay.attach(menuItem);
+
       y += 80;
     }
+
+    this.overlay.attr({y: (Crafty.viewport.y - 555) });
+    this.overlay.tween({ y: (51 - Crafty.viewport.y) }, 15);
+
+    Game.playSoundEffect('menu_change_page', 1, 1.0);
 
   },
 
   displayMenuInstructions: function() {
-    var x = Game.viewportWidth() - 270 - Crafty.viewport.x;
-    var y = Game.viewportHeight() - 162 - Crafty.viewport.y;
+    var x = Game.viewportWidth() - 270;
+    var y = this.overlay.y + 555 - 132;
     var alpha = 0.5
 
     // - up arrow / down arrow: navigate
-    var upArrow = Crafty.e('2D, DOM, spr_up_arrow');
+    var upArrow = Crafty.e('2D, Canvas, spr_up_arrow');
     upArrow.attr({ x: x, y: y,  w: 51, h: 48 });
     upArrow.alpha = alpha;
-    var downArrow = Crafty.e('2D, DOM, spr_down_arrow');
+    var downArrow = Crafty.e('2D, Canvas, spr_down_arrow');
     downArrow.attr({ x: x+56, y: y, w: 51, h: 48 });
     downArrow.alpha = alpha;
     var navigate = Crafty.e('2D, DOM, Text');
@@ -455,8 +451,12 @@ Crafty.c('Menu', {
     navigate.textColor(this.colour);
     navigate.alpha = alpha;
 
+    this.overlay.attach(upArrow);
+    this.overlay.attach(downArrow);
+    this.overlay.attach(navigate);
+
     // - enter: select
-    var enterKey = Crafty.e('2D, DOM, spr_enter_key');
+    var enterKey = Crafty.e('2D, Canvas, spr_enter_key');
     enterKey.attr({ x: x, y: y+53, w: 100, h: 48 });
     enterKey.alpha = alpha;
     var select = Crafty.e('2D, DOM, Text');
@@ -469,6 +469,9 @@ Crafty.c('Menu', {
     });
     select.textColor(this.colour);
     select.alpha = alpha;
+
+    this.overlay.attach(enterKey);
+    this.overlay.attach(select);
   },
 
   hideMenu: function() {
@@ -489,6 +492,7 @@ Crafty.c('Menu', {
       });
 
     }
+    this.overlay.tween({ y: (Crafty.viewport.y + Crafty.viewport.height) }, 15);
   },
 
   menuItemSelectedViaHotKey: function() {

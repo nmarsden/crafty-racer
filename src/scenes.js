@@ -148,6 +148,7 @@ Crafty.scene('Loading', function(){
     'assets/wheel_spin.ogg',
     'assets/woop.ogg',
     'assets/beep_1.mp3',
+    'assets/badminton_racket_fast_movement_swoosh_002.mp3',
     'assets/Happy Bee.mp3',
     'assets/Enter the party.mp3',
     'assets/Show Your Moves.mp3',
@@ -162,7 +163,8 @@ Crafty.scene('Loading', function(){
     "assets/down_arrow_51x48.png",
     "assets/left_arrow_51x48.png",
     "assets/escape_key_51x48.png",
-    "assets/enter_key_100x48.png"
+    "assets/enter_key_100x48.png",
+    "assets/menu_background.png"
   ], function(){
     Crafty.sprite(98, 'assets/car.png', {
       spr_car:  [6, 1]
@@ -191,8 +193,11 @@ Crafty.scene('Loading', function(){
     Crafty.sprite(51, 48, 'assets/escape_key_51x48.png', {
       spr_escape_key:  [0, 0]
     }, 0, 0);
-    Crafty.sprite(51, 48, 'assets/enter_key_100x48.png', {
+    Crafty.sprite(100, 48, 'assets/enter_key_100x48.png', {
       spr_enter_key:  [0, 0]
+    }, 0, 0);
+    Crafty.sprite(922, 555, 'assets/menu_background.png', {
+      spr_menu_background:  [0, 0]
     }, 0, 0);
 
     // Define our sounds for later use
@@ -203,6 +208,7 @@ Crafty.scene('Loading', function(){
       wheel_spin:         ['assets/wheel_spin.ogg'],
       woop:               ['assets/woop.ogg'],
       menu_nav:           ['assets/beep_1.mp3'],
+      menu_change_page:   ['assets/badminton_racket_fast_movement_swoosh_002.mp3'],
       level_music:        ['assets/Happy Bee.mp3'],
       menu_music:         ['assets/Enter the Party.mp3'],
       end_level_music:    ['assets/Show Your Moves.mp3']
