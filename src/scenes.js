@@ -25,10 +25,12 @@ Crafty.scene('Game', function() {
 
   Crafty.e("2D, Canvas, TiledMapBuilder").setMapDataSource( LEVELS[Game.levelIndex] )
     .createWorld( function( tiledmap ){
+      var entities, obstacle;
 
       // Set properties of entities on the 'Solid_Sides' layer
-      for (var obstacle = 0; obstacle < tiledmap.getEntitiesInLayer('Solid_Sides').length; obstacle++){
-        var entity = tiledmap.getEntitiesInLayer('Solid_Sides')[obstacle];
+      entities = tiledmap.getEntitiesInLayer('Solid_Sides');
+      for (obstacle = 0; obstacle < entities.length; obstacle++){
+        var entity = entities[obstacle];
 
         //Set z-index for correct view: front, back
         entity.z = Math.floor(entity._y );
@@ -44,16 +46,18 @@ Crafty.scene('Game', function() {
       }
 
       // Set properties of entities on the 'Solid_Tops' layer
-      for (var obstacle = 0; obstacle < tiledmap.getEntitiesInLayer('Solid_Tops').length; obstacle++){
+      entities = tiledmap.getEntitiesInLayer('Solid_Tops');
+      for (obstacle = 0; obstacle < entities.length; obstacle++){
 
         //Set z-index for correct view: front, back
-        var solidTop = tiledmap.getEntitiesInLayer('Solid_Tops')[obstacle];
+        var solidTop = entities[obstacle];
         solidTop.z = Math.floor(solidTop._y + solidTop._h);
       }
 
       // Set properties of entities on the 'Objects' layer
-      for (var obstacle = 0; obstacle < tiledmap.getEntitiesInLayer('Objects').length; obstacle++){
-        var entity = tiledmap.getEntitiesInLayer('Objects')[obstacle];
+      entities = tiledmap.getEntitiesInLayer('Objects');
+      for (obstacle = 0; obstacle < entities.length; obstacle++){
+        var entity = entities[obstacle];
 
         // Setup player and hide player marker
         if (entity.__image === "assets/Player_Marker.png") {
@@ -158,6 +162,9 @@ Crafty.scene('Loading', function(){
     'assets/navigator.png',
     "assets/Iso_Cubes_01_128x128_Alt_00_003.png",
     "assets/Iso_Cubes_01_128x128_Alt_00_004.png",
+    "assets/Collision_Marker.png",
+    "assets/Player_Marker.png",
+    "assets/Waypoints_Marker.png",
     "assets/up_arrow_51x48.png",
     "assets/right_arrow_51x48.png",
     "assets/down_arrow_51x48.png",
