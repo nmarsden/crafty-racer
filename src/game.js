@@ -117,6 +117,11 @@ Game = {
     this.countdown.setName("Countdown");
   },
 
+  initMiniMap: function () {
+    this.miniMap = Crafty.e('MiniMap');
+    this.miniMap.setName("MiniMap");
+  },
+
   initLevelIndicator: function () {
     this.levelIndicator = Crafty.e('LevelIndicator');
     this.levelIndicator.setName("LevelIndicator");
@@ -126,6 +131,7 @@ Game = {
     this.waypointIndex = 0;
     Game.initNavigator();
     Game.initCountdown();
+    Game.initMiniMap();
     Game.initLevelIndicator();
     Game.resetWaypoint();
   },

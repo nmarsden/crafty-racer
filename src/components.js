@@ -102,6 +102,64 @@ Crafty.c('Waypoint', {
 
 });
 
+Crafty.c('Diamond', {
+  init: function() {
+    this.requires('2D, Canvas');
+    this.z = 5000;
+    this.w = 200;
+    this.h = 100;
+
+    this.bind("Draw", function(e) {
+      this.drawHandler(e);
+    }.bind(this));
+
+    this.ready = true;
+  },
+
+  drawHandler : function (e) {
+    this.drawDiamond(e.ctx, this.x, this.y);
+  },
+
+  drawDiamond : function(ctx, offsetX, offsetY) {
+    ctx.beginPath();
+    ctx.moveTo(offsetX + this.w/2,  offsetY + 0);
+    ctx.lineTo(offsetX + this.w,    offsetY + this.h/2);
+    ctx.lineTo(offsetX + this.w/2,  offsetY + this.h);
+    ctx.lineTo(offsetX + 0,         offsetY + this.h/2);
+    ctx.closePath();
+    ctx.stroke();
+  }
+
+});
+
+Crafty.c('MiniMap', {
+  init: function() {
+    this.requires('2D, Canvas');
+    this.z = 5000;
+    this.w = 200;
+    this.h = 100;
+    this.ready = true;
+
+    this.diamond = Crafty.e("Diamond");
+    this.diamond.setName("Diamond");
+
+    this.bind("PlayerMoved", this.updatePosition.bind(this));
+
+    this.updatePosition();
+  },
+
+  updatePosition: function() {
+    this.x = Crafty.viewport.width - Crafty.viewport.x - this.w - 5;
+    this.y = (- Crafty.viewport.y + 55);
+
+    if (this.diamond) {
+      this.diamond.x = this.x;
+      this.diamond.y = this.y;
+    }
+  }
+
+});
+
 Crafty.c('Navigator', {
   init: function() {
     this.requires('Actor, spr_navigator');
