@@ -85,16 +85,8 @@ Crafty.scene('Game', function() {
 
     });
 
-  this.player = Crafty.e('Car');
-  this.player.x = playerPos.x;
-  this.player.y = playerPos.y;
-  this.player.setName("Player");
+  Game.initLevel(playerPos.x, playerPos.y);
 
-  //console.log("player: x", this.player.x, "y", this.player.y, "z", this.player.z, "w", this.player.w, "h", this.player.h);
-  Crafty.viewport.scroll('_x', Crafty.viewport.width/2 - this.player.x - this.player.w/2);
-  Crafty.viewport.scroll('_y', Crafty.viewport.height/2 - this.player.y - this.player.h/2);
-
-  Game.initLevel();
 
   // uncomment to show FPS
 //  this.showFps = Crafty.e('ShowFPS');

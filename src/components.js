@@ -121,11 +121,80 @@ Crafty.c('Diamond', {
   },
 
   drawDiamond : function(ctx, offsetX, offsetY) {
+//    console.log("Diamond Offset: ", offsetX, offsetY);
+
+//    console.log("Diamond: ",
+//      "[", offsetX + this.w/2,  ",", offsetY, "]",
+//      "[", offsetX + this.w,    ",", offsetY + this.h/2, "]",
+//      "[", offsetX + this.w/2,  ",", offsetY + this.h, "]",
+//      "[", offsetX,             ",", offsetY + this.h/2, "]"
+//    )
+
+    ctx.strokeStyle = "#000000";
     ctx.beginPath();
     ctx.moveTo(offsetX + this.w/2,  offsetY + 0);
     ctx.lineTo(offsetX + this.w,    offsetY + this.h/2);
     ctx.lineTo(offsetX + this.w/2,  offsetY + this.h);
     ctx.lineTo(offsetX + 0,         offsetY + this.h/2);
+    ctx.closePath();
+    ctx.stroke();
+  }
+
+});
+
+// TODO Fix extra pixels appearing at top and bottom of diamond when player moves
+Crafty.c('MiniMapMarker', {
+  init: function() {
+    this.requires('2D, Canvas');
+    this.z = 5000;
+    this.w = 200;
+    this.h = 100;
+    this.miniMapPosition = {x:0, y:0};
+
+    this.bind("Draw", function(e) {
+      this.drawHandler(e);
+    }.bind(this));
+
+    this.ready = true;
+  },
+
+  setOffset : function(offsetX, offsetY) {
+    this.attr({ x: offsetX, y: offsetY });
+  },
+
+  setPosition : function(position) {
+    this.miniMapPosition = this.toMiniMapPosition(position || {x:0, y:0});
+  },
+
+  toMiniMapPosition : function(position) {
+//    console.log("position: X=", position.x, "Y=", position.y);
+    var miniPosition = {
+      x: Math.round(((6200 + position.x) / Game.width()) * 200),
+      y: Math.round((position.y / Game.height()) * 100)
+    };
+//    console.log("offset: X=", this.offsetX, "Y=", this.offsetY);
+//    console.log("miniPosition: X=", miniPosition.x, "Y=", miniPosition.y);
+    return miniPosition;
+  },
+
+  drawHandler : function (e) {
+    this.drawMarker(e.ctx);
+  },
+
+  drawMarker : function(ctx) {
+//    console.log("Marker Offset: ", this.x, this.y);
+//    console.log("Marker Pos: ", this.miniMapPosition.x, this.miniMapPosition.y);
+
+//    console.log("Marker: ",
+//      "[", this.offsetX + this.x,       ",", this.offsetY + this.y + 50, "]",
+//      "[", this.offsetX + this.x + 50,  ",", this.offsetY + this.y, "]",
+//      "[", this.offsetX + this.x,       ",", this.offsetY + this.y, "]",
+//      "[", this.offsetX + this.x + 50,  ",", this.offsetY + this.y + 50, "]"
+//    )
+    ctx.strokeStyle = "#FF0000";
+    ctx.beginPath();
+    ctx.moveTo(this.miniMapPosition.x + this.x - 1,   this.miniMapPosition.y + this.y);
+    ctx.lineTo(this.miniMapPosition.x + this.x + 2,   this.miniMapPosition.y + this.y);
     ctx.closePath();
     ctx.stroke();
   }
@@ -143,19 +212,24 @@ Crafty.c('MiniMap', {
     this.diamond = Crafty.e("Diamond");
     this.diamond.setName("Diamond");
 
-    this.bind("PlayerMoved", this.updatePosition.bind(this));
+//    this.waypointMarker = Crafty.e("MiniMapMarker");
+//    this.waypointMarker.setName("MiniMapMarker");
 
-    this.updatePosition();
+    this.playerMarker = Crafty.e("MiniMapMarker");
+    this.playerMarker.setName("MiniMapMarker");
+
+    this.bind("PlayerMoved", this._playerMovedHandler.bind(this));
   },
 
-  updatePosition: function() {
+  _playerMovedHandler: function(playerPosition) {
     this.x = Crafty.viewport.width - Crafty.viewport.x - this.w - 5;
     this.y = (- Crafty.viewport.y + 55);
 
-    if (this.diamond) {
-      this.diamond.x = this.x;
-      this.diamond.y = this.y;
-    }
+    this.diamond.x = this.x;
+    this.diamond.y = this.y;
+
+    this.playerMarker.setPosition(playerPosition);
+    this.playerMarker.setOffset(this.x, this.y);
   }
 
 });
@@ -1062,6 +1136,13 @@ Crafty.c('Car', {
       this._triggerPlayerMoved();
     }
     //console.log("EnterFrame: player: x", this.x, "y", this.y, "z", this.z, "w", this.w, "h", this.h);
+  },
+
+  setPosition: function(x, y) {
+    this.x = x;
+    this.y = y;
+    this._updateViewportWithPlayerInCenter();
+    this._triggerPlayerMoved();
   },
 
   waypointReached: function(data) {

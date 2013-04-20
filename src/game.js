@@ -127,13 +127,20 @@ Game = {
     this.levelIndicator.setName("LevelIndicator");
   },
 
-  initLevel: function () {
+  initPlayer: function(playerX, playerY) {
+    this.player = Crafty.e('Car');
+    this.player.setName("Player");
+    this.player.setPosition(playerX, playerY);
+  },
+
+  initLevel: function (playerX, playerY) {
     this.waypointIndex = 0;
     Game.initNavigator();
     Game.initCountdown();
     Game.initMiniMap();
     Game.initLevelIndicator();
     Game.resetWaypoint();
+    Game.initPlayer(playerX, playerY);
   },
 
   isLevelComplete: function () {
