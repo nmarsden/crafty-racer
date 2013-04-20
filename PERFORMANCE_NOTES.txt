@@ -1,0 +1,11 @@
+* set break point in crafty.js (eg. line 1146)
+* run the following in the console...
+
+-= number of entities =-
+Object.keys(entities).length
+
+-= number of handlers for each event =-
+Object.keys(handlers).forEach(function(eventName) { console.log(eventName, ": ", Object.keys(handlers[eventName]).length) });
+
+-= number of EnterFrame event handlers for each entity
+Object.keys(handlers["EnterFrame"]).forEach(function(entityID) { console.log(entityID, "(", entities[entityID]._entityName, "): ", handlers["EnterFrame"][entityID].length) });

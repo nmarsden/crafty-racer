@@ -32,6 +32,7 @@ Crafty.c('FlashingText', {
   }
 });
 
+// TODO destroy TipText once animation is finished
 Crafty.c('TipText', {
   init: function() {
     this.requires('2D, DOM, Text');
@@ -820,11 +821,11 @@ Crafty.c('Car', {
   _changeSprite: function () {
     var spriteNumber = this.DIRECTIONS[this.directionIndex].spriteNum;
     if (this.directionIncrement == 0) {
-      this.animate('Straight_' + spriteNumber, 1, -1);
+      this.animate('Straight_' + spriteNumber, 1, 1);
     } else if (this.directionIncrement > 0) {
-      this.animate('TurnRight_' + spriteNumber, 1, -1);
+      this.animate('TurnRight_' + spriteNumber, 1, 1);
     } else if (this.directionIncrement < 0) {
-      this.animate('TurnLeft_' + spriteNumber, 1, -1);
+      this.animate('TurnLeft_' + spriteNumber, 1, 1);
     }
   },
 
