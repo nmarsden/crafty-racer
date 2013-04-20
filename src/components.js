@@ -753,6 +753,41 @@ Crafty.c('Car', {
       { angle:-77.4,  spriteNum:17, snapLeftIndex: 0,  snapRightIndex: 27 }
     ];
 
+    this.BOUNDING_BOXES = [
+      [[35, 15], [63, 15], [63, 68], [35, 68]],
+      [[30, 19], [57, 13], [68, 64], [41, 70]],
+      [[25, 24], [50, 12], [73, 59], [48, 71]],
+      [[22, 29], [44, 12], [76, 54], [54, 71]],
+      [[20, 36], [37, 14], [78, 47], [61, 69]],
+      [[19, 42], [32, 17], [79, 41], [66, 66]],
+      [[19, 47], [28, 20], [79, 36], [70, 63]],
+      [[21, 51], [25, 24], [77, 32], [73, 59]],
+      [[23, 56], [23, 28], [76, 28], [76, 56]],
+      [[24, 58], [21, 31], [74, 25], [77, 52]],
+      [[26, 61], [20, 34], [72, 22], [78, 49]],
+      [[29, 64], [19, 37], [69, 19], [79, 46]],
+      [[32, 66], [19, 41], [66, 17], [79, 42]],
+      [[39, 70], [20, 49], [59, 13], [78, 34]],
+      [[47, 71], [23, 57], [51, 12], [75, 26]],
+      [[55, 71], [28, 63], [43, 12], [70, 20]],
+      [[63, 68], [35, 68], [35, 15], [63, 15]],
+      [[70, 63], [43, 71], [28, 20], [55, 12]],
+      [[75, 57], [51, 71], [23, 26], [47, 12]],
+      [[78, 49], [59, 70], [20, 34], [39, 13]],
+      [[79, 41], [66, 66], [19, 42], [32, 17]],
+      [[79, 37], [69, 64], [19, 46], [29, 19]],
+      [[78, 34], [72, 61], [20, 49], [26, 22]],
+      [[77, 31], [74, 58], [21, 52], [24, 25]],
+      [[76, 28], [76, 56], [23, 55], [23, 27]],
+      [[73, 24], [77, 51], [25, 59], [21, 32]],
+      [[70, 20], [79, 47], [28, 63], [19, 36]],
+      [[66, 17], [79, 42], [32, 66], [19, 41]],
+      [[61, 14], [78, 36], [37, 69], [20, 47]],
+      [[54, 12], [76, 29], [44, 71], [22, 54]],
+      [[48, 12], [73, 24], [50, 71], [25, 59]],
+      [[41, 13], [68, 19], [57, 70], [30, 64]]
+    ];
+
     this.LOW_SPEED = 4;
     this.HIGH_SPEED = 10;
     this.TURN_DELAY = 40;
@@ -789,6 +824,41 @@ Crafty.c('Car', {
       this.animate('TurnRight_'+pos,  spriteSheet.x, spriteSheet.y, spriteSheet.x)
     }
 
+    // Generate all bounding polygons
+//    var boundingBoxes = "[";
+//    for (var dirIndex=0; dirIndex<this.DIRECTIONS.length; dirIndex++) {
+//      var polygon = this.boundingPolygon(this.DIRECTIONS[dirIndex].angle, this.w, this.h);
+//
+//      var polyString = "[";
+//      for (var i=0; i<polygon.points.length; i++) {
+//        polyString += "[" + Math.round(polygon.points[i][0]) + ", " + Math.round(polygon.points[i][1]) + "]"
+//        if (i < polygon.points.length-1) {
+//          polyString += ", ";
+//        }
+//      }
+//      polyString += "]";
+//
+//      boundingBoxes += polyString;
+//      if (dirIndex<this.DIRECTIONS.length-1) {
+//        boundingBoxes += ",\n";
+//      }
+//    }
+//    boundingBoxes += "];";
+//
+//    console.log(boundingBoxes);
+
+  },
+
+  _polygonString: function(polygon) {
+      var polyString = "[";
+      for (var i=0; i<polygon.points.length; i++) {
+        polyString += "[" + Math.round(polygon.points[i][0]) + ", " + Math.round(polygon.points[i][1]) + "]"
+        if (i < polygon.points.length-1) {
+          polyString += ", ";
+        }
+      }
+      polyString += "]";
+      return polyString;
   },
 
   _keyDown: function() {
@@ -898,10 +968,17 @@ Crafty.c('Car', {
     this.z = Math.floor(z);
   },
 
+  _clonePoints: function (points) {
+    var clonedPoints = [];
+    for (var i=0; i<points.length; i++) {
+      clonedPoints.push(points[i].slice(0));
+    }
+    return clonedPoints;
+  },
+
   _updateCollisionBoundingBox: function () {
-    // TODO Use pre-calculated bounding box based on direction
-    var boundingBox = this.boundingPolygon(this.direction, this.w, this.h);
-    this.collision(boundingBox);
+    var clonedPoints = this._clonePoints(this.BOUNDING_BOXES[this.directionIndex]);
+    this.collision(new Crafty.polygon(clonedPoints));
   },
 
   _updateViewportWithPlayerInCenter: function () {
