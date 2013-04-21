@@ -128,28 +128,74 @@ Crafty.c('Diamond', {
   },
 
   drawDiamond : function(ctx, offsetX, offsetY) {
-//    console.log("Diamond Offset: ", offsetX, offsetY);
-
-//    console.log("Diamond: ",
-//      "[", offsetX + this.w/2,  ",", offsetY, "]",
-//      "[", offsetX + this.w,    ",", offsetY + this.h/2, "]",
-//      "[", offsetX + this.w/2,  ",", offsetY + this.h, "]",
-//      "[", offsetX,             ",", offsetY + this.h/2, "]"
-//    )
-
-    ctx.strokeStyle = "#000000";
+    ctx.save();
+    ctx.strokeStyle = "rgba(0,0,0,0.2)";
     ctx.beginPath();
-    ctx.moveTo(offsetX + this.w/2,  offsetY + 0);
-    ctx.lineTo(offsetX + this.w,    offsetY + this.h/2);
-    ctx.lineTo(offsetX + this.w/2,  offsetY + this.h);
-    ctx.lineTo(offsetX + 0,         offsetY + this.h/2);
+    ctx.moveTo(offsetX + this.w/2 - 1,  offsetY - 1);
+    ctx.lineTo(offsetX + this.w,        offsetY + this.h/2 - 1);
+    ctx.lineTo(offsetX + this.w/2 - 1,  offsetY + this.h);
+    ctx.lineTo(offsetX - 1,             offsetY + this.h/2 - 1);
     ctx.closePath();
     ctx.stroke();
+    ctx.restore();
   }
 
 });
 
 Crafty.c('MiniMapMarker', {
+  init: function() {
+    this.requires('2D, Canvas');
+    this.z = 7000;
+    this.w = 200;
+    this.h = 100;
+    this.miniMapPosition = {x:0, y:0};
+    this.colour = "#000000";
+
+    this.bind("Draw", function(e) {
+      this.drawHandler(e);
+    }.bind(this));
+
+    this.ready = true;
+  },
+
+  setColour: function(colour) {
+    this.colour = colour;
+  },
+
+  setOffset: function(offsetX, offsetY) {
+    this.attr({ x: offsetX, y: offsetY });
+  },
+
+  setPosition: function(position) {
+    this.miniMapPosition = this.toMiniMapPosition(position || {x:0, y:0});
+  },
+
+  toMiniMapPosition: function(position) {
+    var miniPosition = {
+      x: Math.round(((6200 + position.x) / Game.width()) * 200),
+      y: Math.round((position.y / Game.height()) * 100)
+    };
+    return miniPosition;
+  },
+
+  drawHandler: function (e) {
+    this.drawMarker(e.ctx);
+  },
+
+  drawMarker: function(ctx) {
+    ctx.save();
+    ctx.strokeStyle = this.colour;
+    ctx.beginPath();
+    ctx.moveTo(this.miniMapPosition.x + this.x - 1,   this.miniMapPosition.y + this.y);
+    ctx.lineTo(this.miniMapPosition.x + this.x + 2,   this.miniMapPosition.y + this.y);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+});
+
+Crafty.c('MiniMapViewport', {
   init: function() {
     this.requires('2D, Canvas');
     this.z = 7000;
@@ -173,36 +219,29 @@ Crafty.c('MiniMapMarker', {
   },
 
   toMiniMapPosition : function(position) {
-//    console.log("position: X=", position.x, "Y=", position.y);
     var miniPosition = {
       x: Math.round(((6200 + position.x) / Game.width()) * 200),
       y: Math.round((position.y / Game.height()) * 100)
     };
-//    console.log("offset: X=", this.offsetX, "Y=", this.offsetY);
-//    console.log("miniPosition: X=", miniPosition.x, "Y=", miniPosition.y);
     return miniPosition;
   },
 
   drawHandler : function (e) {
-    this.drawMarker(e.ctx);
+    this.drawViewport(e.ctx);
   },
 
-  drawMarker : function(ctx) {
-//    console.log("Marker Offset: ", this.x, this.y);
-//    console.log("Marker Pos: ", this.miniMapPosition.x, this.miniMapPosition.y);
-
-//    console.log("Marker: ",
-//      "[", this.offsetX + this.x,       ",", this.offsetY + this.y + 50, "]",
-//      "[", this.offsetX + this.x + 50,  ",", this.offsetY + this.y, "]",
-//      "[", this.offsetX + this.x,       ",", this.offsetY + this.y, "]",
-//      "[", this.offsetX + this.x + 50,  ",", this.offsetY + this.y + 50, "]"
-//    )
-    ctx.strokeStyle = "#FF0000";
+  drawViewport : function(ctx) {
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,0,0,0.2)";
+    ctx.stroke
     ctx.beginPath();
-    ctx.moveTo(this.miniMapPosition.x + this.x - 1,   this.miniMapPosition.y + this.y);
-    ctx.lineTo(this.miniMapPosition.x + this.x + 2,   this.miniMapPosition.y + this.y);
+    ctx.moveTo(this.miniMapPosition.x + this.x - 8,   this.miniMapPosition.y + this.y - 5);
+    ctx.lineTo(this.miniMapPosition.x + this.x + 8,   this.miniMapPosition.y + this.y - 5);
+    ctx.lineTo(this.miniMapPosition.x + this.x + 8,   this.miniMapPosition.y + this.y + 5);
+    ctx.lineTo(this.miniMapPosition.x + this.x - 8,   this.miniMapPosition.y + this.y + 5);
     ctx.closePath();
     ctx.stroke();
+    ctx.restore();
   }
 
 });
@@ -211,8 +250,8 @@ Crafty.c('MiniMap', {
   init: function() {
     this.requires('2D, Canvas');
     this.z = 7000;
-    this.w = 200;
-    this.h = 100;
+    this.w = 220;
+    this.h = 110;
     this.ready = true;
 
     this.diamond = Crafty.e("Diamond");
@@ -220,34 +259,57 @@ Crafty.c('MiniMap', {
 
     this.waypointMarker = Crafty.e("MiniMapMarker");
     this.waypointMarker.setName("MiniMapMarker");
+    this.waypointMarker.setColour("#000000");
 
     this.playerMarker = Crafty.e("MiniMapMarker");
     this.playerMarker.setName("MiniMapMarker");
+    this.playerMarker.setColour("#FF0000");
+
+    this.viewportOutline= Crafty.e("MiniMapViewport");
+    this.viewportOutline.setName("MiniMapViewport");
 
     this.bind("PlayerMoved", this._playerMovedHandler.bind(this));
 
     this.bind("WaypointMoved", this._waypointMovedHandler.bind(this));
   },
 
-  _playerMovedHandler: function(playerPosition) {
-    this.x = Crafty.viewport.width - Crafty.viewport.x - this.w - 5;
-    this.y = (- Crafty.viewport.y + 55);
+  _miniMapPosition: function() {
+    return {
+      x: Crafty.viewport.width - Crafty.viewport.x - this.w - 5,
+      y: (- Crafty.viewport.y + 55)
+    };
+  },
 
-    this.diamond.x = this.x;
-    this.diamond.y = this.y;
+  _playerMovedHandler: function(playerPosition) {
+    var miniMapPos = this._miniMapPosition();
+    this.x = miniMapPos.x;
+    this.y = miniMapPos.y;
+
+    var offsetX = miniMapPos.x + 10;
+    var offsetY = miniMapPos.y + 5;
+
+    this.diamond.x = offsetX;
+    this.diamond.y = offsetY;
 
     this.playerMarker.setPosition(playerPosition);
-    this.playerMarker.setOffset(this.x, this.y);
+    this.playerMarker.setOffset(offsetX, offsetY);
 
-    this.waypointMarker.setOffset(this.x, this.y);
+    this.waypointMarker.setOffset(offsetX, offsetY);
+
+    this.viewportOutline.setPosition(playerPosition);
+    this.viewportOutline.setOffset(offsetX, offsetY);
   },
 
   _waypointMovedHandler: function(waypointPosition) {
-    this.x = Crafty.viewport.width - Crafty.viewport.x - this.w - 5;
-    this.y = (- Crafty.viewport.y + 55);
+    var miniMapPos = this._miniMapPosition();
+    this.x = miniMapPos.x;
+    this.y = miniMapPos.y;
+
+    var offsetX = miniMapPos.x + 10;
+    var offsetY = miniMapPos.y + 5;
 
     this.waypointMarker.setPosition(waypointPosition);
-    this.waypointMarker.setOffset(this.x, this.y);
+    this.waypointMarker.setOffset(offsetX, offsetY);
   }
 
 });
