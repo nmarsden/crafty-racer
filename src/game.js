@@ -101,10 +101,8 @@ Game = {
   initWaypoint: function () {
     var waypoint = this.waypoints[this.waypointIndex];
     this.waypoint = Crafty.e('Waypoint');
-    this.waypoint.x = waypoint.x;
-    this.waypoint.y = waypoint.y;
-    //this.waypoint = Crafty.e('Waypoint').at(waypoint.x, waypoint.y);
     this.waypoint.setName("Waypoint");
+    this.waypoint.setPosition(waypoint.x, waypoint.y);
   },
 
   initNavigator: function () {
@@ -167,7 +165,7 @@ Game = {
   resetWaypoint: function () {
     this.waypoint && this.waypoint.destroy();
     Game.initWaypoint();
-    this.navigator.setWaypointPosition(this.waypoint.x, this.waypoint.y);
+
 //    this.countdown.start(1000000);
     this.countdown.start(30000);
   },

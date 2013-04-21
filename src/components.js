@@ -1,4 +1,6 @@
 // TODO Fix memory leak problem
+// TODO Fix minimap and navigator appearing behind solid blocks when player at bottom of map
+
 Crafty.c('Grid', {
   init: function() {
     this.attr({
@@ -91,6 +93,12 @@ Crafty.c('Waypoint', {
 
     this.animate('ChangeColour', 0, 0, 10); //setup animation
     this.animate('ChangeColour', 15, -1); // start animation
+  },
+
+  setPosition: function(x, y) {
+    this.x = x;
+    this.y = y;
+    Crafty.trigger("WaypointMoved", {x: this.x, y: this.y});
   },
 
   reached: function() {
@@ -212,13 +220,15 @@ Crafty.c('MiniMap', {
     this.diamond = Crafty.e("Diamond");
     this.diamond.setName("Diamond");
 
-//    this.waypointMarker = Crafty.e("MiniMapMarker");
-//    this.waypointMarker.setName("MiniMapMarker");
+    this.waypointMarker = Crafty.e("MiniMapMarker");
+    this.waypointMarker.setName("MiniMapMarker");
 
     this.playerMarker = Crafty.e("MiniMapMarker");
     this.playerMarker.setName("MiniMapMarker");
 
     this.bind("PlayerMoved", this._playerMovedHandler.bind(this));
+
+    this.bind("WaypointMoved", this._waypointMovedHandler.bind(this));
   },
 
   _playerMovedHandler: function(playerPosition) {
@@ -230,6 +240,16 @@ Crafty.c('MiniMap', {
 
     this.playerMarker.setPosition(playerPosition);
     this.playerMarker.setOffset(this.x, this.y);
+
+    this.waypointMarker.setOffset(this.x, this.y);
+  },
+
+  _waypointMovedHandler: function(waypointPosition) {
+    this.x = Crafty.viewport.width - Crafty.viewport.x - this.w - 5;
+    this.y = (- Crafty.viewport.y + 55);
+
+    this.waypointMarker.setPosition(waypointPosition);
+    this.waypointMarker.setOffset(this.x, this.y);
   }
 
 });
@@ -239,11 +259,14 @@ Crafty.c('Navigator', {
     this.requires('Actor, spr_navigator');
     this.z = 5000;
     this.origin(96/2, 96/2);
-    this.updatePosition();
-    this.setWaypointPosition(100, 100);
+
+    this.bind("WaypointMoved", function(waypointPosition) {
+      this.waypointPosition = waypointPosition;
+    });
 
     this.bind("PlayerMoved", function(playerPosition) {
-      this.updatePosition();
+      this.x = Game.viewportWidth() - this.w - Crafty.viewport.x + 5;
+      this.y = Game.viewportHeight() - this.h - Crafty.viewport.y + 5;
 
       if (!this.waypointPosition) {
         this.rotation = 0;
@@ -256,17 +279,7 @@ Crafty.c('Navigator', {
         this.rotation = (angle - 90) % 360;
       }
     });
-  },
-
-  updatePosition: function() {
-    this.x = Game.viewportWidth() - this.w - Crafty.viewport.x + 5;
-    this.y = Game.viewportHeight() - this.h - Crafty.viewport.y + 5;
-  },
-
-  setWaypointPosition:function (x, y) {
-    this.waypointPosition = {x: x, y: y};
   }
-
 });
 
 Crafty.c('ShowFPS', {
