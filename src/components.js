@@ -1,5 +1,4 @@
 // TODO Fix memory leak problem
-// TODO Fix minimap and navigator appearing behind solid blocks when player at bottom of map
 
 Crafty.c('Grid', {
   init: function() {
@@ -113,7 +112,7 @@ Crafty.c('Waypoint', {
 Crafty.c('Diamond', {
   init: function() {
     this.requires('2D, Canvas');
-    this.z = 5000;
+    this.z = 7000;
     this.w = 200;
     this.h = 100;
 
@@ -150,11 +149,10 @@ Crafty.c('Diamond', {
 
 });
 
-// TODO Fix extra pixels appearing at top and bottom of diamond when player moves
 Crafty.c('MiniMapMarker', {
   init: function() {
     this.requires('2D, Canvas');
-    this.z = 5000;
+    this.z = 7000;
     this.w = 200;
     this.h = 100;
     this.miniMapPosition = {x:0, y:0};
@@ -212,7 +210,7 @@ Crafty.c('MiniMapMarker', {
 Crafty.c('MiniMap', {
   init: function() {
     this.requires('2D, Canvas');
-    this.z = 5000;
+    this.z = 7000;
     this.w = 200;
     this.h = 100;
     this.ready = true;
@@ -257,7 +255,7 @@ Crafty.c('MiniMap', {
 Crafty.c('Navigator', {
   init: function() {
     this.requires('Actor, spr_navigator');
-    this.z = 5000;
+    this.z = 7000;
     this.origin(96/2, 96/2);
 
     this.bind("WaypointMoved", function(waypointPosition) {
