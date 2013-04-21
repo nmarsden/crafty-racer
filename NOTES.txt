@@ -7,6 +7,12 @@ Entities
 * Countdown - indicates remaining time to reach the waypoint
             - flashes when time is running low
 
+* Mini Map  - shows position of player
+            - shows position of next waypoint
+            - shows viewport
+            - shows edges of map
+            - 1:64 scale
+
 * Navigator - indicates direction of the waypoint
 
 * Distance - indicates the distance to the waypoint
