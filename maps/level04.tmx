@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="isometric" width="100" height="100" tilewidth="128" tileheight="64">
+ <tileset firstgid="1" name="Ground" tilewidth="128" tileheight="64">
+  <image source="../assets/Iso_Cubes_01_128x128_Alt_00_004.png" width="128" height="128"/>
+ </tileset>
+ <tileset firstgid="3" name="Solid" tilewidth="128" tileheight="64">
+  <image source="../assets/Iso_Cubes_01_128x128_Alt_00_003.png" width="128" height="128"/>
+ </tileset>
+ <tileset firstgid="5" name="Collision" tilewidth="128" tileheight="64">
+  <image source="../assets/Collision_Marker.png" width="128" height="64"/>
+ </tileset>
+ <tileset firstgid="6" name="Player" tilewidth="128" tileheight="64">
+  <image source="../assets/Player_Marker.png" width="128" height="64"/>
+ </tileset>
+ <tileset firstgid="7" name="Waypoint" tilewidth="128" tileheight="64">
+  <image source="../assets/Waypoints_Marker.png" width="1280" height="64"/>
+  <tile id="0">
+   <properties>
+    <property name="waypoint" value="1"/>
+   </properties>
+  </tile>
+  <tile id="1">
+   <properties>
+    <property name="waypoint" value="2"/>
+   </properties>
+  </tile>
+  <tile id="2">
+   <properties>
+    <property name="waypoint" value="3"/>
+   </properties>
+  </tile>
+  <tile id="3">
+   <properties>
+    <property name="waypoint" value="4"/>
+   </properties>
+  </tile>
+  <tile id="4">
+   <properties>
+    <property name="waypoint" value="5"/>
+   </properties>
+  </tile>
+  <tile id="5">
+   <properties>
+    <property name="waypoint" value="6"/>
+   </properties>
+  </tile>
+  <tile id="6">
+   <properties>
+    <property name="waypoint" value="7"/>
+   </properties>
+  </tile>
+  <tile id="7">
+   <properties>
+    <property name="waypoint" value="8"/>
+   </properties>
+  </tile>
+  <tile id="8">
+   <properties>
+    <property name="waypoint" value="9"/>
+   </properties>
+  </tile>
+  <tile id="9">
+   <properties>
+    <property name="waypoint" value="10"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="Ground_Sides" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJzt28FqwkAUQFHx/z+62xaKJpkkva+eAwEX4/jGu1GDjwdQ94zvd4fSzHq0ZtajNbMerZn1aM2sR2tmPVoz67Fv5ueLa+/zVmfZ4hN6XPkaeuhRo0eLHi16tOjRokeLHi16tEyc+T/To0WPFj1a9GjRo0WPFj1a7rg/yHZ3fD9nOz1a9GjRo0WPFj1a9GjRo0WPFj1a9GiZ8h6/+u3s3TXJlHmnzLlqyjmnzLlqyjmnzLlqyjk/5XPHlNn1aNGjRY8WPVrezTn5O+B3U2Z/NeeUM2wx5Sx6tOjRokeLHi16/L72r+4x6LG29mx6rK09mx5ra8+mx9pajtGjRY8WPVr0aNGjRY8WPVq8xy16tOjRokeLHi16tOjRokfLHffP96w/+/+BR/ar3ndbWXv3a9y139X0aNGjRY8WPVr0aNGjRY8WPVr0aNGjRY8WPVr0aKnNq0eLHi16tOjRokeLHi16tOjx83HhOnKGM/fbsueV1xfORgNp
+  </data>
+ </layer>
+ <layer name="Ground_Tops" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJzt0UFSwDAMBEH4/6c5c3DKXhY0JqOqvTmSov74sGj1CUh777QIN5i20EOPpKce+e3SItxg2kIPPZKeeuS3S4twg2kLPfRIepI80v133yelx/n+u++T0uN8/933Selxvv/u+6T0ON9/931Sepzvv/s+KT3O9999n5Qe5/vvvk9Kj/P9d98n9WYPo8fbogcrerCiByt6sKIHK3qwogcrJx6rmv6H/xQ9WNGDFT1Y0YMVPVjRgxU9WNGDFT1Y0YMVb8rKLR5pTe+tx/ea3luP7zW991s8dt9O762HHnrooQdjTz0Y0YOVJ4+nmt5bj/W7G3LL3k93fqrpvfVYv7sht+z9dOenmt5bj/W7G3LL3k93vvn+P/FYlR566LEuPd7n8ZbowYoerOjBih6s6MGKHqzowYo3ZUUPVvRgRQ9W9GBFD1b0YEUPVvRg5cRjVaffJTNasxs99ejNbvTUoze70VOP3uxGTz16sxs99ejNbvTUoze70VOP3uxGTz16sxs99ejNbvTUoze70VOP3uxGTz16sxs99ejNbvSkePzlPq3bJUX4/2kHPfRIe+qR3y4pwv9PO+ihR9pTj/x2SRH+f9pBDz3SnqT/t36/vgB/Vx9E
+  </data>
+ </layer>
+ <layer name="Objects" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJztzikOgEAABEEU9/X/14LAkhCyMCuqzLhJNw0AUJu5wEdX4ONvYzoAAAAAAAAAAAAAAAAAAG6s6QCqtKUDAOBj7bV7tAIAgLQhHQAAAAAAAAAAAAAAAAAAAPDAlA6o2JIOgJf6dAAAwOkA7ZYAeg==
+  </data>
+ </layer>
+ <layer name="Solid_Sides" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJztmtFqxDAMBO+h9/+/XEqfzjj2WpLdTTMDgZKupDRD6Nm59+v1epscK1T3U3u63YddRHxU9ovWtHwlavGRr2nBR02/aE0LPmr6RWta8FHTL1rTgo+aftGaFnzU9IvWtOCjpl+0pgUfNf2iNS2nfETXkmr+Dj6Ue33Sh3JulHmCj0w9PtZq8BHP42Neh4/5fHzoNfiI5/Exr8PHfL7T+mP1iFxvpueXcMzqlWuGM+DDC3x4gQ8v8OEFPrzAhxf48AIfXjisz9U1rZJbXQvv6Fnxt15xYv9KJbs3dAK3/SvlXBR84GMVfHiBDy/w4QU+vMCHF/g4S8V6MPP7U+tzhTv4yNY77F853GeV3T5m3MXHju+K7LjWJ/k4UYMPjXfzs/Jc4KPPDh9KFh998KGDj0/wofE0H9F3m8r8ij4nfex8nzuD5+OTE8/HyPV/8MHn3TVO+JjVqOBDAx914EMHH5/gQ0Pxwf6uxkkfWe7kI/qOYeUar7L46GeVcxncfbi9P1fOZRj5uHomM/8vVnnS90t+cH/Xjg8v8OEFPrzAhxf48AIfXrj5iK7Pdx07Zs/6ZeeNOLWOgl/w4QU+vMCHF/jwAh9e4MMLfHiBDy8c1ucr+asZVbOzPXev70/sX43efUf6RWdX9HTbv1LOjTL4mM/Hh57HRy6Lj3EGH/P5+NDz+Mhl8THO4GM+Hx/x/Cr4WAMf6/2is6t6ZsDHGnfzsbr/1qubZVWe7uME/8HH6J7jY9/8KzKfifGRy/fAR02/SL4HPmr6RfI98FHTL5LvgY+afpF8D3zU9Ivke+Cjpl8k36PCh9NRfe0r/PXf/nN8A8jnFbs=
+  </data>
+ </layer>
+ <layer name="Solid_Tops" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJzt2UluwkAUQEEk7n/nLCIW2QSP7dd2lcSKwZ9+GMnu14ujvK8egD/0aNGjRY8WPVr0aNGjRY8WPcZZstZ6jLN3rbU6lh4terTo0aJHix4terS8Fzy+vZ8OPVr0aNGjRY8WPVr0aNGjRY+WQo8l17RbH2cc99tn7j3mLGaY9Un3r2aYVY8WPVr0aNGjRY8WPVr0GOuI68E9z4+wdIaZZt36/jt8x5Ge8H80w4wferTo0aJHix4terTo0VLpcdae6ZrPLjh7P7dghhk/RpwfV/8m9WiZYcYPPVr0aNGjRY8WPVr02P7aMzyhxxpXf58n7J+vUZ/3aedPfV49WvRo0aNFjxY9WvRouUOPPXvBo/aKj9qPnWVfml96tOjRokeLHi16tOjRokeLHi16HOvs63vWucP9qzvRo0WPFj1a9GjRo0WPFj3uRY8WPVr0aNGjRY/x/ltzPcaz5i16tOjRokeLHi16tOjRogec6wf8RQQJ
+  </data>
+ </layer>
+</map>

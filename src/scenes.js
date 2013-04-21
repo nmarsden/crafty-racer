@@ -25,33 +25,54 @@ Crafty.scene('Game', function() {
 
   Crafty.e("2D, Canvas, TiledMapBuilder").setMapDataSource( LEVELS[Game.levelIndex] )
     .createWorld( function( tiledmap ){
-      var entities, obstacle;
+      var entities, obstacle, entity;
+
+      // Set properties of entities on the 'Ground_Sides' layer
+      entities = tiledmap.getEntitiesInLayer('Ground_Sides');
+      for (obstacle = 0; obstacle < entities.length; obstacle++){
+        entity = entities[obstacle];
+
+        //Set z-index for correct view: front, back
+        entity.z = Math.floor(entity._y - (entity._h*2));
+      }
+
+      // Set properties of entities on the 'Ground_Tops' layer
+      entities = tiledmap.getEntitiesInLayer('Ground_Tops');
+      for (obstacle = 0; obstacle < entities.length; obstacle++){
+        entity = entities[obstacle];
+
+        //Set z-index for correct view: front, back
+        entity.z = Math.floor(entity._y - entity._h - 10);
+      }
 
       // Set properties of entities on the 'Solid_Sides' layer
       entities = tiledmap.getEntitiesInLayer('Solid_Sides');
       for (obstacle = 0; obstacle < entities.length; obstacle++){
-        var entity = entities[obstacle];
+        entity = entities[obstacle];
 
         //Set z-index for correct view: front, back
         entity.z = Math.floor(entity._y );
 
         // Set collision settings
-        entity.addComponent("Collision, Solid")
+        entity.addComponent("Collision")
         entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
 
         // Hide collision marker
         if (entity.__image === "assets/Collision_Marker.png") {
+          entity.addComponent("Hole");
           entity._visible = false;
+        } else {
+          entity.addComponent("Solid");
         }
       }
 
       // Set properties of entities on the 'Solid_Tops' layer
       entities = tiledmap.getEntitiesInLayer('Solid_Tops');
       for (obstacle = 0; obstacle < entities.length; obstacle++){
+        var entity = entities[obstacle];
 
         //Set z-index for correct view: front, back
-        var solidTop = entities[obstacle];
-        solidTop.z = Math.floor(solidTop._y + solidTop._h);
+        entity.z = Math.floor(entity._y + entity._h);
       }
 
       // Set properties of entities on the 'Objects' layer
@@ -104,11 +125,18 @@ Crafty.scene('Game', function() {
   this.bind('WaypointReached', this.show_victory);
 
   // Show the game over screen when time is up
-  this.show_game_over = function() {
+  this.show_game_over_times_up = function() {
     Game.stopAllSoundsExcept();
-    Crafty.scene('GameOver');
+    Crafty.scene('GameOverTimesUp');
   }
-  this.bind('TimesUp', this.show_game_over);
+  this.bind('TimesUp', this.show_game_over_times_up);
+
+  // Show the game over screen when off the edge
+  this.show_game_over_off_the_edge = function() {
+    Game.stopAllSoundsExcept();
+    Crafty.scene('GameOverOffTheEdge');
+  }
+  this.bind('OffTheEdge', this.show_game_over_off_the_edge);
 
   //console.log("Crafty.DrawManager.total2D:", Crafty.DrawManager.total2D);
 
@@ -119,7 +147,8 @@ Crafty.scene('Game', function() {
   //  end up having multiple redundant event watchers after
   //  multiple restarts of the game
   this.unbind('WaypointReached', this.show_victory);
-  this.unbind('TimesUp', this.show_game_over);
+  this.unbind('TimesUp', this.show_game_over_times_up);
+  this.unbind('OffTheEdge', this.show_game_over_off_the_edge);
 });
 
 
@@ -145,6 +174,7 @@ Crafty.scene('Loading', function(){
     'assets/woop.ogg',
     'assets/beep_1.mp3',
     'assets/badminton_racket_fast_movement_swoosh_002.mp3',
+    'assets/cartoon_slide_whistle_descend_version_3.mp3',
     'assets/Happy Bee.mp3',
     'assets/Enter the party.mp3',
     'assets/Show Your Moves.mp3',
@@ -206,6 +236,7 @@ Crafty.scene('Loading', function(){
       engine_rev_faster:  ['assets/engine_rev_faster.ogg'],
       wheel_spin:         ['assets/wheel_spin.ogg'],
       woop:               ['assets/woop.ogg'],
+      falling:            ['assets/cartoon_slide_whistle_descend_version_3.mp3'],
       menu_nav:           ['assets/beep_1.mp3'],
       menu_change_page:   ['assets/badminton_racket_fast_movement_swoosh_002.mp3'],
       level_music:        ['assets/Happy Bee.mp3'],
@@ -233,12 +264,24 @@ Crafty.scene('Victory', function() {
 }, function() {
 });
 
-// GameOver scene
-// -------------
-Crafty.scene('GameOver', function() {
+// GameOverTimesUp scene
+// ---------------------
+Crafty.scene('GameOverTimesUp', function() {
 
   this.gameOverControl = Crafty.e('GameOverControl');
   this.gameOverControl.setName("GameOverControl");
+  this.gameOverControl.setReason("TIMES UP");
+
+}, function() {
+});
+
+// GameOverOffTheEdge scene
+// ------------------------
+Crafty.scene('GameOverOffTheEdge', function() {
+
+  this.gameOverControl = Crafty.e('GameOverControl');
+  this.gameOverControl.setName("GameOverControl");
+  this.gameOverControl.setReason("OFF THE EDGE");
 
 }, function() {
 });

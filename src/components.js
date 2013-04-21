@@ -48,27 +48,30 @@ Crafty.c('TipText', {
     var y = Crafty.viewport.height/2 - Crafty.viewport.y;
 
     this.attr({ x: x, y: y - 100 });
-    this.text("WOOHOO!");
+  },
+
+  show: function() {
     this.css({
       'transition-property': 'opacity, top',
       'transition-duration': '4s, 1s',
       'transition-timing-function': 'ease'
     });
+    this.bind("EnterFrame", this._enterFrameHandler.bind(this));
+  },
 
-    this.bind("EnterFrame", function() {
-      var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
-      var y = Crafty.viewport.height/2 - Crafty.viewport.y;
-      this.attr({ x: x, y: y - 100 });
+  _enterFrameHandler: function() {
+    var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
+    var y = Crafty.viewport.height/2 - Crafty.viewport.y;
+    this.attr({ x: x, y: y - 100 });
 
-      if (this.animating) {
-        return;
-      }
-      var timeElapsed = Date.now() - this.startTime;
-      if (timeElapsed > this.delay) {
-        this.animating = true;
-        this.css({ 'top': '-50px', 'opacity': '0.0' });
-      }
-    });
+    if (this.animating) {
+      return;
+    }
+    var timeElapsed = Date.now() - this.startTime;
+    if (timeElapsed > this.delay) {
+      this.animating = true;
+      this.css({ 'top': '-50px', 'opacity': '0.0' });
+    }
   }
 });
 
@@ -88,7 +91,6 @@ Crafty.c('Waypoint', {
   init: function() {
     this.requires('Actor, spr_waypoint, SpriteAnimation, Collision');
     this.collision( new Crafty.polygon([32,0],[64,16],[64,48],[32,64],[0,48],[0,16]) );
-    this.z = 1000;
 
     this.animate('ChangeColour', 0, 0, 10); //setup animation
     this.animate('ChangeColour', 15, -1); // start animation
@@ -97,12 +99,16 @@ Crafty.c('Waypoint', {
   setPosition: function(x, y) {
     this.x = x;
     this.y = y;
+    this.z = Math.floor(y);
     Crafty.trigger("WaypointMoved", {x: this.x, y: this.y});
   },
 
   reached: function() {
     Game.playSoundEffect('woop', 1, 1.0);
-    Crafty.e('TipText').setName("TipText");
+    var waypointText = Crafty.e('TipText');
+    waypointText.setName("WaypointText");
+    waypointText.text("WOOHOO!");
+    waypointText.show();
 
     Crafty.trigger('WaypointReached', this);
   }
@@ -809,7 +815,6 @@ Crafty.c('GameOverControl', {
     this.keyPressDelay = true;
 
     this.levelComplete = Crafty.e('2D, DOM, Text');
-    this.levelComplete.text("TIMES UP");
     var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
     var y = Crafty.viewport.height/2 - Crafty.viewport.y - 60;
     this.levelComplete.attr({ x: x, y: y, w: 320 })
@@ -835,6 +840,10 @@ Crafty.c('GameOverControl', {
     this.bind('KeyDown', this.showLoading);
 
     this.bind('EnterFrame', this.restartGame);
+  },
+
+  setReason: function(reason) {
+    this.levelComplete.text(reason);
   },
 
   enableKeyPress: function() {
@@ -1003,12 +1012,18 @@ Crafty.c('Car', {
     this.moving = false;
     this.movingStartTime = 0;
     this.movement = {};
+    this.falling = false;
+    this.fallStepsMoving = 0;
+    this.fallStepsDropping = 0;
 
-    this.requires('Actor, Keyboard, Collision, spr_car, SpriteAnimation')
-      .stopOnSolids()
+    this.requires('Actor, Keyboard, Collision, spr_car, SpriteAnimation');
 
     this.attr({z:1000});
     this.collision( new Crafty.polygon([35,15],[63,15],[63,68],[35,68]) );
+
+    this.onHit('Solid', this.stopMovement);
+
+    this.onHit('Hole', this.holeHit);
 
     this.onHit('Waypoint', this.waypointReached);
 
@@ -1105,6 +1120,9 @@ Crafty.c('Car', {
   },
 
   _adjustDirectionIndexForSnapToDirection: function () {
+    if (this.falling) {
+      return;
+    }
     if (this.directionIncrement === 0 && this.directionIndex != this.snappedDirectionIndex) {
       if (this.snappedDirectionIndex === 0 & this.directionIndex > 10) {
         this.directionIndex++;
@@ -1139,6 +1157,10 @@ Crafty.c('Car', {
   },
 
   _updateDirection: function () {
+    if (this.falling) {
+      return;
+    }
+
     var timeTurning = Date.now() - this.turningStartTime;
     if (timeTurning > this.TURN_DELAY) {
       if (this.directionIncrement < 0) {
@@ -1195,6 +1217,38 @@ Crafty.c('Car', {
   },
 
   _enterFrame: function() {
+    if (this.falling) {
+      if (this.fallStepsDropping > 0) {
+        this.fallStepsDropping--;
+        if (this.fallStepsDropping === 0) {
+          // Game over - off the edge
+          Crafty.trigger('OffTheEdge', this);
+        }
+        // Animate dropping
+        this.movement.x = 0;
+        this.movement.y = 20;
+        this.x += this.movement.x;
+        this.y += this.movement.y;
+        return;
+      }
+
+      if (this.fallStepsMoving === 0) {
+        // Start dropping
+        Game.playSoundEffect('falling', 1, 1.0);
+
+        var fallingText = Crafty.e('TipText');
+        fallingText.setName("FallingText");
+        fallingText.text("UH OH!");
+        fallingText.show();
+
+        this.fallStepsDropping = 100;
+        return;
+      } else {
+        // Keep moving
+        this.fallStepsMoving--;
+      }
+    }
+
     this._changeSprite();
     this._adjustDirectionIndexForSnapToDirection();
     this._adjustSpeedAndChangeSoundEffect();
@@ -1214,6 +1268,7 @@ Crafty.c('Car', {
   setPosition: function(x, y) {
     this.x = x;
     this.y = y;
+    this.z = Math.floor(y);
     this._updateViewportWithPlayerInCenter();
     this._triggerPlayerMoved();
   },
@@ -1234,15 +1289,6 @@ Crafty.c('Car', {
     return {x: x, y: y};
   },
 
-  // Registers a stop-movement function to be called when
-  //  this entity hits an entity with the "Solid" component
-  stopOnSolids: function() {
-    this.onHit('Solid', this.stopMovement);
-
-    return this;
-  },
-
-  // Stops the movement
   stopMovement: function(hitData) {
     // undo previous movement
     if (this.moving) {
@@ -1254,6 +1300,22 @@ Crafty.c('Car', {
     var hd = hitData[0];
     this.x += hd.normal.x;
     this.y += hd.normal.y;
+  },
+
+  // TODO improve detection of fall by improving bounding boxes of car
+  holeHit: function(hitData) {
+    if (this.falling) {
+      return;
+    }
+    var totalOverlap = 0;
+    hitData.forEach(function(hd) { totalOverlap += Math.abs(hd.overlap); });
+    if (totalOverlap > 25) {
+      //console.log("Begin Fall Mode!");
+      this.falling = true;
+      this.fallStepsMoving = Math.round(80 / this.speed);
+      this.unbind('KeyDown', this._keyDown);
+      this.unbind('KeyUp', this._keyUp);
+    }
   },
 
   boundingPolygon: function(direction, w, h) {

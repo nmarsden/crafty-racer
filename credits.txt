@@ -34,6 +34,7 @@ vwbuggy.wav - http://autospeak.com/grpsnda/vwbuggy.wav
 woopwoop.mp3 - http://soundbible.com/1377-Woop-Woop.html
 beep_1.mp3 - http://www.freesfx.co.uk/sfx/electronic%20bleep
 badminton_racket_fast_movement_swoosh_002.mp3 - http://www.freesfx.co.uk/download/?type=mp3&id=7508
+cartoon_slide_whistle_descend_version_3.mp3 - http://www.freesfx.co.uk/download/?type=mp3&id=8307
 
 Music
 Happy Bee - http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300014
