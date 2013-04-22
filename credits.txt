@@ -15,7 +15,7 @@ Sound FX:
 * freeSFX (http://www.freesfx.co.uk)
 * Partners In Rhyme (http://www.partnersinrhyme.com && http://autospeak.com)
 * SoundBible (http://soundbible.com)
-
+* freesound (http://www.freesound.org)
 Music:
 * Incompetech (http://incompetech.com/music/royalty-free/)
 
@@ -35,6 +35,7 @@ woopwoop.mp3 - http://soundbible.com/1377-Woop-Woop.html
 beep_1.mp3 - http://www.freesfx.co.uk/sfx/electronic%20bleep
 badminton_racket_fast_movement_swoosh_002.mp3 - http://www.freesfx.co.uk/download/?type=mp3&id=7508
 cartoon_slide_whistle_descend_version_3.mp3 - http://www.freesfx.co.uk/download/?type=mp3&id=8307
+76376__spazzo-1493__game-over.wav - http://www.freesound.org/people/spazzo_1493/sounds/76376/
 
 Music
 Happy Bee - http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300014

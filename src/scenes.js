@@ -175,6 +175,7 @@ Crafty.scene('Loading', function(){
     'assets/beep_1.mp3',
     'assets/badminton_racket_fast_movement_swoosh_002.mp3',
     'assets/cartoon_slide_whistle_descend_version_3.mp3',
+    'assets/76376__spazzo-1493__game-over.wav',
     'assets/Happy Bee.mp3',
     'assets/Enter the party.mp3',
     'assets/Show Your Moves.mp3',
@@ -239,6 +240,7 @@ Crafty.scene('Loading', function(){
       falling:            ['assets/cartoon_slide_whistle_descend_version_3.mp3'],
       menu_nav:           ['assets/beep_1.mp3'],
       menu_change_page:   ['assets/badminton_racket_fast_movement_swoosh_002.mp3'],
+      game_over:          ['assets/76376__spazzo-1493__game-over.wav'],
       level_music:        ['assets/Happy Bee.mp3'],
       menu_music:         ['assets/Enter the Party.mp3'],
       end_level_music:    ['assets/Show Your Moves.mp3']

@@ -833,6 +833,8 @@ Crafty.c('GameOverControl', {
     this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '20px', family: 'Arial' })
     this.pressAnyKey.textColor('#0061FF');
 
+    Game.playSoundEffect('game_over', 1, 1.0);
+
     // After a short delay, watch for the player to press a key, then restart
     // the game when a key is pressed
     setTimeout(this.enableKeyPress.bind(this), 1000);
