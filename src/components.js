@@ -889,11 +889,7 @@ Crafty.c('PauseControl', {
     this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '20px', family: 'Arial' })
     this.pressAnyKey.textColor('#0061FF');
 
-    this.bind('KeyDown', function () {
-      if (this.isDown('SPACE')) {
-        this.togglePause();
-      }
-    });
+    this.bind('KeyDown', this.pauseOnEscKey);
 
     this.bind("EnterFrame", function() {
       if (this.paused) {
@@ -904,28 +900,42 @@ Crafty.c('PauseControl', {
 
   },
 
-  togglePause: function() {
-    this.paused = !this.paused;
-    if (this.paused) {
-      Crafty.audio.mute();
-
-      var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
-      var y = Crafty.viewport.height/2 - Crafty.viewport.y;
-
-      this.pauseText.attr({ x: x, y: y - 100 });
-      this.pauseText.text("PAUSED");
-
-      this.pressAnyKey.attr({ x: x, y: y + 30 });
-      this.pressAnyKey.text("PRESS SPACE TO CONTINUE");
-
-    } else {
-      this.pauseText.text("");
-      this.pressAnyKey.text("");
-
-      Crafty.audio.unmute();
-      // Actually unpause the game
-      Crafty.pause();
+  pauseOnEscKey: function () {
+    if (this.isDown('ESC')) {
+      this.pause();
+      this.unbind('KeyDown', this.pauseOnEscKey);
+      this.bind('KeyDown', this.unpauseOnAnyKey);
     }
+  },
+
+  unpauseOnAnyKey: function () {
+    this.unpause();
+    this.unbind('KeyDown', this.unpauseOnAnyKey);
+    this.bind('KeyDown', this.pauseOnEscKey);
+  },
+
+  pause: function () {
+    this.paused = true;
+    Crafty.audio.mute();
+
+    var x = Crafty.viewport.width / 2 - Crafty.viewport.x - 160;
+    var y = Crafty.viewport.height / 2 - Crafty.viewport.y;
+
+    this.pauseText.attr({ x: x, y: y - 100 });
+    this.pauseText.text("PAUSED");
+
+    this.pressAnyKey.attr({ x: x, y: y + 30 });
+    this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
+  },
+
+  unpause: function () {
+    this.paused = false;
+    this.pauseText.text("");
+    this.pressAnyKey.text("");
+
+    Crafty.audio.unmute();
+    // Actually unpause the game
+    Crafty.pause();
   }
 
 });
