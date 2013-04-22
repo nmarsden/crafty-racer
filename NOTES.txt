@@ -12,6 +12,9 @@ Entities
             - shows viewport
             - shows edges of map
             - 1:64 scale
+            - show holes and walls
+            - perhaps instead of showing the whole map, show a quarter of the full map
+            - perhaps only show holes and walls that have been seen (fog of war style)
 
 * Navigator - indicates direction of the waypoint
 
@@ -20,6 +23,8 @@ Entities
 * Time power up - adds time to countdown
 
 * Speed power up (NOS) - increases the top speed of the car for a few seconds
+
+* Landmine - damages car
 
 * Waypoint  - 10 waypoints per level
             - only the current waypoint is displayed
@@ -48,6 +53,20 @@ Entities
 * Horizontal Platform - platform moves horizontally back and forth every few seconds
                       - player can only enter and exit the platform when it is touching the stationary ground
                       - platform will not move while the player is not fully on board
+
+* Car - forward
+      - reverse
+      - turn
+      - jump
+
+* Enemy truck - drops landmines
+
+
+Achievements
+============
+Lead foot   - complete entire level with accelerator held down
+Reverse It  - complete entire level in reverse
+
 
 Level Completion
 ================
