@@ -1027,6 +1027,7 @@ Crafty.c('Car', {
     this.falling = false;
     this.fallStepsMoving = 0;
     this.fallStepsDropping = 0;
+    this.reversing = false;
 
     this.requires('Actor, Keyboard, Collision, spr_car, SpriteAnimation');
 
@@ -1103,6 +1104,12 @@ Crafty.c('Car', {
       }
       if (!this.moving && this.isDown('UP_ARROW')) {
         this.moving = true;
+        this.reversing = false;
+        this.movingStartTime = Date.now();
+      }
+      if (!this.moving && this.isDown('DOWN_ARROW')) {
+        this.moving = true;
+        this.reversing = true;
         this.movingStartTime = Date.now();
       }
   },
@@ -1117,6 +1124,7 @@ Crafty.c('Car', {
     } else if (e.key == Crafty.keys['UP_ARROW']) {
       this.moving = false;
     } else if (e.key == Crafty.keys['DOWN_ARROW']) {
+      this.moving = false;
     }
   },
 
@@ -1151,14 +1159,14 @@ Crafty.c('Car', {
 
   _adjustSpeedAndChangeSoundEffect: function () {
     if (this.moving) {
-      this.speed = this.LOW_SPEED;
+      this.speed = this.reversing ? -this.LOW_SPEED : this.LOW_SPEED;
       if (this.directionIncrement == 0) {
         var timeMoving = Date.now() - this.movingStartTime;
         if (timeMoving < 500) {
           Game.playSoundEffect('engine_rev', -1, 1.0);
         } else {
           Game.playSoundEffect('engine_rev_faster', -1, 1.0);
-          this.speed = this.HIGH_SPEED;
+          this.speed = this.reversing ? -this.HIGH_SPEED : this.HIGH_SPEED;
         }
       } else {
         Game.playSoundEffect('wheel_spin', -1, 1.0);
@@ -1324,7 +1332,7 @@ Crafty.c('Car', {
     if (totalOverlap > 25) {
       //console.log("Begin Fall Mode!");
       this.falling = true;
-      this.fallStepsMoving = Math.round(80 / this.speed);
+      this.fallStepsMoving = Math.round(80 / Math.abs(this.speed));
       this.unbind('KeyDown', this._keyDown);
       this.unbind('KeyUp', this._keyUp);
     }
