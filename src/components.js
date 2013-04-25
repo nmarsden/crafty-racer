@@ -282,7 +282,7 @@ Crafty.c('MiniMap', {
   _miniMapPosition: function() {
     return {
       x: Crafty.viewport.width - Crafty.viewport.x - this.w - 5,
-      y: (- Crafty.viewport.y + 55)
+      y: (- Crafty.viewport.y + 5)
     };
   },
 
