@@ -67,7 +67,7 @@ Game = {
 
   playSoundEffect:function (effectName, repeat, volume) {
     if (Game.options.sfx) {
-      Game.stopAllSoundsExcept(effectName, Game.musicPlaying, "woop");
+      Game.stopAllSoundsExcept(effectName, Game.musicPlaying, "woop", "low_time");
       Crafty.audio.play(effectName, repeat, volume);
     }
   },

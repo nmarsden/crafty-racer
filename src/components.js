@@ -371,6 +371,24 @@ Crafty.c('ShowFPS', {
 Crafty.c('Countdown', {
   init: function() {
     this.requires('2D');
+    this.playWarningSound = false;
+    this.lowTime = false;
+    this.noAnimation = {
+      '-moz-animation-duration': '',
+      '-moz-animation-name': '',
+      '-moz-animation-iteration-count': '',
+      '-webkit-animation-duration': '',
+      '-webkit-animation-name': '',
+      '-webkit-animation-iteration-count': ''
+    };
+    this.lowTimeAnimation = {
+      '-moz-animation-duration': '1s',
+      '-moz-animation-name': 'low_time',
+      '-moz-animation-iteration-count': 'infinite',
+      '-webkit-animation-duration': '1s',
+      '-webkit-animation-name': 'low_time',
+      '-webkit-animation-iteration-count': 'infinite'
+    };
 
     this.minutes = Crafty.e('2D, DOM, Text');
     this.minutes.textFont({ type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE' });
@@ -401,7 +419,7 @@ Crafty.c('Countdown', {
         this.complete = true;
         Crafty.trigger('TimesUp', this);
       } else {
-        this._updateText(timeLeft);
+        this._update(timeLeft);
       }
     });
 
@@ -429,7 +447,14 @@ Crafty.c('Countdown', {
     return  timeLeft;
   },
 
-  _updateText:function(timeLeft) {
+  _update:function(timeLeft) {
+    if (timeLeft <= 10000 && !this.lowTime) {
+      this.lowTime = true;
+      this.minutes.css(this.lowTimeAnimation);
+      this.seconds.css(this.lowTimeAnimation);
+      this.playWarningSound = true;
+    }
+
     var timeLeftMs = timeLeft / 10;
     var secs = Math.floor(timeLeftMs / 100);
     var msecs = Math.floor(timeLeftMs - (secs * 100));
@@ -446,6 +471,10 @@ Crafty.c('Countdown', {
     if (msecs < 10) {
       msecsPadding = "0";
     }
+    if (this.playWarningSound && msecs <= 3) {
+      Game.playSoundEffect('low_time', 1, 1.0);
+    }
+
     this.minutes.text(secsPadding + secs + ":");
     this.seconds.text(msecsPadding + msecs);
   },
@@ -453,6 +482,10 @@ Crafty.c('Countdown', {
   start:function(duration) {
     this.totalTime = duration;
     this.startTime = Date.now();
+    this.playWarningSound = false;
+    this.lowTime = false;
+    this.minutes.css(this.noAnimation);
+    this.seconds.css(this.noAnimation);
   }
 });
 
