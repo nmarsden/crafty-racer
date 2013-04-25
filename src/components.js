@@ -41,8 +41,8 @@ Crafty.c('TipText', {
     this.animating = false;
     this.startTime = Date.now();
     this.attr({ w: 320 })
-    this.textFont({ type: 'normal', weight: 'bold', size: '20px', family: 'Arial' })
-    this.textColor('#0061FF');
+    this.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
+    this.textColor('#0061FF', 1.0);
 
     var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
     var y = Crafty.viewport.height/2 - Crafty.viewport.y;
@@ -370,10 +370,18 @@ Crafty.c('ShowFPS', {
 
 Crafty.c('Countdown', {
   init: function() {
-    this.requires('2D, DOM, Text');
-    this.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'Arial' });
-    this.textColor('#FFFFFF');
-    this.attr({ w: 100 });
+    this.requires('2D');
+
+    this.minutes = Crafty.e('2D, DOM, Text');
+    this.minutes.textFont({ type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE' });
+    this.minutes.textColor('#000000', 1.0);
+    this.minutes.attr({ w: 70 });
+
+    this.seconds = Crafty.e('2D, DOM, Text');
+    this.seconds.textFont({ type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE' });
+    this.seconds.textColor('#000000', 1.0);
+    this.seconds.attr({ w: 70 });
+
     this._updatePosition();
 
     this.complete = false;
@@ -409,14 +417,16 @@ Crafty.c('Countdown', {
   },
 
   _updatePosition:function () {
-    var x = Crafty.viewport.width - Crafty.viewport.x - this.w; // - 5;
+    var x = (Crafty.viewport.width/2) - Crafty.viewport.x - 70;
     var y = - Crafty.viewport.y + 105;
-    this.attr({ x: x, y: y - 100 });
+    this.minutes.attr({ x: x, y: y - 100 });
+    this.seconds.attr({ x: x + 70, y: y - 100 });
   },
 
   _timeLeft:function() {
     var timeElapsed = Date.now() - this.startTime;
-    return this.totalTime - timeElapsed;
+    var timeLeft = this.totalTime - timeElapsed;
+    return  timeLeft;
   },
 
   _updateText:function(timeLeft) {
@@ -436,7 +446,8 @@ Crafty.c('Countdown', {
     if (msecs < 10) {
       msecsPadding = "0";
     }
-    this.text(secsPadding + secs + ":" + msecsPadding + msecs);
+    this.minutes.text(secsPadding + secs + ":");
+    this.seconds.text(msecsPadding + msecs);
   },
 
   start:function(duration) {
@@ -448,11 +459,11 @@ Crafty.c('Countdown', {
 Crafty.c('LevelIndicator', {
   init: function() {
     this.requires('2D, DOM, Text');
-    this.h = 30;
-    this.w = 100;
-    this.textFont({ type: 'normal', weight: 'bold', size: '20px', family: 'Arial' });
+    this.h = 50;
+    this.w = 200;
+    this.textFont({ type: 'normal', weight: 'normal', size: '40px', family: Game.fontFamily });
     this.css('text-align', 'left');
-    this.textColor('#0061FF');
+    this.textColor('#0061FF', 0.6);
     this.text("LEVEL " + Game.getLevelNumber());
     this.updatePosition();
 
@@ -564,8 +575,7 @@ Crafty.c('Menu', {
     var oldItem = this.menuItems[obj.oldIndex].entity;
     var newItem = this.menuItems[obj.newIndex].entity;
 
-    oldItem.textColor(this.colour);
-    oldItem.tween({alpha: 0.5}, 60);
+    oldItem.textColor(this.colour, 1.0);
     oldItem.css({
       '-moz-animation-duration': '',
       '-moz-animation-name': '',
@@ -575,8 +585,7 @@ Crafty.c('Menu', {
       '-webkit-animation-iteration-count': ''
     });
 
-    newItem.textColor(this.selectedColour);
-    newItem.tween({alpha: 1.0}, 5);
+    newItem.textColor(this.selectedColour, 1.0);
     newItem.css({
       '-moz-animation-duration': '1s',
       '-moz-animation-name': 'selected_menu_item',
@@ -588,10 +597,10 @@ Crafty.c('Menu', {
   },
 
   showMenu: function() {
-    var width = 380;
-    var height = 60;
-    var alpha = 0.6;
-    var totalHeight = 80 * this.menuItems.length;
+    var width = 800;
+    var height = 100;
+    var alpha = 1.0;
+    var totalHeight = 100 * this.menuItems.length;
 
     this.selectedMenuIndex = 0;
 
@@ -606,11 +615,10 @@ Crafty.c('Menu', {
       var item = this.menuItems[i];
       var menuItem = Crafty.e('2D, DOM, Text, Tween');
       var textColor = (i === 0) ? this.selectedColour : this.colour;
-      var alpha = (i === 0) ? 1.0 : 0.5;
       menuItem.text(item.displayName);
       menuItem.attr({ x: x, y: y, w: width, h: height, alpha: alpha });
-      menuItem.textFont({ type: 'normal', weight: 'bold', size: '50px', family: 'Arial' });
-      menuItem.textColor(textColor);
+      menuItem.textFont({ type: 'normal', weight: 'normal', size: '80px', family: Game.fontFamily });
+      menuItem.textColor(textColor, 1.0);
       if (i === 0) {
         menuItem.css({
           '-moz-animation-duration': '1s',
@@ -622,15 +630,13 @@ Crafty.c('Menu', {
         });
       }
       menuItem.css({
-        'padding': '5px',
-        'text-shadow': 'rgb(179,218,255) 4px 4px 4px',
-        'text-transform': 'uppercase'
+        'padding': '5px'
       });
       item.entity = menuItem;
 
       this.overlay.attach(menuItem);
 
-      y += 80;
+      y += 100;
     }
 
     this.overlay.attr({y: (Crafty.viewport.y - 555) });
@@ -641,8 +647,8 @@ Crafty.c('Menu', {
   },
 
   displayMenuInstructions: function() {
-    var x = Game.viewportWidth() - 270;
-    var y = this.overlay.y + 555 - 132;
+    var x = Game.viewportWidth() - 300;
+    var y = this.overlay.y + 555 - 130;
     var alpha = 0.5
 
     // - up arrow / down arrow: navigate
@@ -655,12 +661,12 @@ Crafty.c('Menu', {
     var navigate = Crafty.e('2D, DOM, Text');
     navigate.text("navigate");
     navigate.attr({ x: x+110, y: y, w: 100, h: 48 });
-    navigate.textFont({ type: 'normal', weight: 'normal', size: '25px', family: 'Arial' });
+    navigate.textFont({ type: 'normal', weight: 'normal', size: '32px', family: 'ARCADE' });
     navigate.css({
       'padding': '5px',
       'text-align': 'left'
     });
-    navigate.textColor(this.colour);
+    navigate.textColor(this.colour, 1.0);
     navigate.alpha = alpha;
 
     this.overlay.attach(upArrow);
@@ -674,12 +680,12 @@ Crafty.c('Menu', {
     var select = Crafty.e('2D, DOM, Text');
     select.text("select");
     select.attr({ x: x+110, y: y+53, w: 100, h: 48 });
-    select.textFont({ type: 'normal', weight: 'normal', size: '25px', family: 'Arial' });
+    select.textFont({ type: 'normal', weight: 'normal', size: '32px', family: 'ARCADE' });
     select.css({
       'padding': '5px',
       'text-align': 'left'
     });
-    select.textColor(this.colour);
+    select.textColor(this.colour, 1.0);
     select.alpha = alpha;
 
     this.overlay.attach(enterKey);
@@ -752,21 +758,24 @@ Crafty.c('Menu', {
 Crafty.c('LevelCompleteControl', {
   init: function() {
     this.requires('2D, DOM, Text');
+    var width = 650;
+    var height = 100;
+
     this.showLoadingMessage = false;
     this.keyPressDelay = true;
 
     this.levelComplete = Crafty.e('2D, DOM, Text');
     this.levelComplete.text(Game.getLevelCompleteMessage)
-    var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
-    var y = Crafty.viewport.height/2 - Crafty.viewport.y - 60;
-    this.levelComplete.attr({ x: x, y: y, w: 320 })
-    this.levelComplete.textFont({ type: 'normal', weight: 'bold', size: '50px', family: 'Arial' })
+    var x = Crafty.viewport.width/2 - Crafty.viewport.x - (width/2);
+    var y = Crafty.viewport.height/2 - Crafty.viewport.y - 160;
+    this.levelComplete.attr({ x: x, y: y, w: width, h:height })
+    this.levelComplete.textFont({ type: 'normal', weight: 'normal', size: '100px', family: Game.fontFamily })
     this.levelComplete.textColor('#0061FF');
 
     this.pressAnyKey = Crafty.e('2D, DOM, FlashingText');
-    this.pressAnyKey.attr({ x: x, y: y + 120, w: 320 })
+    this.pressAnyKey.attr({ x: x, y: y + 240, w: width, h:height })
     this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
-    this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '20px', family: 'Arial' })
+    this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     this.pressAnyKey.textColor('#0061FF');
 
     // After a short delay, watch for the player to press a key, then restart
@@ -811,26 +820,28 @@ Crafty.c('LevelCompleteControl', {
 Crafty.c('GameOverControl', {
   init: function() {
     this.requires('2D, DOM, Text');
+    var width = 600;
+    var height = 100;
     this.showLoadingMessage = false;
     this.keyPressDelay = true;
 
     this.levelComplete = Crafty.e('2D, DOM, Text');
-    var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
-    var y = Crafty.viewport.height/2 - Crafty.viewport.y - 60;
-    this.levelComplete.attr({ x: x, y: y, w: 320 })
-    this.levelComplete.textFont({ type: 'normal', weight: 'bold', size: '30px', family: 'Arial' })
-    this.levelComplete.textColor('#0061FF');
+    var x = Crafty.viewport.width/2 - Crafty.viewport.x - (width / 2);
+    var y = Crafty.viewport.height/2 - Crafty.viewport.y - 200;
+    this.levelComplete.attr({ x: x, y: y, w: width, height: height })
+    this.levelComplete.textFont({ type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE' })
+    this.levelComplete.textColor('#0061FF',1.0);
 
     this.gameOverText = Crafty.e('2D, DOM, Text');
     this.gameOverText.text('GAME OVER!')
-    this.gameOverText.attr({ x: x, y: y + 40, w: 320 })
-    this.gameOverText.textFont({ type: 'normal', weight: 'bold', size: '50px', family: 'Arial' })
+    this.gameOverText.attr({ x: x, y: y + 100, w: width, height: height })
+    this.gameOverText.textFont({ type: 'normal', weight: 'normal', size: '100px', family: Game.fontFamily })
     this.gameOverText.textColor('#0061FF');
 
     this.pressAnyKey = Crafty.e('2D, DOM, FlashingText');
-    this.pressAnyKey.attr({ x: x, y: y + 120, w: 320 })
+    this.pressAnyKey.attr({ x: x, y: y + 320, w: width, height: height })
     this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
-    this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '20px', family: 'Arial' })
+    this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     this.pressAnyKey.textColor('#0061FF');
 
     Game.playSoundEffect('game_over', 1, 1.0);
@@ -881,12 +892,12 @@ Crafty.c('PauseControl', {
 
     this.pauseText = Crafty.e('2D, DOM, Text');
     this.pauseText.attr({ w: 320 })
-    this.pauseText.textFont({ type: 'normal', weight: 'normal', size: '60px', family: 'Arial' })
+    this.pauseText.textFont({ type: 'normal', weight: 'normal', size: '60px', family: Game.fontFamily })
     this.pauseText.textColor('#0061FF');
 
     this.pressAnyKey = Crafty.e('2D, DOM, FlashingText');
     this.pressAnyKey.attr({ w: 320 })
-    this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '20px', family: 'Arial' })
+    this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     this.pressAnyKey.textColor('#0061FF');
 
     this.bind('KeyDown', this.pauseOnEscKey);

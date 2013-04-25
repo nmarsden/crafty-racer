@@ -16,9 +16,14 @@ Sound FX:
 * Partners In Rhyme (http://www.partnersinrhyme.com && http://autospeak.com)
 * SoundBible (http://soundbible.com)
 * freesound (http://www.freesound.org)
+
 Music:
 * Incompetech (http://incompetech.com/music/royalty-free/)
 
+Fonts:
+* FontSpace (http://www.fontspace.com)
+* urbanfonts (http://www.urbanfonts.com/)
+* Font.DownloadAtoZ (http://font.downloadatoz.com)
 
 Asset Links
 ===========
@@ -41,3 +46,8 @@ Music
 Happy Bee - http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300014
 Enter the Party - http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100240
 Show Your Moves - http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100751
+
+Fonts
+Unicode 0024 - http://www.fontspace.com/fenotype/unicode-0024
+Arcade - http://www.urbanfonts.com/fonts/Arcade.htm
+Simpletype - http://font.downloadatoz.com/font,31564,simpletype.html

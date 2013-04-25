@@ -161,7 +161,7 @@ Crafty.scene('Loading', function(){
 
   Crafty.e('2D, DOM, FlashingText')
     .text('LOADING')
-    .textFont({ type: 'normal', weight: 'normal', size: '20px', family: 'Arial' })
+    .textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     .textColor('#0061FF')
     .attr({ w: 320 })
     .attr({ x: Crafty.viewport.width/2 - Crafty.viewport.x - 160, y: Crafty.viewport.height/2 - Crafty.viewport.y + 60});

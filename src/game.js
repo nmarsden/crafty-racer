@@ -14,6 +14,7 @@ Game = {
     sfx:true
   },
 
+  fontFamily:'Simpletype', //'UNICODE0',
   levels:[],
   levelIndex:0,
   waypointIndex:0,
