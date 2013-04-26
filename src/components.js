@@ -984,6 +984,70 @@ Crafty.c('PauseControl', {
 
 });
 
+Crafty.c('Breaking', {
+  init: function() {
+    this.TOTAL_BREAKING_FRAMES = 40;
+    this.breakingSide = null;
+    this.breaking = false;
+    this.breakingStartFrame = null;
+
+    this.bind("EnterFrame", this._enterFrame);
+  },
+
+  setBreakingSide: function(entity) {
+    this.breakingSide = entity;
+  },
+
+  startBreaking: function() {
+    if (this.breaking) {
+      return;
+    }
+    this.breaking = true;
+    Game.playSoundEffect('disappear', 1, 1.0);
+  },
+
+  _enterFrame: function(data) {
+    if (!this.breaking) {
+      return;
+    }
+
+    this.breakingStartFrame = this.breakingStartFrame || data.frame;
+    var animFrame = data.frame - this.breakingStartFrame;
+
+    if (animFrame < this.TOTAL_BREAKING_FRAMES) {
+      this._animateBreaking(animFrame);
+      return;
+    }
+    // Once fully broken, change to a hole
+    this.unbind("EnterFrame", this._enterFrame);
+    this._changeToHole();
+  },
+
+  _animateBreaking: function(animFrame) {
+    if (animFrame % 5 === 0) {
+      var newAlpha = this.alpha - (5 / this.TOTAL_BREAKING_FRAMES);
+      if (newAlpha < 0) {
+        newAlpha = 0;
+      }
+      this.alpha = newAlpha;
+      if (this.breakingSide) {
+        this.breakingSide.alpha = newAlpha;
+      }
+    }
+  },
+
+  _changeToHole: function() {
+    this.addComponent("Collision")
+    this.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
+    this.removeComponent("Breaking");
+    this.addComponent("Hole");
+    this.visible = false;
+    if (this.breakingSide) {
+      this.breakingSide.visible = false;
+    }
+  }
+});
+
 Crafty.c('Car', {
   init: function() {
     this.directionIndex = 27;  // NE
@@ -1081,6 +1145,8 @@ Crafty.c('Car', {
     this.onHit('Solid', this.stopMovement);
 
     this.onHit('Hole', this.holeHit);
+
+    this.onHit('Breaking', this.breakingGroundHit);
 
     this.onHit('Waypoint', this.waypointReached);
 
@@ -1380,6 +1446,16 @@ Crafty.c('Car', {
       this.unbind('KeyDown', this._keyDown);
       this.unbind('KeyUp', this._keyUp);
     }
+  },
+
+  breakingGroundHit: function(hitData) {
+    if (this.falling) {
+      return;
+    }
+    hitData.forEach(function(hd) {
+      var breakingGround = hd.obj;
+      breakingGround.startBreaking();
+    });
   },
 
   boundingPolygon: function(direction, w, h) {

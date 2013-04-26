@@ -43,6 +43,17 @@ Crafty.scene('Game', function() {
 
         //Set z-index for correct view: front, back
         entity.z = Math.floor(entity._y - entity._h - 10);
+
+        if (entity.__image === "assets/Iso_Cubes_01_128x128_Alt_00_007.png") {
+          // Breaking Top
+          entity.addComponent("Breaking");
+          entity.addComponent("Collision")
+          entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
+          // Set Breaking Side
+          var tilePosition = Game.toTilePosition({x:entity._x, y:entity._y});
+          var breakingSide = tiledmap.getTile(tilePosition.row+1, tilePosition.col+1, 'Ground_Sides');
+          entity.setBreakingSide(breakingSide);
+        }
       }
 
       // Set properties of entities on the 'Solid_Sides' layer
@@ -177,6 +188,7 @@ Crafty.scene('Loading', function(){
     'assets/badminton_racket_fast_movement_swoosh_002.mp3',
     'assets/cartoon_slide_whistle_descend_version_3.mp3',
     'assets/76376__spazzo-1493__game-over.wav',
+    'assets/Pling-KevanGC-1485374730.mp3',
     'assets/Happy Bee.mp3',
     'assets/Enter the party.mp3',
     'assets/Show Your Moves.mp3',
@@ -186,6 +198,7 @@ Crafty.scene('Loading', function(){
     'assets/navigator.png',
     "assets/Iso_Cubes_01_128x128_Alt_00_003.png",
     "assets/Iso_Cubes_01_128x128_Alt_00_004.png",
+    "assets/Iso_Cubes_01_128x128_Alt_00_007.png",
     "assets/Collision_Marker.png",
     "assets/Player_Marker.png",
     "assets/Waypoints_Marker.png",
@@ -240,6 +253,7 @@ Crafty.scene('Loading', function(){
       woop:               ['assets/woop.ogg'],
       low_time:           ['assets/simple_beep_nav.mp3'],
       falling:            ['assets/cartoon_slide_whistle_descend_version_3.mp3'],
+      disappear:          ['assets/Pling-KevanGC-1485374730.mp3'],
       menu_nav:           ['assets/beep_1.mp3'],
       menu_change_page:   ['assets/badminton_racket_fast_movement_swoosh_002.mp3'],
       game_over:          ['assets/76376__spazzo-1493__game-over.wav'],

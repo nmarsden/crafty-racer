@@ -41,6 +41,13 @@ Game = {
     return 640;
   },
 
+  toTilePosition:function (position) {
+    return {
+      col: Math.round((position.x / 128) + (position.y / 64)),
+      row: Math.round((position.y - (position.x/2)) / 64)
+    };
+  },
+
   playMusic:function (music) {
     Game.musicPlaying = music;
     if (Game.options.music) {
@@ -67,7 +74,7 @@ Game = {
 
   playSoundEffect:function (effectName, repeat, volume) {
     if (Game.options.sfx) {
-      Game.stopAllSoundsExcept(effectName, Game.musicPlaying, "woop", "low_time");
+      Game.stopAllSoundsExcept(effectName, Game.musicPlaying, "woop", "low_time", "disappear");
       Crafty.audio.play(effectName, repeat, volume);
     }
   },
