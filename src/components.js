@@ -520,7 +520,6 @@ Crafty.c('MainMenu', {
   },
 
   showLevelMenu: function() {
-    this.hideMenu()
     this.levelSelectMenu = Crafty.e('LevelSelectMenu');
     this.levelSelectMenu.setName("LevelSelectMenu");
     this.levelSelectMenu.setMenuOptions({
@@ -531,8 +530,6 @@ Crafty.c('MainMenu', {
 
   comingSoonHandler: function(name) {
     return function() {
-      this.hideMenu()
-
       Crafty.e('Menu')
         .setMenuOptions({
           parentMenu: this
@@ -570,6 +567,12 @@ Crafty.c('Menu', {
     this.selectedMenuIndex = 0;
     this.colour = '#0061FF';
     this.selectedColour = '#FFFF00';
+    this.gamePadMapping = {
+      'DPAD_UP':    'UP_ARROW',
+      'DPAD_DOWN':  'DOWN_ARROW',
+      'B':          'ENTER',
+      'X':          'ESC'
+    };
 
     this.overlay = Crafty.e('2D, Canvas, spr_menu_background, Tween');
     var x = 51 - Crafty.viewport.x;
@@ -638,6 +641,8 @@ Crafty.c('Menu', {
     this.selectedMenuIndex = 0;
 
     this.bind('KeyDown', this.handleKeyDown);
+    Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this._gamePadButtonDown.bind(this));
+    Game.gamePad.bind(Gamepad.Event.BUTTON_UP, this._gamePadButtonUp.bind(this));
     this.bind('SelectionChanged', this.handleSelectionChanged);
 
     // display menu items
@@ -728,6 +733,8 @@ Crafty.c('Menu', {
   hideMenu: function() {
     // unbind event handlers
     this.unbind('KeyDown', this.handleKeyDown);
+    Game.gamePad.unbind(Gamepad.Event.BUTTON_DOWN);
+    Game.gamePad.unbind(Gamepad.Event.BUTTON_UP);
     this.unbind('SelectionChanged', this.handleSelectionChanged);
     // hide menu items
     for(var i=0; i<this.menuItems.length; i++) {
@@ -750,6 +757,14 @@ Crafty.c('Menu', {
 
   },
 
+  _gamePadButtonDown: function(e) {
+    Game.dispatchKeyDown(this.gamePadMapping[e.control]);
+  },
+
+  _gamePadButtonUp: function(e) {
+    Game.dispatchKeyUp(this.gamePadMapping[e.control]);
+  },
+
   handleKeyDown: function() {
     var selectedMenuItem = null;
     var previousIndex = this.selectedMenuIndex;
@@ -769,13 +784,13 @@ Crafty.c('Menu', {
       Crafty.trigger("SelectionChanged",{oldIndex:previousIndex, newIndex:this.selectedMenuIndex});
 
     } else if (this.isDown('ENTER')) {
+      this.hideMenu();
       selectedMenuItem = this.menuItems[this.selectedMenuIndex];
       selectedMenuItem.menuItemFunction();
-      this.hideMenu();
 
     } else if ((selectedMenuItem = this.menuItemSelectedViaHotKey()) != null) {
-      selectedMenuItem.menuItemFunction();
       this.hideMenu();
+      selectedMenuItem.menuItemFunction();
 
     } else if (this.options.escapeKeyHidesMenu && this.isDown('ESC')) {
       this.hideMenu();
@@ -933,7 +948,8 @@ Crafty.c('PauseControl', {
     this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     this.pressAnyKey.textColor('#0061FF');
 
-    this.bind('KeyDown', this.pauseOnEscKey);
+    this.bind('KeyDown', this.pauseOnEscKeyOrBackButton);
+    Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this.pauseOnEscKeyOrBackButton.bind(this));
 
     this.bind("EnterFrame", function() {
       if (this.paused) {
@@ -944,18 +960,29 @@ Crafty.c('PauseControl', {
 
   },
 
-  pauseOnEscKey: function () {
-    if (this.isDown('ESC')) {
+  _isBackButton: function(e) {
+    return (e.control && e.control == 'BACK');
+  },
+
+  pauseOnEscKeyOrBackButton: function (e) {
+    if (this.isDown('ESC') || this._isBackButton(e)) {
       this.pause();
-      this.unbind('KeyDown', this.pauseOnEscKey);
-      this.bind('KeyDown', this.unpauseOnAnyKey);
+      this.unbind('KeyDown', this.pauseOnEscKeyOrBackButton);
+      Game.player.unbindControls();
+
+      this.bind('KeyDown', this.unpauseOnAnyKeyOrButton);
+      Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this.unpauseOnAnyKeyOrButton.bind(this));
     }
   },
 
-  unpauseOnAnyKey: function () {
+  unpauseOnAnyKeyOrButton: function () {
     this.unpause();
     this.unbind('KeyDown', this.unpauseOnAnyKey);
-    this.bind('KeyDown', this.pauseOnEscKey);
+    Game.gamePad.unbind(Gamepad.Event.BUTTON_DOWN);
+
+    this.bind('KeyDown', this.pauseOnEscKeyOrBackButton);
+    Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this.pauseOnEscKeyOrBackButton.bind(this));
+    Game.player.bindControls();
   },
 
   pause: function () {
@@ -1159,13 +1186,7 @@ Crafty.c('Car', {
 
     this.onHit('Waypoint', this.waypointReached);
 
-    this.bind('KeyDown', this._keyDown);
-
-    this.bind('KeyUp', this._keyUp);
-
-    Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this._gamePadButtonDown.bind(this));
-    Game.gamePad.bind(Gamepad.Event.BUTTON_UP, this._gamePadButtonUp.bind(this));
-    Game.gamePad.bind(Gamepad.Event.AXIS_CHANGED, this._gamePadAxisChanged.bind(this));
+    this.bindControls();
 
     this.bind("EnterFrame", this._enterFrame);
 
@@ -1249,6 +1270,22 @@ Crafty.c('Car', {
     } else if (e.key == Crafty.keys['DOWN_ARROW']) {
       this.moving = false;
     }
+  },
+
+  bindControls: function() {
+    this.bind('KeyDown', this._keyDown);
+    this.bind('KeyUp', this._keyUp);
+    Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this._gamePadButtonDown.bind(this));
+    Game.gamePad.bind(Gamepad.Event.BUTTON_UP, this._gamePadButtonUp.bind(this));
+    Game.gamePad.bind(Gamepad.Event.AXIS_CHANGED, this._gamePadAxisChanged.bind(this));
+  },
+
+  unbindControls: function() {
+    this.unbind('KeyDown', this._keyDown);
+    this.unbind('KeyUp', this._keyUp);
+    Game.gamePad.unbind(Gamepad.Event.BUTTON_DOWN);
+    Game.gamePad.unbind(Gamepad.Event.BUTTON_UP);
+    Game.gamePad.unbind(Gamepad.Event.AXIS_CHANGED);
   },
 
   _gamePadButtonDown: function(e) {

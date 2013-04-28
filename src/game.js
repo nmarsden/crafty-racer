@@ -14,6 +14,7 @@ Game = {
     sfx:true
   },
 
+  player:null,
   gamePad:null,
   fontFamily:'Simpletype', //'UNICODE0',
   levels:[],
@@ -135,9 +136,9 @@ Game = {
   },
 
   initPlayer: function(playerX, playerY) {
-    this.player = Crafty.e('Car');
-    this.player.setName("Player");
-    this.player.setPosition(playerX, playerY);
+    Game.player = Crafty.e('Car');
+    Game.player.setName("Player");
+    Game.player.setPosition(playerX, playerY);
   },
 
   initLevel: function (playerX, playerY) {
