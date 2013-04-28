@@ -14,6 +14,7 @@ Game = {
     sfx:true
   },
 
+  gamePad:null,
   fontFamily:'Simpletype', //'UNICODE0',
   levels:[],
   levelIndex:0,
@@ -198,8 +199,23 @@ Game = {
     this.levelIndex = levelIndex;
   },
 
+  dispatchKeyDown: function(key) {
+    if (key != undefined) {
+      Crafty.keyboardDispatch({ keyCode:Crafty.keys[key], type:"keydown" });
+    }
+  },
+
+  dispatchKeyUp: function(key) {
+    if (key != undefined) {
+      Crafty.keyboardDispatch({ keyCode:Crafty.keys[key], type:"keyup" });
+    }
+  },
+
   start:function () {
     Game.initOptions();
+
+    Game.gamePad = new Gamepad();
+    Game.gamePad.init();
 
     Crafty.init(Game.width(), Game.height());
     Crafty.viewport.init(Game.viewportWidth(), Game.viewportHeight());

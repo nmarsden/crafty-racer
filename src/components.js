@@ -1122,6 +1122,13 @@ Crafty.c('Car', {
       [[41, 13], [68, 19], [57, 70], [30, 64]]
     ];
 
+    this.gamePadMapping = {
+      'B':  'UP_ARROW',
+      'A':  'DOWN_ARROW',
+      'DPAD_LEFT': 'LEFT_ARROW',
+      'DPAD_RIGHT': 'RIGHT_ARROW'
+    };
+
     this.LOW_SPEED = 4;
     this.HIGH_SPEED = 10;
     this.TURN_DELAY = 40;
@@ -1136,6 +1143,8 @@ Crafty.c('Car', {
     this.fallStepsMoving = 0;
     this.fallStepsDropping = 0;
     this.reversing = false;
+    this.rightArrowDown = false;
+    this.leftArrowDown = false;
 
     this.requires('Actor, Keyboard, Collision, spr_car, SpriteAnimation');
 
@@ -1153,6 +1162,10 @@ Crafty.c('Car', {
     this.bind('KeyDown', this._keyDown);
 
     this.bind('KeyUp', this._keyUp);
+
+    Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this._gamePadButtonDown.bind(this));
+    Game.gamePad.bind(Gamepad.Event.BUTTON_UP, this._gamePadButtonUp.bind(this));
+    Game.gamePad.bind(Gamepad.Event.AXIS_CHANGED, this._gamePadAxisChanged.bind(this));
 
     this.bind("EnterFrame", this._enterFrame);
 
@@ -1235,6 +1248,38 @@ Crafty.c('Car', {
       this.moving = false;
     } else if (e.key == Crafty.keys['DOWN_ARROW']) {
       this.moving = false;
+    }
+  },
+
+  _gamePadButtonDown: function(e) {
+//    console.log(e.gamepad.index, e.control, e.mapping, ' down');
+    Game.dispatchKeyDown(this.gamePadMapping[e.control]);
+  },
+
+  _gamePadButtonUp: function(e) {
+//    console.log(e.gamepad.index, e.control, e.mapping, ' up');
+    Game.dispatchKeyUp(this.gamePadMapping[e.control]);
+  },
+
+  _gamePadAxisChanged: function(e) {
+    //console.log(e.gamepad.index, e.axis, e.mapping, " changed to ",  e.value);
+    if (e.axis === "LEFT_STICK_X") {
+      if (e.value > 0.2) {
+        this.rightArrowDown = true;
+        Game.dispatchKeyDown('RIGHT_ARROW');
+      } else if (e.value < -0.2) {
+        this.leftArrowDown = true;
+        Game.dispatchKeyDown('LEFT_ARROW');
+      } else {
+        if (this.rightArrowDown) {
+          this.rightArrowDown = false;
+          Game.dispatchKeyUp('RIGHT_ARROW');
+        }
+        if (this.leftArrowDown) {
+          this.leftArrowDown = false;
+          Game.dispatchKeyUp('LEFT_ARROW');
+        }
+      }
     }
   },
 

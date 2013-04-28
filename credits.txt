@@ -1,8 +1,9 @@
 Credits
 =======
-Game Framework and components:
+Javascript Libraries/Frameworks/Components:
 * Crafty JS (http://craftyjs.com/)
 * TiledMapBuilder (https://github.com/Kibo/TiledMapBuilder)
+* HTML5-JavaScript-Gamepad-Controller-Library (https://github.com/kallaspriit/HTML5-JavaScript-Gamepad-Controller-Library)
 * DebugBar (http://craftycomponents.com/debugbar)
 
 Graphics:
