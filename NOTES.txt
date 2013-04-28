@@ -7,6 +7,8 @@ Entities
 * Countdown - indicates remaining time to reach the waypoint
             - flashes when time is running low
 
+* Progress - indicates number of waypoints remaining
+
 * Mini Map  - shows position of player
             - shows position of next waypoint
             - shows viewport
@@ -83,6 +85,11 @@ Menu Screen
 - player is able to navigate list of levels
   - locked levels are indicated and cannot be selected to play
   - completed levels indicate the maximum number of stars achieved
+
+Controls
+========
+- keyboard
+- gamepad
 
 Saving State
 ============
