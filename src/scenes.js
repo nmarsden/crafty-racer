@@ -199,6 +199,7 @@ Crafty.scene('Loading', function(){
     "assets/Iso_Cubes_01_128x128_Alt_00_003.png",
     "assets/Iso_Cubes_01_128x128_Alt_00_004.png",
     "assets/Iso_Cubes_01_128x128_Alt_00_007.png",
+    "assets/waypoint_indicator.png",
     "assets/Collision_Marker.png",
     "assets/Player_Marker.png",
     "assets/Waypoints_Marker.png",
@@ -218,6 +219,9 @@ Crafty.scene('Loading', function(){
     }, 0, 0);
     Crafty.sprite(64, 'assets/waypoint_animation.png', {
       spr_waypoint:  [0, 0]
+    }, 0, 0);
+    Crafty.sprite(21, 'assets/waypoint_indicator.png', {
+      spr_waypoint_indicator:  [0, 0]
     }, 0, 0);
     Crafty.sprite(96, 'assets/navigator.png', {
       spr_navigator:  [0, 0]

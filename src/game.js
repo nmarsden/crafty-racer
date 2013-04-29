@@ -135,6 +135,11 @@ Game = {
     this.levelIndicator.setName("LevelIndicator");
   },
 
+  initWaypointsCollectedIndicator: function () {
+    this.waypointsCollectedIndicator = Crafty.e('WaypointsCollectedIndicator');
+    this.waypointsCollectedIndicator.setName("WaypointsCollectedIndicator");
+  },
+
   initPlayer: function(playerX, playerY) {
     Game.player = Crafty.e('Car');
     Game.player.setName("Player");
@@ -148,6 +153,7 @@ Game = {
     Game.initMiniMap();
     Game.initLevelIndicator();
     Game.resetWaypoint();
+    Game.initWaypointsCollectedIndicator();
     Game.initPlayer(playerX, playerY);
   },
 

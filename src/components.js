@@ -92,8 +92,8 @@ Crafty.c('Waypoint', {
     this.requires('Actor, spr_waypoint, SpriteAnimation, Collision');
     this.collision( new Crafty.polygon([32,0],[64,16],[64,48],[32,64],[0,48],[0,16]) );
 
-    this.animate('ChangeColour', 0, 0, 10); //setup animation
-    this.animate('ChangeColour', 15, -1); // start animation
+    this.animate('ChangeColour', 4, 0, 5); //setup animation
+    this.animate('ChangeColour', 30, -1); // start animation
   },
 
   setPosition: function(x, y) {
@@ -316,6 +316,60 @@ Crafty.c('MiniMap', {
 
     this.waypointMarker.setPosition(waypointPosition);
     this.waypointMarker.setOffset(offsetX, offsetY);
+  }
+
+});
+
+Crafty.c('WaypointIndicator', {
+  init: function() {
+    this.requires('Actor, spr_waypoint_indicator, SpriteAnimation');
+    this.w = 21;
+    this.h = 21;
+    this.z = 7000;
+    this.animate('Collected', 0, 0, 0); //setup animation
+    this.animate('NotFound', 1, 0, 1);  //setup animation
+
+    this.animate('NotFound', 1, 1);
+  },
+
+  collected: function() {
+    this.animate('Collected', 1, 1);
+  }
+
+});
+
+Crafty.c('WaypointsCollectedIndicator', {
+  init: function() {
+    this.requires('Actor');
+    this.w = 10 * (21 + 5);
+    this.h = 21;
+    this.z = 7000;
+    this.numberCollected = 0;
+
+    this.waypointIndicators = this._createWaypointIndicators();
+
+    this.bind("PlayerMoved", function() {
+      this.x = (Crafty.viewport.width/2) - Crafty.viewport.x - (this.w/2);
+      this.y = Game.viewportHeight() - this.h - Crafty.viewport.y - 10;
+    });
+
+    this.bind('WaypointReached', function() {
+      this.waypointIndicators[this.numberCollected].collected();
+      this.numberCollected++;
+    });
+  },
+
+  _createWaypointIndicators: function() {
+    var wps = [], i= 0, wp, x=0;
+    for (; i<10; i++) {
+      wp = Crafty.e('WaypointIndicator');
+      wp.attr({ x: x, y: 0});
+      wps.push(wp);
+
+      this.attach(wp);
+      x += (21 + 5);
+    }
+    return wps;
   }
 
 });
