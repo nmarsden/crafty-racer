@@ -977,7 +977,7 @@ Crafty.c('PauseControl', {
 
   unpauseOnAnyKeyOrButton: function () {
     this.unpause();
-    this.unbind('KeyDown', this.unpauseOnAnyKey);
+    this.unbind('KeyDown', this.unpauseOnAnyKeyOrButton);
     Game.gamePad.unbind(Gamepad.Event.BUTTON_DOWN);
 
     this.bind('KeyDown', this.pauseOnEscKeyOrBackButton);
@@ -1239,13 +1239,6 @@ Crafty.c('Car', {
   },
 
   _keyDown: function() {
-      if (this.isDown('LEFT_ARROW')) {
-        this.directionIncrement = -1;
-        this.turningStartTime = Date.now();
-      } else if (this.isDown('RIGHT_ARROW')) {
-        this.directionIncrement = +1;
-        this.turningStartTime = Date.now();
-      }
       if (!this.moving && this.isDown('UP_ARROW')) {
         this.moving = true;
         this.reversing = false;
@@ -1256,14 +1249,25 @@ Crafty.c('Car', {
         this.reversing = true;
         this.movingStartTime = Date.now();
       }
+      if (this.isDown('LEFT_ARROW')) {
+        this.directionIncrement = (this.reversing ? +1 : -1);
+        this.turningStartTime = Date.now();
+      } else if (this.isDown('RIGHT_ARROW')) {
+        this.directionIncrement = (this.reversing ? -1 : +1);
+        this.turningStartTime = Date.now();
+      }
   },
 
   _keyUp: function(e) {
     if(e.key == Crafty.keys['LEFT_ARROW']) {
-      this.snappedDirectionIndex = this.DIRECTIONS[this.directionIndex].snapLeftIndex;
+      this.snappedDirectionIndex = (this.reversing ?
+        this.DIRECTIONS[this.directionIndex].snapRightIndex :
+        this.DIRECTIONS[this.directionIndex].snapLeftIndex);
       this.directionIncrement = 0;
     } else if (e.key == Crafty.keys['RIGHT_ARROW']) {
-      this.snappedDirectionIndex = this.DIRECTIONS[this.directionIndex].snapRightIndex;
+      this.snappedDirectionIndex = (this.reversing ?
+        this.DIRECTIONS[this.directionIndex].snapLeftIndex :
+        this.DIRECTIONS[this.directionIndex].snapRightIndex);
       this.directionIncrement = 0;
     } else if (e.key == Crafty.keys['UP_ARROW']) {
       this.moving = false;
