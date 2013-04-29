@@ -1335,7 +1335,9 @@ Crafty.c('Car', {
     if (this.falling) {
       return;
     }
-    if (this.directionIncrement === 0 && this.directionIndex != this.snappedDirectionIndex) {
+    var timeTurning = Date.now() - this.turningStartTime;
+
+    if (timeTurning > this.TURN_DELAY && this.directionIncrement === 0 && this.directionIndex != this.snappedDirectionIndex) {
       if (this.snappedDirectionIndex === 0 & this.directionIndex > 10) {
         this.directionIndex++;
       } else if (this.snappedDirectionIndex - this.directionIndex > 0) {
@@ -1346,6 +1348,7 @@ Crafty.c('Car', {
       if (this.directionIndex === this.DIRECTIONS.length) {
         this.directionIndex = 0;
       }
+      this.turningStartTime = Date.now();
     }
   },
 
