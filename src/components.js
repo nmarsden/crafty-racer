@@ -39,7 +39,8 @@ Crafty.c('TipText', {
     this.requires('2D, DOM, Text');
     this.delay = 10;
     this.animating = false;
-    this.startTime = Date.now();
+    this.startTime = null;
+    this.totalShowDuration = 5000;
     this.attr({ w: 320 })
     this.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     this.textColor('#0061FF', 1.0);
@@ -51,6 +52,7 @@ Crafty.c('TipText', {
   },
 
   show: function() {
+    this.startTime = Date.now();
     this.css({
       'transition-property': 'opacity, top',
       'transition-duration': '4s, 1s',
@@ -60,6 +62,11 @@ Crafty.c('TipText', {
   },
 
   _enterFrameHandler: function() {
+    var timeElapsed = Date.now() - this.startTime;
+    if (timeElapsed > this.totalShowDuration) {
+      this.destroy();
+      return;
+    }
     var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
     var y = Crafty.viewport.height/2 - Crafty.viewport.y;
     this.attr({ x: x, y: y - 100 });
@@ -67,7 +74,6 @@ Crafty.c('TipText', {
     if (this.animating) {
       return;
     }
-    var timeElapsed = Date.now() - this.startTime;
     if (timeElapsed > this.delay) {
       this.animating = true;
       this.css({ 'top': '-50px', 'opacity': '0.0' });

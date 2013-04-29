@@ -4,6 +4,9 @@
 -= number of entities =-
 Object.keys(entities).length
 
+-= number of TipText entities
+Crafty("TipText").length
+
 -= number of handlers for each event =-
 Object.keys(handlers).forEach(function(eventName) { console.log(eventName, ": ", Object.keys(handlers[eventName]).length) });
 
