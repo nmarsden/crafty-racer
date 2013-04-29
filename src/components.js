@@ -948,8 +948,8 @@ Crafty.c('PauseControl', {
     this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     this.pressAnyKey.textColor('#0061FF');
 
-    this.bind('KeyDown', this.pauseOnEscKeyOrBackButton);
-    Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this.pauseOnEscKeyOrBackButton.bind(this));
+    this.bind('KeyDown', this._handleKeyDownOrButtonDown);
+    Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this._handleKeyDownOrButtonDown.bind(this));
 
     this.bind("EnterFrame", function() {
       if (this.paused) {
@@ -964,25 +964,12 @@ Crafty.c('PauseControl', {
     return (e.control && e.control == 'BACK');
   },
 
-  pauseOnEscKeyOrBackButton: function (e) {
-    if (this.isDown('ESC') || this._isBackButton(e)) {
+  _handleKeyDownOrButtonDown: function(e) {
+    if (!this.paused && (this.isDown('ESC') || this._isBackButton(e))) {
       this.pause();
-      this.unbind('KeyDown', this.pauseOnEscKeyOrBackButton);
-      Game.player.unbindControls();
-
-      this.bind('KeyDown', this.unpauseOnAnyKeyOrButton);
-      Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this.unpauseOnAnyKeyOrButton.bind(this));
+    } else if (this.paused) {
+      this.unpause();
     }
-  },
-
-  unpauseOnAnyKeyOrButton: function () {
-    this.unpause();
-    this.unbind('KeyDown', this.unpauseOnAnyKeyOrButton);
-    Game.gamePad.unbind(Gamepad.Event.BUTTON_DOWN);
-
-    this.bind('KeyDown', this.pauseOnEscKeyOrBackButton);
-    Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this.pauseOnEscKeyOrBackButton.bind(this));
-    Game.player.bindControls();
   },
 
   pause: function () {
@@ -1172,6 +1159,7 @@ Crafty.c('Car', {
     this.reversing = false;
     this.rightArrowDown = false;
     this.leftArrowDown = false;
+    this.paused = false;
 
     this.requires('Actor, Keyboard, Collision, spr_car, SpriteAnimation');
 
@@ -1186,9 +1174,13 @@ Crafty.c('Car', {
 
     this.onHit('Waypoint', this.waypointReached);
 
-    this.bindControls();
+    this._bindControls();
 
     this.bind("EnterFrame", this._enterFrame);
+
+    this.bind("Pause", this._pause);
+
+    this.bind("Unpause", this._unpause);
 
     // Init sprites
     var pos, spriteSheet;
@@ -1239,6 +1231,9 @@ Crafty.c('Car', {
   },
 
   _keyDown: function() {
+      if (this.paused) {
+        return;
+      }
       if (!this.moving && this.isDown('UP_ARROW')) {
         this.moving = true;
         this.reversing = false;
@@ -1259,6 +1254,9 @@ Crafty.c('Car', {
   },
 
   _keyUp: function(e) {
+    if (this.paused) {
+      return;
+    }
     if(e.key == Crafty.keys['LEFT_ARROW']) {
       this.snappedDirectionIndex = (this.reversing ?
         this.DIRECTIONS[this.directionIndex].snapRightIndex :
@@ -1276,7 +1274,7 @@ Crafty.c('Car', {
     }
   },
 
-  bindControls: function() {
+  _bindControls: function() {
     this.bind('KeyDown', this._keyDown);
     this.bind('KeyUp', this._keyUp);
     Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this._gamePadButtonDown.bind(this));
@@ -1284,26 +1282,24 @@ Crafty.c('Car', {
     Game.gamePad.bind(Gamepad.Event.AXIS_CHANGED, this._gamePadAxisChanged.bind(this));
   },
 
-  unbindControls: function() {
-    this.unbind('KeyDown', this._keyDown);
-    this.unbind('KeyUp', this._keyUp);
-    Game.gamePad.unbind(Gamepad.Event.BUTTON_DOWN);
-    Game.gamePad.unbind(Gamepad.Event.BUTTON_UP);
-    Game.gamePad.unbind(Gamepad.Event.AXIS_CHANGED);
-  },
-
   _gamePadButtonDown: function(e) {
-//    console.log(e.gamepad.index, e.control, e.mapping, ' down');
+    if (this.paused) {
+      return;
+    }
     Game.dispatchKeyDown(this.gamePadMapping[e.control]);
   },
 
   _gamePadButtonUp: function(e) {
-//    console.log(e.gamepad.index, e.control, e.mapping, ' up');
+    if (this.paused) {
+      return;
+    }
     Game.dispatchKeyUp(this.gamePadMapping[e.control]);
   },
 
   _gamePadAxisChanged: function(e) {
-    //console.log(e.gamepad.index, e.axis, e.mapping, " changed to ",  e.value);
+    if (this.paused) {
+      return;
+    }
     if (e.axis === "LEFT_STICK_X") {
       if (e.value > 0.2) {
         this.rightArrowDown = true;
@@ -1479,6 +1475,14 @@ Crafty.c('Car', {
       this._triggerPlayerMoved();
     }
     //console.log("EnterFrame: player: x", this.x, "y", this.y, "z", this.z, "w", this.w, "h", this.h);
+  },
+
+  _pause: function() {
+    this.paused = true;
+  },
+
+  _unpause: function() {
+    this.paused = false;
   },
 
   setPosition: function(x, y) {
