@@ -138,14 +138,22 @@ Crafty.scene('Game', function() {
   // Show the game over screen when time is up
   this.show_game_over_times_up = function() {
     Game.stopAllSoundsExcept();
-    Crafty.scene('GameOverTimesUp');
+    Crafty.trigger('PauseGame');
+
+    var gameOverControl = Crafty.e('GameOverControl');
+    gameOverControl.setName("GameOverControl");
+    gameOverControl.setReason("TIMES UP");
   }
   this.bind('TimesUp', this.show_game_over_times_up);
 
   // Show the game over screen when off the edge
   this.show_game_over_off_the_edge = function() {
     Game.stopAllSoundsExcept();
-    Crafty.scene('GameOverOffTheEdge');
+    Crafty.trigger('PauseGame');
+
+    var gameOverControl = Crafty.e('GameOverControl');
+    gameOverControl.setName("GameOverControl");
+    gameOverControl.setReason("OFF THE EDGE");
   }
   this.bind('OffTheEdge', this.show_game_over_off_the_edge);
 
@@ -173,7 +181,8 @@ Crafty.scene('Loading', function(){
   Crafty.e('2D, DOM, FlashingText')
     .text('LOADING')
     .textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
-    .textColor('#0061FF')
+    .textColor('#FFFF28')
+    .css({'text-shadow': '0px 0px 5px #000000'})
     .attr({ w: 320 })
     .attr({ x: Crafty.viewport.width/2 - Crafty.viewport.x - 160, y: Crafty.viewport.height/2 - Crafty.viewport.y + 60});
 
@@ -282,28 +291,6 @@ Crafty.scene('Victory', function() {
 
   this.levelCompleteControl = Crafty.e('LevelCompleteControl');
   this.levelCompleteControl.setName("LevelCompleteControl");
-
-}, function() {
-});
-
-// GameOverTimesUp scene
-// ---------------------
-Crafty.scene('GameOverTimesUp', function() {
-
-  this.gameOverControl = Crafty.e('GameOverControl');
-  this.gameOverControl.setName("GameOverControl");
-  this.gameOverControl.setReason("TIMES UP");
-
-}, function() {
-});
-
-// GameOverOffTheEdge scene
-// ------------------------
-Crafty.scene('GameOverOffTheEdge', function() {
-
-  this.gameOverControl = Crafty.e('GameOverControl');
-  this.gameOverControl.setName("GameOverControl");
-  this.gameOverControl.setReason("OFF THE EDGE");
 
 }, function() {
 });
