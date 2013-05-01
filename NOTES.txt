@@ -46,6 +46,8 @@ Entities
 
 * One Time Ground - ground is automatically destroyed once travelled over
 
+* Hidden Ground   - hidden until the player gets within a certain range or picks up a special ability
+
 * Vertical Platform   - platform moves down and back up every few seconds
                       - maximum height is ground level
                       - minimum height is one cube height down from ground level
