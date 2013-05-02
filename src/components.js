@@ -19,9 +19,16 @@ Crafty.c('Grid', {
   }
 });
 
-Crafty.c('FlashingText', {
+Crafty.c('OutlineText', {
   init: function() {
     this.requires('Text');
+    this.css({'text-shadow': '1px 0 0 #000000, 0 -1px 0 #000000, 0 1px 0 #000000, -1px 0 0 #000000'})
+  }
+});
+
+Crafty.c('FlashingText', {
+  init: function() {
+    this.requires('OutlineText');
     this.css({
       '-moz-animation-duration': '2s',
       '-webkit-animation-duration': '2s',
@@ -35,15 +42,14 @@ Crafty.c('FlashingText', {
 
 Crafty.c('TipText', {
   init: function() {
-    this.requires('2D, DOM, Text');
+    this.requires('2D, DOM, OutlineText');
     this.delay = 10;
     this.animating = false;
     this.startTime = null;
     this.totalShowDuration = 5000;
     this.attr({ w: 320 })
     this.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
-    this.textColor('#FFFF28', 1.0);
-    this.css({'text-shadow': '0px 0px 5px #000000'});
+    this.textColor('#0061FF', 1.0);
 
     var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
     var y = Crafty.viewport.height/2 - Crafty.viewport.y;
@@ -335,11 +341,15 @@ Crafty.c('WaypointIndicator', {
     this.animate('Collected', 0, 0, 0); //setup animation
     this.animate('NotFound', 1, 0, 1);  //setup animation
 
-    this.animate('NotFound', 1, 1);
+    this.notFound();
   },
 
   collected: function() {
     this.animate('Collected', 1, 1);
+  },
+
+  notFound: function() {
+    this.animate('NotFound', 1, 1);
   }
 
 });
@@ -363,6 +373,13 @@ Crafty.c('WaypointsCollectedIndicator', {
       this.waypointIndicators[this.numberCollected].collected();
       this.numberCollected++;
     });
+  },
+
+  resetNumberCollected: function() {
+    this.numberCollected = 0;
+    for (var i=0; i<10; i++) {
+      this.waypointIndicators[i].notFound();
+    }
   },
 
   _createWaypointIndicators: function() {
@@ -546,6 +563,7 @@ Crafty.c('Countdown', {
     this.lowTime = false;
     this.minutes.css(this.noAnimation);
     this.seconds.css(this.noAnimation);
+    this.complete = false;
   }
 });
 
@@ -625,7 +643,7 @@ Crafty.c('Menu', {
     this.z = 2000;
     this.menuItems = [];
     this.selectedMenuIndex = 0;
-    this.colour = '#FFFF28';
+    this.colour = '#0061FF';
     this.selectedColour = '#FFFF00';
     this.gamePadMapping = {
       'DPAD_UP':    'UP_ARROW',
@@ -711,13 +729,12 @@ Crafty.c('Menu', {
 
     for (var i=0; i<this.menuItems.length; i++) {
       var item = this.menuItems[i];
-      var menuItem = Crafty.e('2D, DOM, Text, Tween');
+      var menuItem = Crafty.e('2D, DOM, OutlineText, Tween');
       var textColor = (i === 0) ? this.selectedColour : this.colour;
       menuItem.text(item.displayName);
       menuItem.attr({ x: x, y: y, w: width, h: height, alpha: alpha });
       menuItem.textFont({ type: 'normal', weight: 'normal', size: '80px', family: Game.fontFamily });
       menuItem.textColor(textColor, 1.0);
-      menuItem.css({'text-shadow': '0px 0px 5px #000000'});
       if (i === 0) {
         menuItem.css({
           '-moz-animation-duration': '1s',
@@ -870,27 +887,24 @@ Crafty.c('LevelCompleteControl', {
     this.requires('2D, DOM, Text');
     var width = 650;
     var height = 100;
-    var textColour = "#FFFF28";
-    var textCss = {'text-shadow': '0px 0px 5px #000000'};
+    var textColour = "#0061FF";
 
     this.showLoadingMessage = false;
     this.keyPressDelay = true;
 
-    this.levelComplete = Crafty.e('2D, DOM, Text');
+    this.levelComplete = Crafty.e('2D, DOM, OutlineText');
     this.levelComplete.text(Game.getLevelCompleteMessage)
     var x = Crafty.viewport.width/2 - Crafty.viewport.x - (width/2);
     var y = Crafty.viewport.height/2 - Crafty.viewport.y - 160;
     this.levelComplete.attr({ x: x, y: y, w: width, h:height })
     this.levelComplete.textFont({ type: 'normal', weight: 'normal', size: '100px', family: Game.fontFamily })
     this.levelComplete.textColor(textColour);
-    this.levelComplete.css(textCss);
 
     this.pressAnyKey = Crafty.e('2D, DOM, FlashingText');
     this.pressAnyKey.attr({ x: x, y: y + 240, w: width, h:height })
     this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
     this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     this.pressAnyKey.textColor(textColour);
-    this.pressAnyKey.css(textCss);
 
     // After a short delay, watch for the player to press a key, then restart
     // the game when a key is pressed
@@ -938,30 +952,26 @@ Crafty.c('GameOverControl', {
     var height = 100;
     this.showLoadingMessage = false;
     this.keyPressDelay = true;
-    var textCss = {'text-shadow': '0px 0px 5px #000000'};
-    var textColour = '#FFFF28';
+    var textColour = '#0061FF';
 
-    this.levelComplete = Crafty.e('2D, DOM, Text');
+    this.reasonText = Crafty.e('2D, DOM, OutlineText');
     var x = Crafty.viewport.width/2 - Crafty.viewport.x - (width / 2);
     var y = Crafty.viewport.height/2 - Crafty.viewport.y - 200;
-    this.levelComplete.attr({ x: x, y: y, w: width, height: height })
-    this.levelComplete.textFont({ type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE' })
-    this.levelComplete.textColor(textColour,1.0);
-    this.levelComplete.css(textCss);
+    this.reasonText.attr({ x: x, y: y, w: width, height: height })
+    this.reasonText.textFont({ type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE' })
+    this.reasonText.textColor(textColour,1.0);
 
-    this.gameOverText = Crafty.e('2D, DOM, Text');
+    this.gameOverText = Crafty.e('2D, DOM, OutlineText');
     this.gameOverText.text('GAME OVER!')
     this.gameOverText.attr({ x: x, y: y + 100, w: width, height: height })
     this.gameOverText.textFont({ type: 'normal', weight: 'normal', size: '100px', family: Game.fontFamily })
     this.gameOverText.textColor(textColour);
-    this.gameOverText.css(textCss);
 
     this.pressAnyKey = Crafty.e('2D, DOM, FlashingText');
     this.pressAnyKey.attr({ x: x, y: y + 320, w: width, height: height })
     this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
     this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     this.pressAnyKey.textColor(textColour);
-    this.pressAnyKey.css(textCss);
 
     Game.playSoundEffect('game_over', 1, 1.0);
 
@@ -975,7 +985,7 @@ Crafty.c('GameOverControl', {
   },
 
   setReason: function(reason) {
-    this.levelComplete.text(reason);
+    this.reasonText.text(reason);
   },
 
   enableKeyPress: function() {
@@ -988,7 +998,7 @@ Crafty.c('GameOverControl', {
 
   showLoading: function() {
     if (!this.keyPressDelay) {
-      this.levelComplete.text("");
+      this.reasonText.text("");
       this.gameOverText.text("");
       this.pressAnyKey.text("LOADING");
       // Introduce delay to ensure Loading... text is rendered before next level or restart
@@ -998,7 +1008,12 @@ Crafty.c('GameOverControl', {
 
   restartGame: function() {
     if (this.showLoadingMessage) {
-      Crafty.scene('Game');
+      this.reasonText.destroy();
+      this.gameOverText.destroy();
+      this.pressAnyKey.destroy();
+      this.destroy();
+
+      Game.retryLevel();
     }
   }
 
@@ -1008,20 +1023,17 @@ Crafty.c('PauseControl', {
   init: function() {
     this.requires('2D, DOM, Keyboard');
     this.paused = false;
-    var textColour = "#FFFF28";
-    var textCss = {'text-shadow': '0px 0px 5px #000000'};
+    var textColour = "#0061FF";
 
-    this.pauseText = Crafty.e('2D, DOM, Text');
+    this.pauseText = Crafty.e('2D, DOM, OutlineText');
     this.pauseText.attr({ w: 320 })
     this.pauseText.textFont({ type: 'normal', weight: 'normal', size: '60px', family: Game.fontFamily })
     this.pauseText.textColor(textColour);
-    this.pauseText.css(textCss);
 
     this.pressAnyKey = Crafty.e('2D, DOM, FlashingText');
     this.pressAnyKey.attr({ w: 320 })
     this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     this.pressAnyKey.textColor(textColour);
-    this.pressAnyKey.css(textCss);
 
     this.bind('KeyDown', this._handleKeyDownOrButtonDown);
     Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this._handleKeyDownOrButtonDown.bind(this));
@@ -1041,7 +1053,7 @@ Crafty.c('PauseControl', {
 
   pause: function () {
     this.paused = true;
-    Crafty.trigger("PauseGame");
+    Game.pauseGame();
     Crafty.audio.mute();
 
     var x = Crafty.viewport.width / 2 - Crafty.viewport.x - 160;
@@ -1060,7 +1072,8 @@ Crafty.c('PauseControl', {
     this.pressAnyKey.text("");
 
     Crafty.audio.unmute();
-    Crafty.trigger("UnpauseGame");
+
+    Game.unpauseGame();
   }
 
 });
@@ -1087,6 +1100,20 @@ Crafty.c('Breaking', {
     Game.playSoundEffect('disappear', 1, 1.0);
   },
 
+  restoreAsUnbroken: function() {
+    this.removeComponent("WasBreaking");
+    this.removeComponent("Hole");
+    this.breaking = false;
+    this.breakingStartFrame = null;
+    this.visible = true;
+    this.alpha = 1.0;
+    if (this.breakingSide) {
+      this.breakingSide.visible = true;
+      this.breakingSide.alpha = 1.0;
+    }
+    this.bind("EnterFrame", this._enterFrame);
+  },
+
   _enterFrame: function(data) {
     if (!this.breaking) {
       return;
@@ -1099,9 +1126,7 @@ Crafty.c('Breaking', {
       this._animateBreaking(animFrame);
       return;
     }
-    // Once fully broken, change to a hole
-    this.unbind("EnterFrame", this._enterFrame);
-    this._changeToHole();
+    this._changeToBroken();
   },
 
   _animateBreaking: function(animFrame) {
@@ -1117,10 +1142,9 @@ Crafty.c('Breaking', {
     }
   },
 
-  _changeToHole: function() {
-    this.addComponent("Collision")
-    this.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
-    this.removeComponent("Breaking");
+  _changeToBroken: function() {
+    this.unbind("EnterFrame", this._enterFrame);
+    this.addComponent("WasBreaking");
     this.addComponent("Hole");
     this.visible = false;
     if (this.breakingSide) {
@@ -1241,7 +1265,8 @@ Crafty.c('Car', {
 
     this.onHit('Waypoint', this.waypointReached);
 
-    this._bindControls();
+    this._bindKeyControls();
+    this._bindGamePadControls();
 
     this.bind("EnterFrame", this._enterFrame);
 
@@ -1341,9 +1366,12 @@ Crafty.c('Car', {
     }
   },
 
-  _bindControls: function() {
+  _bindKeyControls: function() {
     this.bind('KeyDown', this._keyDown);
     this.bind('KeyUp', this._keyUp);
+  },
+
+  _bindGamePadControls: function() {
     Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this._gamePadButtonDown.bind(this));
     Game.gamePad.bind(Gamepad.Event.BUTTON_UP, this._gamePadButtonUp.bind(this));
     Game.gamePad.bind(Gamepad.Event.AXIS_CHANGED, this._gamePadAxisChanged.bind(this));
@@ -1527,7 +1555,7 @@ Crafty.c('Car', {
         fallingText.text("UH OH!");
         fallingText.show();
 
-        this.fallStepsDropping = 100;
+        this.fallStepsDropping = 40;
         return;
       } else {
         // Keep moving
@@ -1560,6 +1588,10 @@ Crafty.c('Car', {
   },
 
   setPosition: function(x, y) {
+    this.falling = false;
+    this.moving = false;
+    this.directionIndex = 27;  // NE
+    this.snappedDirectionIndex = this.directionIndex;
     this.x = x;
     this.y = y;
     this.z = Math.floor(y);
@@ -1607,8 +1639,8 @@ Crafty.c('Car', {
       //console.log("Begin Fall Mode!");
       this.falling = true;
       this.fallStepsMoving = Math.round(80 / Math.abs(this.speed));
-      this.unbind('KeyDown', this._keyDown);
-      this.unbind('KeyUp', this._keyUp);
+//      this.unbind('KeyDown', this._keyDown);
+//      this.unbind('KeyUp', this._keyUp);
     }
   },
 

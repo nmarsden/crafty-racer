@@ -26,6 +26,7 @@ Game = {
   levelIndicator:null,
   NUMBER_OF_WAYPOINTS:10,
   waypoints:{},
+  initialPlayerPosition:null,
 
   width:function () {
     return this.map_grid.width * this.map_grid.tile.width;
@@ -136,11 +137,12 @@ Game = {
   },
 
   initWaypointsCollectedIndicator: function () {
-    this.waypointsCollectedIndicator = Crafty.e('WaypointsCollectedIndicator');
-    this.waypointsCollectedIndicator.setName("WaypointsCollectedIndicator");
+    Game.waypointsCollectedIndicator = Crafty.e('WaypointsCollectedIndicator');
+    Game.waypointsCollectedIndicator.setName("WaypointsCollectedIndicator");
   },
 
   initPlayer: function(playerX, playerY) {
+    Game.initialPlayerPosition = {x: playerX, y: playerY};
     Game.player = Crafty.e('Car');
     Game.player.setName("Player");
     Game.player.setPosition(playerX, playerY);
@@ -204,6 +206,33 @@ Game = {
 
   selectLevel: function(levelIndex) {
     this.levelIndex = levelIndex;
+  },
+
+  pauseGame: function() {
+    Crafty.trigger("PauseGame");
+  },
+
+  unpauseGame: function() {
+    Crafty.trigger("UnpauseGame");
+  },
+
+  retryLevel: function() {
+    this.waypointIndex = 0;
+    Game.resetWaypoint();
+    var entities = Crafty("WasBreaking");
+    entities.each(function() {
+      this.restoreAsUnbroken();
+    });
+    Game.waypointsCollectedIndicator.resetNumberCollected();
+    Game.player.setPosition(Game.initialPlayerPosition.x, Game.initialPlayerPosition.y);
+    Game.playMusic('level_music');
+    Game.unpauseGame();
+  },
+
+  debugTriggeredEvents: function() {
+    Crafty.bind('EnterFrame', function() { console.log("EnterFrame triggered") });
+    Crafty.bind('PauseGame', function() { console.log("PauseGame triggered") });
+    Crafty.bind('UnpauseGame', function() { console.log("UnpauseGame triggered") });
   },
 
   dispatchKeyDown: function(key) {
