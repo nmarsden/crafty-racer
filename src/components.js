@@ -106,9 +106,11 @@ Crafty.c('Waypoint', {
 
     this.animate('ChangeColour', 4, 0, 5); //setup animation
     this.animate('ChangeColour', 30, -1); // start animation
+    this.isReached = false;
   },
 
   setPosition: function(x, y) {
+    this.isReached = false;
     this.x = x;
     this.y = y;
     this.z = Math.floor(y);
@@ -116,6 +118,10 @@ Crafty.c('Waypoint', {
   },
 
   reached: function() {
+    if (this.isReached) {
+      return;
+    }
+    this.isReached = true;
     Game.playSoundEffect('woop', 1, 1.0);
     var waypointText = Crafty.e('TipText');
     waypointText.setName("WaypointText");
@@ -124,7 +130,6 @@ Crafty.c('Waypoint', {
 
     Crafty.trigger('WaypointReached', this);
   }
-
 });
 
 Crafty.c('Diamond', {

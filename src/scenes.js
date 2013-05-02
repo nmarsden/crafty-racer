@@ -127,8 +127,11 @@ Crafty.scene('Game', function() {
   // Show the victory screen once all waypoints are reached
   this.show_victory = function() {
     if (Game.isLevelComplete()) {
+      Game.pauseGame();
       Game.stopAllSoundsExcept('woop');
-      Crafty.scene('Victory');
+      Game.playMusic('end_level_music');
+      var levelCompleteControl = Crafty.e('LevelCompleteControl');
+      levelCompleteControl.setName("LevelCompleteControl");
     } else {
       Game.nextWaypoint();
     }
@@ -281,15 +284,4 @@ Crafty.scene('Loading', function(){
   });
 
 
-});
-
-// Victory scene
-// -------------
-Crafty.scene('Victory', function() {
-  Game.playMusic('end_level_music');
-
-  this.levelCompleteControl = Crafty.e('LevelCompleteControl');
-  this.levelCompleteControl.setName("LevelCompleteControl");
-
-}, function() {
 });
