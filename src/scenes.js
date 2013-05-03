@@ -181,7 +181,7 @@ Crafty.scene('Loading', function(){
   Crafty.viewport.scroll('_x', 0);
   Crafty.viewport.scroll('_y', 0);
 
-  Crafty.e('2D, DOM, FlashingText')
+  Crafty.e('FlashingText')
     .text('LOADING')
     .textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     .textColor('#0061FF')
@@ -204,7 +204,6 @@ Crafty.scene('Loading', function(){
     'assets/Enter the party.mp3',
     'assets/Show Your Moves.mp3',
     'assets/car.png',
-    'assets/block.png',
     'assets/waypoint_animation.png',
     'assets/navigator.png',
     "assets/Iso_Cubes_01_128x128_Alt_00_003.png",
@@ -224,9 +223,6 @@ Crafty.scene('Loading', function(){
   ], function(){
     Crafty.sprite(98, 'assets/car.png', {
       spr_car:  [6, 1]
-    }, 0, 0);
-    Crafty.sprite(96, 'assets/block.png', {
-      spr_block:  [0, 0]
     }, 0, 0);
     Crafty.sprite(64, 'assets/waypoint_animation.png', {
       spr_waypoint:  [0, 0]

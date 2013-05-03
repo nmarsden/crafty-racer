@@ -1,27 +1,8 @@
 // TODO Fix memory leak problem
 
-Crafty.c('Grid', {
-  init: function() {
-    this.attr({
-      w: Game.map_grid.tile.width,
-      h: Game.map_grid.tile.height
-    })
-  },
-
-  // Locate this entity at the given position on the grid
-  at: function(x, y) {
-    if (x === undefined && y === undefined) {
-      return { x: this.x/Game.map_grid.tile.width, y: this.y/Game.map_grid.tile.height }
-    } else {
-      this.attr({ x: x * Game.map_grid.tile.width, y: y * Game.map_grid.tile.height });
-      return this;
-    }
-  }
-});
-
 Crafty.c('OutlineText', {
   init: function() {
-    this.requires('Text');
+    this.requires('2D, DOM, Text');
     this.css({'text-shadow': '1px 0 0 #000000, 0 -1px 0 #000000, 0 1px 0 #000000, -1px 0 0 #000000'})
   }
 });
@@ -42,7 +23,7 @@ Crafty.c('FlashingText', {
 
 Crafty.c('TipText', {
   init: function() {
-    this.requires('2D, DOM, OutlineText');
+    this.requires('OutlineText');
     this.delay = 10;
     this.animating = false;
     this.startTime = null;
@@ -89,13 +70,7 @@ Crafty.c('TipText', {
 
 Crafty.c('Actor', {
   init: function() {
-    this.requires('2D, Canvas, Grid');
-  }
-});
-
-Crafty.c('Block', {
-  init: function() {
-    this.requires('Actor, Solid, spr_block');
+    this.requires('2D, Canvas');
   }
 });
 
@@ -432,7 +407,7 @@ Crafty.c('Navigator', {
 
 Crafty.c('ShowFPS', {
   init: function() {
-    this.requires('2D, DOM, FPS, Text, Grid');
+    this.requires('2D, DOM, FPS, Text');
     this.attr({maxValues:10});
 
     this.bind("MessureFPS", function(fps){
@@ -734,7 +709,7 @@ Crafty.c('Menu', {
 
     for (var i=0; i<this.menuItems.length; i++) {
       var item = this.menuItems[i];
-      var menuItem = Crafty.e('2D, DOM, OutlineText, Tween');
+      var menuItem = Crafty.e('OutlineText, Tween');
       var textColor = (i === 0) ? this.selectedColour : this.colour;
       menuItem.text(item.displayName);
       menuItem.attr({ x: x, y: y, w: width, h: height, alpha: alpha });
@@ -897,7 +872,7 @@ Crafty.c('LevelCompleteControl', {
     this.showLoadingMessage = false;
     this.keyPressDelay = true;
 
-    this.levelComplete = Crafty.e('2D, DOM, OutlineText');
+    this.levelComplete = Crafty.e('OutlineText');
     this.levelComplete.text(Game.getLevelCompleteMessage)
     var x = Crafty.viewport.width/2 - Crafty.viewport.x - (width/2);
     var y = Crafty.viewport.height/2 - Crafty.viewport.y - 160;
@@ -905,7 +880,7 @@ Crafty.c('LevelCompleteControl', {
     this.levelComplete.textFont({ type: 'normal', weight: 'normal', size: '100px', family: Game.fontFamily })
     this.levelComplete.textColor(textColour);
 
-    this.pressAnyKey = Crafty.e('2D, DOM, FlashingText');
+    this.pressAnyKey = Crafty.e('FlashingText');
     this.pressAnyKey.attr({ x: x, y: y + 240, w: width, h:height })
     this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
     this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
@@ -959,20 +934,20 @@ Crafty.c('GameOverControl', {
     this.keyPressDelay = true;
     var textColour = '#0061FF';
 
-    this.reasonText = Crafty.e('2D, DOM, OutlineText');
+    this.reasonText = Crafty.e('OutlineText');
     var x = Crafty.viewport.width/2 - Crafty.viewport.x - (width / 2);
     var y = Crafty.viewport.height/2 - Crafty.viewport.y - 200;
     this.reasonText.attr({ x: x, y: y, w: width, height: height })
     this.reasonText.textFont({ type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE' })
     this.reasonText.textColor(textColour,1.0);
 
-    this.gameOverText = Crafty.e('2D, DOM, OutlineText');
+    this.gameOverText = Crafty.e('OutlineText');
     this.gameOverText.text('GAME OVER!')
     this.gameOverText.attr({ x: x, y: y + 100, w: width, height: height })
     this.gameOverText.textFont({ type: 'normal', weight: 'normal', size: '100px', family: Game.fontFamily })
     this.gameOverText.textColor(textColour);
 
-    this.pressAnyKey = Crafty.e('2D, DOM, FlashingText');
+    this.pressAnyKey = Crafty.e('FlashingText');
     this.pressAnyKey.attr({ x: x, y: y + 320, w: width, height: height })
     this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
     this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
@@ -1026,16 +1001,16 @@ Crafty.c('GameOverControl', {
 
 Crafty.c('PauseControl', {
   init: function() {
-    this.requires('2D, DOM, Keyboard');
+    this.requires('2D, Keyboard');
     this.paused = false;
     var textColour = "#0061FF";
 
-    this.pauseText = Crafty.e('2D, DOM, OutlineText');
+    this.pauseText = Crafty.e('OutlineText');
     this.pauseText.attr({ w: 320 })
     this.pauseText.textFont({ type: 'normal', weight: 'normal', size: '60px', family: Game.fontFamily })
     this.pauseText.textColor(textColour);
 
-    this.pressAnyKey = Crafty.e('2D, DOM, FlashingText');
+    this.pressAnyKey = Crafty.e('FlashingText');
     this.pressAnyKey.attr({ w: 320 })
     this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     this.pressAnyKey.textColor(textColour);
@@ -1644,8 +1619,6 @@ Crafty.c('Car', {
       //console.log("Begin Fall Mode!");
       this.falling = true;
       this.fallStepsMoving = Math.round(80 / Math.abs(this.speed));
-//      this.unbind('KeyDown', this._keyDown);
-//      this.unbind('KeyUp', this._keyUp);
     }
   },
 
