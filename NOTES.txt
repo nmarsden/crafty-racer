@@ -46,6 +46,9 @@ Entities
 
 * One Time Ground - ground is automatically destroyed once travelled over
 
+* One Way Ground  - shows an arrow indicating the direction travel is allowed
+                  - prevents the player moving in the non-allowed direction
+
 * Hidden Ground   - hidden until the player gets within a certain range or picks up a special ability
 
 * Vertical Platform   - platform moves down and back up every few seconds
