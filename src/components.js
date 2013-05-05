@@ -366,6 +366,7 @@ Crafty.c('WaypointsCollectedIndicator', {
     var wps = [], i= 0, wp, x=0;
     for (; i<10; i++) {
       wp = Crafty.e('WaypointIndicator');
+      wp.setName('WaypointIndicator');
       wp.attr({ x: x, y: 0});
       wps.push(wp);
 
@@ -448,11 +449,13 @@ Crafty.c('Countdown', {
     };
 
     this.minutes = Crafty.e('2D, DOM, Text');
+    this.minutes.setName("Minutes");
     this.minutes.textFont({ type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE' });
     this.minutes.textColor('#000000', 1.0);
     this.minutes.attr({ w: 70 });
 
     this.seconds = Crafty.e('2D, DOM, Text');
+    this.seconds.setName("Seconds");
     this.seconds.textFont({ type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE' });
     this.seconds.textColor('#000000', 1.0);
     this.seconds.attr({ w: 70 });
@@ -589,6 +592,7 @@ Crafty.c('MainMenu', {
   comingSoonHandler: function(name) {
     return function() {
       Crafty.e('Menu')
+        .setName("Menu")
         .setMenuOptions({
           parentMenu: this
         })
@@ -633,6 +637,7 @@ Crafty.c('Menu', {
     };
 
     this.overlay = Crafty.e('2D, Canvas, spr_menu_background, Tween');
+    this.overlay.setName("MenuBackground")
     var x = 51 - Crafty.viewport.x;
     var y = Crafty.viewport.y - 555;
     this.overlay.attr({ x: x, y: y, w: Crafty.viewport.width-102, h: Crafty.viewport.height-102 });
@@ -710,6 +715,7 @@ Crafty.c('Menu', {
     for (var i=0; i<this.menuItems.length; i++) {
       var item = this.menuItems[i];
       var menuItem = Crafty.e('OutlineText, Tween');
+      menuItem.setName("MenuItem");
       var textColor = (i === 0) ? this.selectedColour : this.colour;
       menuItem.text(item.displayName);
       menuItem.attr({ x: x, y: y, w: width, h: height, alpha: alpha });
@@ -750,12 +756,15 @@ Crafty.c('Menu', {
 
     // - up arrow / down arrow: navigate
     var upArrow = Crafty.e('2D, Canvas, spr_up_arrow');
+    upArrow.setName("UpArrow");
     upArrow.attr({ x: x, y: y,  w: 51, h: 48 });
     upArrow.alpha = alpha;
     var downArrow = Crafty.e('2D, Canvas, spr_down_arrow');
+    downArrow.setName("DownArrow");
     downArrow.attr({ x: x+56, y: y, w: 51, h: 48 });
     downArrow.alpha = alpha;
     var navigate = Crafty.e('2D, DOM, Text');
+    navigate.setName("NavigateText");
     navigate.text("navigate");
     navigate.attr({ x: x+110, y: y, w: 100, h: 48 });
     navigate.textFont({ type: 'normal', weight: 'normal', size: '32px', family: 'ARCADE' });
@@ -772,9 +781,11 @@ Crafty.c('Menu', {
 
     // - enter: select
     var enterKey = Crafty.e('2D, Canvas, spr_enter_key');
+    enterKey.setName("EnterKey");
     enterKey.attr({ x: x, y: y+53, w: 100, h: 48 });
     enterKey.alpha = alpha;
     var select = Crafty.e('2D, DOM, Text');
+    select.setName("SelectText");
     select.text("select");
     select.attr({ x: x+110, y: y+53, w: 100, h: 48 });
     select.textFont({ type: 'normal', weight: 'normal', size: '32px', family: 'ARCADE' });
@@ -873,6 +884,7 @@ Crafty.c('LevelCompleteControl', {
     this.keyPressDelay = true;
 
     this.levelComplete = Crafty.e('OutlineText');
+    this.levelComplete.setName("LevelCompleteText");
     this.levelComplete.text(Game.getLevelCompleteMessage)
     var x = Crafty.viewport.width/2 - Crafty.viewport.x - (width/2);
     var y = Crafty.viewport.height/2 - Crafty.viewport.y - 160;
@@ -881,6 +893,7 @@ Crafty.c('LevelCompleteControl', {
     this.levelComplete.textColor(textColour);
 
     this.pressAnyKey = Crafty.e('FlashingText');
+    this.pressAnyKey.setName("PressAnyKeyText");
     this.pressAnyKey.attr({ x: x, y: y + 240, w: width, h:height })
     this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
     this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
@@ -935,6 +948,7 @@ Crafty.c('GameOverControl', {
     var textColour = '#0061FF';
 
     this.reasonText = Crafty.e('OutlineText');
+    this.reasonText.setName("GameOverReason");
     var x = Crafty.viewport.width/2 - Crafty.viewport.x - (width / 2);
     var y = Crafty.viewport.height/2 - Crafty.viewport.y - 200;
     this.reasonText.attr({ x: x, y: y, w: width, height: height })
@@ -942,12 +956,14 @@ Crafty.c('GameOverControl', {
     this.reasonText.textColor(textColour,1.0);
 
     this.gameOverText = Crafty.e('OutlineText');
+    this.gameOverText.setName("GameOver");
     this.gameOverText.text('GAME OVER!')
     this.gameOverText.attr({ x: x, y: y + 100, w: width, height: height })
     this.gameOverText.textFont({ type: 'normal', weight: 'normal', size: '100px', family: Game.fontFamily })
     this.gameOverText.textColor(textColour);
 
     this.pressAnyKey = Crafty.e('FlashingText');
+    this.pressAnyKey.setName("GameOverPressAnyKey");
     this.pressAnyKey.attr({ x: x, y: y + 320, w: width, height: height })
     this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
     this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
@@ -1006,11 +1022,13 @@ Crafty.c('PauseControl', {
     var textColour = "#0061FF";
 
     this.pauseText = Crafty.e('OutlineText');
+    this.pauseText.setName("PauseText");
     this.pauseText.attr({ w: 320 })
     this.pauseText.textFont({ type: 'normal', weight: 'normal', size: '60px', family: Game.fontFamily })
     this.pauseText.textColor(textColour);
 
     this.pressAnyKey = Crafty.e('FlashingText');
+    this.pressAnyKey.setName("PausePressAnyKeyText");
     this.pressAnyKey.attr({ w: 320 })
     this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     this.pressAnyKey.textColor(textColour);
@@ -1032,6 +1050,8 @@ Crafty.c('PauseControl', {
   },
 
   pause: function () {
+    Game.debugEntitiesAndHandlers("Pause");
+
     this.paused = true;
     Game.pauseGame();
     Crafty.audio.mute();

@@ -1,6 +1,8 @@
 // Menu scene
 // ----------
 Crafty.scene('Menu', function() {
+  Game.debugEntitiesAndHandlers("Before Menu");
+
   Game.playMusic('menu_music');
 
   this.mainMenu = Crafty.e('MainMenu');
@@ -10,11 +12,14 @@ Crafty.scene('Menu', function() {
   });
   this.mainMenu.showMenu();
 
+  Game.debugEntitiesAndHandlers("After Menu");
 });
 
 // Game scene
 // -------------
 Crafty.scene('Game', function() {
+  Game.debugEntitiesAndHandlers("Before Game");
+
   var playerPos = {x:0, y:0};
   var WAYPOINT_TILE_FIRST_GID = 7;
   this.pauseControl = Crafty.e('PauseControl');
@@ -23,7 +28,9 @@ Crafty.scene('Game', function() {
   Crafty.viewport.scroll('_x', 0);
   Crafty.viewport.scroll('_y', 0);
 
-  Crafty.e("2D, Canvas, TiledMapBuilder").setMapDataSource( LEVELS[Game.levelIndex] )
+  Crafty.e("2D, Canvas, TiledMapBuilder")
+    .setName("TiledMapBuilder")
+    .setMapDataSource( LEVELS[Game.levelIndex] )
     .createWorld( function( tiledmap ){
       var entities, obstacle, entity;
 
@@ -164,6 +171,8 @@ Crafty.scene('Game', function() {
 
   Game.playMusic('level_music');
 
+  Game.debugEntitiesAndHandlers("After Game");
+
 }, function() {
   // Remove our event binding from above so that we don't
   //  end up having multiple redundant event watchers after
@@ -182,6 +191,7 @@ Crafty.scene('Loading', function(){
   Crafty.viewport.scroll('_y', 0);
 
   Crafty.e('FlashingText')
+    .setName("LoadingText")
     .text('LOADING')
     .textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     .textColor('#0061FF')

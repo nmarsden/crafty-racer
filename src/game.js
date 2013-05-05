@@ -27,6 +27,7 @@ Game = {
   NUMBER_OF_WAYPOINTS:10,
   waypoints:{},
   initialPlayerPosition:null,
+  debug:false,
 
   width:function () {
     return this.map_grid.width * this.map_grid.tile.width;
@@ -227,6 +228,54 @@ Game = {
     Game.player.setPosition(Game.initialPlayerPosition.x, Game.initialPlayerPosition.y);
     Game.playMusic('level_music');
     Game.unpauseGame();
+  },
+
+  allOtherEntityNames: function() {
+    var otherNames = [];
+    var entities = Crafty("*");
+    if (entities.length === 0) {
+      return otherNames;
+    }
+    for (var id in entities) {
+      if (!entities.hasOwnProperty(id) || id == "length") continue; //skip
+      var entity = Crafty(parseInt(id, 10));
+      if (entity.has("Ground_Sides") || entity.has("Ground_Tops") || entity.has("Solid_Sides") || entity.has("Solid_Tops") || entity.has("Objects") ) {
+        // do nothing
+      } else {
+        if (entity._entityName) {
+          otherNames.push(entity._entityName);
+        } else {
+          otherNames.push(entity);
+        }
+      }
+    };
+    return otherNames;
+  },
+
+  numberOfEntityHandlers: function() {
+    var entityHandlers = [], totalHandlers = 0;
+    Object.keys(Crafty.handlers()).forEach(
+      function(eventName) {
+        var numEventHandlers = Object.keys(Crafty.handlers()[eventName]).length;
+        totalHandlers += numEventHandlers;
+        entityHandlers.push(numEventHandlers + " " + eventName);
+      });
+    entityHandlers.push(totalHandlers + " Total");
+    return entityHandlers
+  },
+
+  debugEntitiesAndHandlers: function(message) {
+    if (!Game.debug) {
+      return;
+    }
+    var total = Crafty("*").length;
+    var groundNum = Crafty("Ground_Sides").length + Crafty("Ground_Tops").length;
+    var solidNum = Crafty("Solid_Sides").length + Crafty("Solid_Tops").length;
+    var objectNum = Crafty("Objects").length;
+    var otherNum = total - (groundNum + solidNum + objectNum);
+    console.log(message, " - Entities: ", total, "Total,", groundNum, "Ground,", solidNum, "Solid,", objectNum, "Objects,", otherNum, "Other");
+    console.log("Other entities:", Game.allOtherEntityNames());
+    console.log("Entity Handlers:", Game.numberOfEntityHandlers());
   },
 
   debugTriggeredEvents: function() {
