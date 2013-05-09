@@ -616,7 +616,6 @@ Crafty.c('LevelSelectMenu', {
   getLevelSelectHandler: function(levelIndex) {
     return function() {
       Game.selectLevel(levelIndex);
-      Crafty.scene('Game');
     }
   }
 });
@@ -932,7 +931,7 @@ Crafty.c('LevelCompleteControl', {
       } else {
         Game.nextLevel();
       }
-      Crafty.scene('Game');
+      Game.startLevel();
     }
   }
 
@@ -1050,7 +1049,7 @@ Crafty.c('PauseControl', {
   },
 
   pause: function () {
-    Game.debugEntitiesAndHandlers("Pause");
+    Debug.logEntitiesAndHandlers("Pause");
 
     this.paused = true;
     Game.pauseGame();

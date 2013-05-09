@@ -27,7 +27,6 @@ Game = {
   NUMBER_OF_WAYPOINTS:10,
   waypoints:{},
   initialPlayerPosition:null,
-  debug:false,
 
   width:function () {
     return this.map_grid.width * this.map_grid.tile.width;
@@ -110,11 +109,26 @@ Game = {
     });
   },
 
+  showMainMenu: function() {
+    Game.playMusic('menu_music');
+    Game.mainMenu = Crafty.e('MainMenu');
+    Game.mainMenu.setName("MainMenu");
+    Game.mainMenu.setMenuOptions({
+      escapeKeyHidesMenu: false
+    });
+    Game.mainMenu.showMenu();
+  },
+
   initWaypoint: function () {
     var waypoint = this.waypoints[this.waypointIndex];
     this.waypoint = Crafty.e('Waypoint');
     this.waypoint.setName("Waypoint");
     this.waypoint.setPosition(waypoint.x, waypoint.y);
+  },
+
+  initPauseControl: function() {
+    this.pauseControl = Crafty.e('PauseControl');
+    this.pauseControl.setName("PauseControl");
   },
 
   initNavigator: function () {
@@ -142,22 +156,22 @@ Game = {
     Game.waypointsCollectedIndicator.setName("WaypointsCollectedIndicator");
   },
 
-  initPlayer: function(playerX, playerY) {
-    Game.initialPlayerPosition = {x: playerX, y: playerY};
+  initPlayer: function() {
     Game.player = Crafty.e('Car');
     Game.player.setName("Player");
-    Game.player.setPosition(playerX, playerY);
+    Game.player.setPosition(Game.initialPlayerPosition.x, Game.initialPlayerPosition.y);
   },
 
-  initLevel: function (playerX, playerY) {
+  initLevel: function () {
     this.waypointIndex = 0;
+    Game.initPauseControl();
     Game.initNavigator();
     Game.initCountdown();
     Game.initMiniMap();
     Game.initLevelIndicator();
     Game.resetWaypoint();
     Game.initWaypointsCollectedIndicator();
-    Game.initPlayer(playerX, playerY);
+    Game.initPlayer();
   },
 
   isLevelComplete: function () {
@@ -170,6 +184,10 @@ Game = {
 
   getLevelCompleteMessage: function () {
     return 'LEVEL ' + Game.getLevelNumber() + ' COMPLETE!';
+  },
+
+  setInitialPlayerPosition: function(playerX, playerY) {
+    Game.initialPlayerPosition = {x: playerX, y: playerY};
   },
 
   addWaypoint: function (idx, x, y) {
@@ -205,8 +223,134 @@ Game = {
     this.levelIndex++;
   },
 
+  destroyAll2DEntities: function() {
+    Crafty("2D").each(function () {
+      if (!this.has("Persist")) this.destroy();
+    });
+  },
+
   selectLevel: function(levelIndex) {
     this.levelIndex = levelIndex;
+
+    Game.startLevel();
+  },
+
+  loadLevel: function() {
+    var WAYPOINT_TILE_FIRST_GID = 7;
+
+    Crafty.e("2D, Canvas, TiledMapBuilder")
+      .setName("TiledMapBuilder")
+      .setMapDataSource( LEVELS[Game.levelIndex] )
+      .createWorld( function( tiledmap ){
+        var entities, obstacle, entity;
+
+        // Set properties of entities on the 'Ground_Sides' layer
+        entities = tiledmap.getEntitiesInLayer('Ground_Sides');
+        for (obstacle = 0; obstacle < entities.length; obstacle++){
+          entity = entities[obstacle];
+
+          //Set z-index for correct view: front, back
+          entity.z = Math.floor(entity._y - (entity._h*2));
+        }
+
+        // Set properties of entities on the 'Ground_Tops' layer
+        entities = tiledmap.getEntitiesInLayer('Ground_Tops');
+        for (obstacle = 0; obstacle < entities.length; obstacle++){
+          entity = entities[obstacle];
+
+          //Set z-index for correct view: front, back
+          entity.z = Math.floor(entity._y - entity._h - 10);
+
+          if (entity.__image === "assets/Iso_Cubes_01_128x128_Alt_00_007.png") {
+            // Breaking Top
+            entity.addComponent("Breaking");
+            entity.addComponent("Collision")
+            entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
+            // Set Breaking Side
+            var tilePosition = Game.toTilePosition({x:entity._x, y:entity._y});
+            var breakingSide = tiledmap.getTile(tilePosition.row+1, tilePosition.col+1, 'Ground_Sides');
+            entity.setBreakingSide(breakingSide);
+          }
+        }
+
+        // Set properties of entities on the 'Solid_Sides' layer
+        entities = tiledmap.getEntitiesInLayer('Solid_Sides');
+        for (obstacle = 0; obstacle < entities.length; obstacle++){
+          entity = entities[obstacle];
+
+          //Set z-index for correct view: front, back
+          entity.z = Math.floor(entity._y );
+
+          // Set collision settings
+          entity.addComponent("Collision")
+          entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
+
+          // Hide collision marker
+          if (entity.__image === "assets/Collision_Marker.png") {
+            entity.addComponent("Hole");
+            entity._visible = false;
+          } else {
+            entity.addComponent("Solid");
+          }
+        }
+
+        // Set properties of entities on the 'Solid_Tops' layer
+        entities = tiledmap.getEntitiesInLayer('Solid_Tops');
+        for (obstacle = 0; obstacle < entities.length; obstacle++){
+          var entity = entities[obstacle];
+
+          //Set z-index for correct view: front, back
+          entity.z = Math.floor(entity._y + entity._h);
+        }
+
+        // Set properties of entities on the 'Objects' layer
+        entities = tiledmap.getEntitiesInLayer('Objects');
+        for (obstacle = 0; obstacle < entities.length; obstacle++){
+          var entity = entities[obstacle];
+
+          // Setup player and hide player marker
+          if (entity.__image === "assets/Player_Marker.png") {
+            Game.setInitialPlayerPosition(entity._x + 15, entity._y - 17);
+            entity._visible = false;
+          }
+
+          var getWaypointIndex = function(entity) {
+            for (var index=0; index<10; index++) {
+              if (entity.has("Tile" + (WAYPOINT_TILE_FIRST_GID + index))) {
+                return index;
+              }
+            }
+          };
+
+          // Setup waypoints and hide waypoint markers
+          if (entity.__image === "assets/Waypoints_Marker.png") {
+            var waypointIndex = getWaypointIndex(entity);
+            Game.addWaypoint(waypointIndex, entity._x + 32, entity._y - 16);
+            entity._visible = false;
+          }
+        }
+
+      });
+  },
+
+  startLevel: function() {
+    Game.destroyAll2DEntities();
+
+    Debug.logEntitiesAndHandlers("startLevel: after destroyAll2DEntities");
+
+    Crafty.viewport.scroll('_x', 0);
+    Crafty.viewport.scroll('_y', 0);
+
+    Game.loadLevel();
+    Game.initLevel();
+
+    // uncomment to show FPS
+//  this.showFps = Crafty.e('ShowFPS');
+//  this.showFps.setName("ShowFPS");
+
+    Game.playMusic('level_music');
+
+    Debug.logEntitiesAndHandlers("startLevel: after loadLevel");
   },
 
   pauseGame: function() {
@@ -228,60 +372,6 @@ Game = {
     Game.player.setPosition(Game.initialPlayerPosition.x, Game.initialPlayerPosition.y);
     Game.playMusic('level_music');
     Game.unpauseGame();
-  },
-
-  allOtherEntityNames: function() {
-    var otherNames = [];
-    var entities = Crafty("*");
-    if (entities.length === 0) {
-      return otherNames;
-    }
-    for (var id in entities) {
-      if (!entities.hasOwnProperty(id) || id == "length") continue; //skip
-      var entity = Crafty(parseInt(id, 10));
-      if (entity.has("Ground_Sides") || entity.has("Ground_Tops") || entity.has("Solid_Sides") || entity.has("Solid_Tops") || entity.has("Objects") ) {
-        // do nothing
-      } else {
-        if (entity._entityName) {
-          otherNames.push(entity._entityName);
-        } else {
-          otherNames.push(entity);
-        }
-      }
-    };
-    return otherNames;
-  },
-
-  numberOfEntityHandlers: function() {
-    var entityHandlers = [], totalHandlers = 0;
-    Object.keys(Crafty.handlers()).forEach(
-      function(eventName) {
-        var numEventHandlers = Object.keys(Crafty.handlers()[eventName]).length;
-        totalHandlers += numEventHandlers;
-        entityHandlers.push(numEventHandlers + " " + eventName);
-      });
-    entityHandlers.push(totalHandlers + " Total");
-    return entityHandlers
-  },
-
-  debugEntitiesAndHandlers: function(message) {
-    if (!Game.debug) {
-      return;
-    }
-    var total = Crafty("*").length;
-    var groundNum = Crafty("Ground_Sides").length + Crafty("Ground_Tops").length;
-    var solidNum = Crafty("Solid_Sides").length + Crafty("Solid_Tops").length;
-    var objectNum = Crafty("Objects").length;
-    var otherNum = total - (groundNum + solidNum + objectNum);
-    console.log(message, " - Entities: ", total, "Total,", groundNum, "Ground,", solidNum, "Solid,", objectNum, "Objects,", otherNum, "Other");
-    console.log("Other entities:", Game.allOtherEntityNames());
-    console.log("Entity Handlers:", Game.numberOfEntityHandlers());
-  },
-
-  debugTriggeredEvents: function() {
-    Crafty.bind('EnterFrame', function() { console.log("EnterFrame triggered") });
-    Crafty.bind('PauseGame', function() { console.log("PauseGame triggered") });
-    Crafty.bind('UnpauseGame', function() { console.log("UnpauseGame triggered") });
   },
 
   dispatchKeyDown: function(key) {
@@ -316,4 +406,84 @@ Game = {
     //Crafty.debugBar.show();
   }
 
+}
+
+Debug = {
+  isEnabled:false,
+
+  findEntitiesWithName: function(entityName) {
+    var foundEntities = [];
+    var entities = Crafty("*");
+    if (entities.length === 0) {
+      return foundEntities;
+    }
+    for (var id in entities) {
+      if (!entities.hasOwnProperty(id) || id == "length") continue; //skip
+      var entity = Crafty(parseInt(id, 10));
+      if (entity._entityName === entityName) {
+        foundEntities.push(entity);
+      }
+    }
+    return foundEntities;
+  },
+
+  allOtherEntityNames: function() {
+    var otherNames = [];
+    var entities = Crafty("*");
+    if (entities.length === 0) {
+      return otherNames;
+    }
+    for (var id in entities) {
+      if (!entities.hasOwnProperty(id) || id == "length") continue; //skip
+      var entity = Crafty(parseInt(id, 10));
+      if (entity.has("Ground_Sides") || entity.has("Ground_Tops") || entity.has("Solid_Sides") || entity.has("Solid_Tops") || entity.has("Objects") ) {
+        // do nothing
+      } else {
+        if (entity._entityName) {
+          otherNames.push(entity._entityName);
+        } else {
+          otherNames.push(entity);
+        }
+      }
+    }
+    return otherNames;
+  },
+
+  numberOfEntityHandlers: function() {
+    var entityHandlers = [], totalHandlers = 0;
+    Object.keys(Crafty.handlers()).forEach(
+      function(eventName) {
+        var numEventHandlers = Object.keys(Crafty.handlers()[eventName]).length;
+        totalHandlers += numEventHandlers;
+        entityHandlers.push(numEventHandlers + " " + eventName);
+      });
+    entityHandlers.push(totalHandlers + " Total");
+    return entityHandlers
+  },
+
+  logEntitiesAndHandlers: function(message) {
+    if (!Debug.isEnabled) {
+      return;
+    }
+    var total = Crafty("*").length;
+    var groundNum = Crafty("Ground_Sides").length + Crafty("Ground_Tops").length;
+    var solidNum = Crafty("Solid_Sides").length + Crafty("Solid_Tops").length;
+    var objectNum = Crafty("Objects").length;
+    var otherNum = total - (groundNum + solidNum + objectNum);
+    console.log(message, " - Entities: ", total, "Total,", groundNum, "Ground,", solidNum, "Solid,", objectNum, "Objects,", otherNum, "Other");
+    console.log("Other entities:", Debug.allOtherEntityNames());
+    console.log("Entity Handlers:", Debug.numberOfEntityHandlers());
+  },
+
+  logTriggeredEvents: function() {
+    if (!Debug.isEnabled) {
+      return;
+    }
+    Crafty.bind('WaypointReached', function() { console.log("WaypointReached triggered") });
+    Crafty.bind('TimesUp', function() { console.log("TimesUp triggered") });
+    Crafty.bind('OffTheEdge', function() { console.log("OffTheEdge triggered") });
+    Crafty.bind('EnterFrame', function() { console.log("EnterFrame triggered") });
+    Crafty.bind('PauseGame', function() { console.log("PauseGame triggered") });
+    Crafty.bind('UnpauseGame', function() { console.log("UnpauseGame triggered") });
+  }
 }

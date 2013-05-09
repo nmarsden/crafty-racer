@@ -1,135 +1,10 @@
-// Menu scene
-// ----------
-Crafty.scene('Menu', function() {
-  Game.debugEntitiesAndHandlers("Before Menu");
-
-  Game.playMusic('menu_music');
-
-  this.mainMenu = Crafty.e('MainMenu');
-  this.mainMenu.setName("MainMenu");
-  this.mainMenu.setMenuOptions({
-    escapeKeyHidesMenu: false
-  });
-  this.mainMenu.showMenu();
-
-  Game.debugEntitiesAndHandlers("After Menu");
-});
-
 // Game scene
 // -------------
 Crafty.scene('Game', function() {
-  Game.debugEntitiesAndHandlers("Before Game");
+  Debug.logTriggeredEvents();
+  Debug.logEntitiesAndHandlers("Before Menu");
 
-  var playerPos = {x:0, y:0};
-  var WAYPOINT_TILE_FIRST_GID = 7;
-  this.pauseControl = Crafty.e('PauseControl');
-  this.pauseControl.setName("PauseControl");
-
-  Crafty.viewport.scroll('_x', 0);
-  Crafty.viewport.scroll('_y', 0);
-
-  Crafty.e("2D, Canvas, TiledMapBuilder")
-    .setName("TiledMapBuilder")
-    .setMapDataSource( LEVELS[Game.levelIndex] )
-    .createWorld( function( tiledmap ){
-      var entities, obstacle, entity;
-
-      // Set properties of entities on the 'Ground_Sides' layer
-      entities = tiledmap.getEntitiesInLayer('Ground_Sides');
-      for (obstacle = 0; obstacle < entities.length; obstacle++){
-        entity = entities[obstacle];
-
-        //Set z-index for correct view: front, back
-        entity.z = Math.floor(entity._y - (entity._h*2));
-      }
-
-      // Set properties of entities on the 'Ground_Tops' layer
-      entities = tiledmap.getEntitiesInLayer('Ground_Tops');
-      for (obstacle = 0; obstacle < entities.length; obstacle++){
-        entity = entities[obstacle];
-
-        //Set z-index for correct view: front, back
-        entity.z = Math.floor(entity._y - entity._h - 10);
-
-        if (entity.__image === "assets/Iso_Cubes_01_128x128_Alt_00_007.png") {
-          // Breaking Top
-          entity.addComponent("Breaking");
-          entity.addComponent("Collision")
-          entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
-          // Set Breaking Side
-          var tilePosition = Game.toTilePosition({x:entity._x, y:entity._y});
-          var breakingSide = tiledmap.getTile(tilePosition.row+1, tilePosition.col+1, 'Ground_Sides');
-          entity.setBreakingSide(breakingSide);
-        }
-      }
-
-      // Set properties of entities on the 'Solid_Sides' layer
-      entities = tiledmap.getEntitiesInLayer('Solid_Sides');
-      for (obstacle = 0; obstacle < entities.length; obstacle++){
-        entity = entities[obstacle];
-
-        //Set z-index for correct view: front, back
-        entity.z = Math.floor(entity._y );
-
-        // Set collision settings
-        entity.addComponent("Collision")
-        entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
-
-        // Hide collision marker
-        if (entity.__image === "assets/Collision_Marker.png") {
-          entity.addComponent("Hole");
-          entity._visible = false;
-        } else {
-          entity.addComponent("Solid");
-        }
-      }
-
-      // Set properties of entities on the 'Solid_Tops' layer
-      entities = tiledmap.getEntitiesInLayer('Solid_Tops');
-      for (obstacle = 0; obstacle < entities.length; obstacle++){
-        var entity = entities[obstacle];
-
-        //Set z-index for correct view: front, back
-        entity.z = Math.floor(entity._y + entity._h);
-      }
-
-      // Set properties of entities on the 'Objects' layer
-      entities = tiledmap.getEntitiesInLayer('Objects');
-      for (obstacle = 0; obstacle < entities.length; obstacle++){
-        var entity = entities[obstacle];
-
-        // Setup player and hide player marker
-        if (entity.__image === "assets/Player_Marker.png") {
-          playerPos.x = entity._x + 15;
-          playerPos.y = entity._y - 17;
-
-          entity._visible = false;
-        }
-
-        var getWaypointIndex = function(entity) {
-          for (var index=0; index<10; index++) {
-            if (entity.has("Tile" + (WAYPOINT_TILE_FIRST_GID + index))) {
-              return index;
-            }
-          }
-        };
-
-        // Setup waypoints and hide waypoint markers
-        if (entity.__image === "assets/Waypoints_Marker.png") {
-          var waypointIndex = getWaypointIndex(entity);
-          Game.addWaypoint(waypointIndex, entity._x + 32, entity._y - 16);
-          entity._visible = false;
-        }
-      }
-
-    });
-
-  Game.initLevel(playerPos.x, playerPos.y);
-
-
-  // uncomment to show FPS
-//  this.showFps = Crafty.e('ShowFPS');
-//  this.showFps.setName("ShowFPS");
+  Game.showMainMenu();
 
   // Show the victory screen once all waypoints are reached
   this.show_victory = function() {
@@ -143,7 +18,7 @@ Crafty.scene('Game', function() {
       Game.nextWaypoint();
     }
   }
-  this.bind('WaypointReached', this.show_victory);
+  Crafty.bind('WaypointReached', this.show_victory);
 
   // Show the game over screen when time is up
   this.show_game_over_times_up = function() {
@@ -154,7 +29,7 @@ Crafty.scene('Game', function() {
     gameOverControl.setName("GameOverControlTimesUp");
     gameOverControl.setReason("TIMES UP");
   }
-  this.bind('TimesUp', this.show_game_over_times_up);
+  Crafty.bind('TimesUp', this.show_game_over_times_up);
 
   // Show the game over screen when off the edge
   this.show_game_over_off_the_edge = function() {
@@ -165,21 +40,9 @@ Crafty.scene('Game', function() {
     gameOverControl.setName("GameOverControlOffTheEdge");
     gameOverControl.setReason("OFF THE EDGE");
   }
-  this.bind('OffTheEdge', this.show_game_over_off_the_edge);
-
-  //console.log("Crafty.DrawManager.total2D:", Crafty.DrawManager.total2D);
-
-  Game.playMusic('level_music');
-
-  Game.debugEntitiesAndHandlers("After Game");
+  Crafty.bind('OffTheEdge', this.show_game_over_off_the_edge);
 
 }, function() {
-  // Remove our event binding from above so that we don't
-  //  end up having multiple redundant event watchers after
-  //  multiple restarts of the game
-  this.unbind('WaypointReached', this.show_victory);
-  this.unbind('TimesUp', this.show_game_over_times_up);
-  this.unbind('OffTheEdge', this.show_game_over_off_the_edge);
 });
 
 
@@ -283,11 +146,10 @@ Crafty.scene('Loading', function(){
       end_level_music:    ['assets/Show Your Moves.mp3']
     });
 
-    Crafty.scene('Menu');
+    Crafty.scene('Game');
   }, function(e) {
     // Progress
     //console.log("Progress:", e.percent);
   });
-
 
 });
