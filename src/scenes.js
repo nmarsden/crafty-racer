@@ -10,6 +10,7 @@ Crafty.scene('Game', function() {
   this.show_victory = function() {
     if (Game.isLevelComplete()) {
       Game.pauseGame();
+      Game.disablePauseControl();
       Game.stopAllSoundsExcept('woop');
       Game.playMusic('end_level_music');
       var levelCompleteControl = Crafty.e('LevelCompleteControl');
@@ -24,6 +25,7 @@ Crafty.scene('Game', function() {
   this.show_game_over_times_up = function() {
     Game.stopAllSoundsExcept();
     Game.pauseGame();
+    Game.disablePauseControl();
 
     var gameOverControl = Crafty.e('GameOverControl');
     gameOverControl.setName("GameOverControlTimesUp");
@@ -35,6 +37,7 @@ Crafty.scene('Game', function() {
   this.show_game_over_off_the_edge = function() {
     Game.stopAllSoundsExcept();
     Game.pauseGame();
+    Game.disablePauseControl();
 
     var gameOverControl = Crafty.e('GameOverControl');
     gameOverControl.setName("GameOverControlOffTheEdge");

@@ -903,6 +903,7 @@ Crafty.c('LevelCompleteControl', {
     setTimeout(this.enableKeyPress.bind(this), 1000);
 
     this.bind('KeyDown', this.showLoading);
+    Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this.showLoading.bind(this));
 
     this.bind('EnterFrame', this.restartGame);
   },
@@ -975,6 +976,7 @@ Crafty.c('GameOverControl', {
     setTimeout(this.enableKeyPress.bind(this), 1000);
 
     this.bind('KeyDown', this.showLoading);
+    Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this.showLoading.bind(this));
 
     this.bind('EnterFrame', this.restartGame);
   },
@@ -1018,6 +1020,7 @@ Crafty.c('PauseControl', {
   init: function() {
     this.requires('2D, Keyboard');
     this.paused = false;
+    this.enabled = true;
     var textColour = "#0061FF";
 
     this.pauseText = Crafty.e('OutlineText');
@@ -1041,11 +1044,22 @@ Crafty.c('PauseControl', {
   },
 
   _handleKeyDownOrButtonDown: function(e) {
+    if (!this.enabled) {
+      return;
+    }
     if (!this.paused && (this.isDown('ESC') || this._isBackButton(e))) {
       this.pause();
     } else if (this.paused) {
       this.unpause();
     }
+  },
+
+  enable: function () {
+    this.enabled = true;
+  },
+
+  disable: function () {
+    this.enabled = false;
   },
 
   pause: function () {

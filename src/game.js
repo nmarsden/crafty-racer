@@ -127,8 +127,16 @@ Game = {
   },
 
   initPauseControl: function() {
-    this.pauseControl = Crafty.e('PauseControl');
-    this.pauseControl.setName("PauseControl");
+    Game.pauseControl = Crafty.e('PauseControl');
+    Game.pauseControl.setName("PauseControl");
+  },
+
+  disablePauseControl: function() {
+    Game.pauseControl.disable();
+  },
+
+  enablePauseControl: function() {
+    Game.pauseControl.enable();
   },
 
   initNavigator: function () {
@@ -341,16 +349,44 @@ Game = {
     Crafty.viewport.scroll('_x', 0);
     Crafty.viewport.scroll('_y', 0);
 
-    Game.loadLevel();
-    Game.initLevel();
+    var loadingText = Crafty.e('FlashingText')
+      .setName("LoadingText")
+      .text('LOADING')
+      .textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
+      .textColor('#0061FF')
+      .attr({ w: 320 })
+      .attr({ x: Crafty.viewport.width/2 - Crafty.viewport.x - 160, y: Crafty.viewport.height/2 - Crafty.viewport.y + 60});
 
-    // uncomment to show FPS
-//  this.showFps = Crafty.e('ShowFPS');
-//  this.showFps.setName("ShowFPS");
+    var startLevelLoading = false;
 
-    Game.playMusic('level_music');
+    var enableStartLevelLoading = function() {
+      startLevelLoading = true;
+    };
 
-    Debug.logEntitiesAndHandlers("startLevel: after loadLevel");
+    var handleEnterFrame = function() {
+      if (!startLevelLoading) {
+        return;
+      }
+      startLevelLoading = false;
+
+      Game.loadLevel();
+
+      Game.initLevel();
+
+      loadingText.destroy();
+
+      // uncomment to show FPS
+      //this.showFps = Crafty.e('ShowFPS');
+      //this.showFps.setName("ShowFPS");
+
+      Game.playMusic('level_music');
+      Debug.logEntitiesAndHandlers("startLevel: after loadLevel");
+    }
+
+    Crafty.bind("EnterFrame", handleEnterFrame);
+
+    // Introduce delay to ensure LOADING text is rendered before startLevelLoading
+    setTimeout(enableStartLevelLoading, 100);
   },
 
   pauseGame: function() {
@@ -372,6 +408,7 @@ Game = {
     Game.player.setPosition(Game.initialPlayerPosition.x, Game.initialPlayerPosition.y);
     Game.playMusic('level_music');
     Game.unpauseGame();
+    Game.enablePauseControl()
   },
 
   dispatchKeyDown: function(key) {
