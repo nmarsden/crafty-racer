@@ -553,8 +553,8 @@ Crafty.c('Countdown', {
 Crafty.c('LevelIndicator', {
   init: function() {
     this.requires('2D, DOM, Text');
-    this.h = 50;
-    this.w = 200;
+    this.h = 45;
+    this.w = 300;
     this.textFont({ type: 'normal', weight: 'normal', size: '40px', family: Game.fontFamily });
     this.css('text-align', 'left');
     this.textColor('#0061FF', 0.6);
