@@ -245,6 +245,24 @@ Game = {
 
   loadLevel: function() {
     var WAYPOINT_TILE_FIRST_GID = 7;
+    var ONE_WAY_TILE_FIRST_GID = 19;
+    var ONE_WAY_TYPES = ['NE','SE','SW','NW'];
+
+    var getWaypointIndex = function(entity) {
+      for (var index=0; index<10; index++) {
+        if (entity.has("Tile" + (WAYPOINT_TILE_FIRST_GID + index))) {
+          return index;
+        }
+      }
+    };
+
+    var getOneWayType = function(entity) {
+      for (var index=0; index<4; index++) {
+        if (entity.has("Tile" + (ONE_WAY_TILE_FIRST_GID + index))) {
+          return ONE_WAY_TYPES[index];
+        }
+      }
+    };
 
     Crafty.e("2D, Canvas, TiledMapBuilder")
       .setName("TiledMapBuilder")
@@ -322,19 +340,20 @@ Game = {
             entity._visible = false;
           }
 
-          var getWaypointIndex = function(entity) {
-            for (var index=0; index<10; index++) {
-              if (entity.has("Tile" + (WAYPOINT_TILE_FIRST_GID + index))) {
-                return index;
-              }
-            }
-          };
-
           // Setup waypoints and hide waypoint markers
           if (entity.__image === "assets/Waypoints_Marker.png") {
             var waypointIndex = getWaypointIndex(entity);
             Game.addWaypoint(waypointIndex, entity._x + 32, entity._y - 16);
             entity._visible = false;
+          }
+
+          // Setup one way entities
+          if (entity.__image === "assets/one_way_marker.png") {
+            entity.z = Math.floor(entity._y - entity._h - 10);
+            entity.addComponent('OneWay');
+            entity.setOneWayType(getOneWayType(entity));
+            entity.addComponent("Collision")
+            entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
           }
         }
 

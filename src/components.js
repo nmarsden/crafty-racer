@@ -1166,6 +1166,26 @@ Crafty.c('Breaking', {
   }
 });
 
+Crafty.c('OneWay', {
+  init: function() {
+    this.oneWayDirections = {
+      'NE':  -26.6,
+      'SE':   26.6,
+      'SW':  153.4,
+      'NW': -153.4
+    };
+    this.allowedDirection = null;
+  },
+
+  setOneWayType: function(type) {
+    this.allowedDirection = this.oneWayDirections[type];
+  },
+
+  isDirectionAllowed: function(direction) {
+    return direction == this.allowedDirection;
+  }
+});
+
 Crafty.c('Car', {
   init: function() {
     this.directionIndex = 27;  // NE
@@ -1264,6 +1284,8 @@ Crafty.c('Car', {
     this.rightArrowDown = false;
     this.leftArrowDown = false;
     this.paused = false;
+    this.goingOneWay = false;
+    this.oneWayStepsMoving = 0;
 
     this.requires('Actor, Keyboard, Collision, spr_car, SpriteAnimation');
 
@@ -1275,6 +1297,8 @@ Crafty.c('Car', {
     this.onHit('Hole', this.holeHit);
 
     this.onHit('Breaking', this.breakingGroundHit);
+
+    this.onHit('OneWay', this.oneWayHit);
 
     this.onHit('Waypoint', this.waypointReached);
 
@@ -1440,7 +1464,7 @@ Crafty.c('Car', {
   },
 
   _adjustDirectionIndexForSnapToDirection: function () {
-    if (this.falling) {
+    if (this.falling || this.goingOneWay) {
       return;
     }
     var timeTurning = Date.now() - this.turningStartTime;
@@ -1480,7 +1504,7 @@ Crafty.c('Car', {
   },
 
   _updateDirection: function () {
-    if (this.falling) {
+    if (this.falling || this.goingOneWay) {
       return;
     }
 
@@ -1576,6 +1600,19 @@ Crafty.c('Car', {
       }
     }
 
+    if (this.goingOneWay) {
+      if (this.oneWayStepsMoving === 0) {
+        // Stop going one way
+        this.moving = false;
+        this.goingOneWay = false;
+        return;
+      } else {
+        // Keep going one way
+        this.moving = true;
+        this.oneWayStepsMoving--;
+      }
+    }
+
     this._changeSprite();
     this._adjustDirectionIndexForSnapToDirection();
     this._adjustSpeedAndChangeSoundEffect();
@@ -1602,6 +1639,7 @@ Crafty.c('Car', {
 
   setPosition: function(x, y) {
     this.falling = false;
+    this.goingOneWay = false;
     this.moving = false;
     this.directionIndex = 27;  // NE
     this.snappedDirectionIndex = this.directionIndex;
@@ -1663,6 +1701,19 @@ Crafty.c('Car', {
       var breakingGround = hd.obj;
       breakingGround.startBreaking();
     });
+  },
+
+  oneWayHit: function(hitData) {
+    if (this.goingOneWay) {
+      return;
+    }
+    var hd = hitData[0];
+    if (!this.reversing && hd.obj.isDirectionAllowed(this.direction)) {
+      this.oneWayStepsMoving = Math.round(70 / Math.abs(this.speed));
+      this.goingOneWay = true;
+    } else {
+      this.stopMovement(hitData);
+    }
   },
 
   boundingPolygon: function(direction, w, h) {

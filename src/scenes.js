@@ -89,6 +89,7 @@ Crafty.scene('Loading', function(){
     "assets/Collision_Marker.png",
     "assets/Player_Marker.png",
     "assets/Waypoints_Marker.png",
+    "assets/one_way_marker.png",
     "assets/up_arrow_51x48.png",
     "assets/right_arrow_51x48.png",
     "assets/down_arrow_51x48.png",
@@ -105,6 +106,9 @@ Crafty.scene('Loading', function(){
     }, 0, 0);
     Crafty.sprite(21, 'assets/waypoint_indicator.png', {
       spr_waypoint_indicator:  [0, 0]
+    }, 0, 0);
+    Crafty.sprite(128, 64, 'assets/one_way_marker.png', {
+      spr_one_way:  [0, 0]
     }, 0, 0);
     Crafty.sprite(96, 'assets/navigator.png', {
       spr_navigator:  [0, 0]
