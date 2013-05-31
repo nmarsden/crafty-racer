@@ -76,9 +76,9 @@ Crafty.scene('Loading', function(){
     'assets/cartoon_slide_whistle_descend_version_3.mp3',
     'assets/76376__spazzo-1493__game-over.wav',
     'assets/Pling-KevanGC-1485374730.mp3',
-    'assets/Happy Bee.mp3',
-    'assets/Enter the party.mp3',
-    'assets/Show Your Moves.mp3',
+    'assets/Happy_Bee.mp3',
+    'assets/Enter_the_party.mp3',
+    'assets/Show_Your_Moves.mp3',
     'assets/car.png',
     'assets/waypoint_animation.png',
     'assets/navigator.png',
@@ -96,6 +96,7 @@ Crafty.scene('Loading', function(){
     "assets/left_arrow_51x48.png",
     "assets/escape_key_51x48.png",
     "assets/enter_key_100x48.png",
+    "assets/glass_overlay.png",
     "assets/menu_background.png"
   ], function(){
     Crafty.sprite(98, 'assets/car.png', {
@@ -134,6 +135,9 @@ Crafty.scene('Loading', function(){
     Crafty.sprite(922, 555, 'assets/menu_background.png', {
       spr_menu_background:  [0, 0]
     }, 0, 0);
+    Crafty.sprite(700, 450, 'assets/glass_overlay.png', {
+      spr_glass_overlay:  [0, 0]
+    }, 0, 0);
 
     // Define our sounds for later use
     Crafty.audio.add({
@@ -148,9 +152,9 @@ Crafty.scene('Loading', function(){
       menu_nav:           ['assets/beep_1.mp3'],
       menu_change_page:   ['assets/badminton_racket_fast_movement_swoosh_002.mp3'],
       game_over:          ['assets/76376__spazzo-1493__game-over.wav'],
-      level_music:        ['assets/Happy Bee.mp3'],
-      menu_music:         ['assets/Enter the Party.mp3'],
-      end_level_music:    ['assets/Show Your Moves.mp3']
+      level_music:        ['assets/Happy_Bee.mp3'],
+      menu_music:         ['assets/Enter_the_Party.mp3'],
+      end_level_music:    ['assets/Show_Your_Moves.mp3']
     });
 
     Crafty.scene('Game');

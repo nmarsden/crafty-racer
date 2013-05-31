@@ -16,7 +16,7 @@ Game = {
 
   player:null,
   gamePad:null,
-  fontFamily: 'Q-bo', //'Simpletype', //'UNICODE0',
+  fontFamily: 'QBO', //'SIMPLETYPE', //'UNICODE0',
   levels:[],
   levelIndex:0,
   waypointIndex:0,

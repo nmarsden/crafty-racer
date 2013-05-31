@@ -886,17 +886,22 @@ Crafty.c('LevelCompleteControl', {
     this.levelComplete.setName("LevelCompleteText");
     this.levelComplete.text(Game.getLevelCompleteMessage)
     var x = Crafty.viewport.width/2 - Crafty.viewport.x - (width/2);
-    var y = Crafty.viewport.height/2 - Crafty.viewport.y - 160;
+    var y = Crafty.viewport.height/2 - Crafty.viewport.y - 140;
     this.levelComplete.attr({ x: x, y: y, w: width, h:height })
-    this.levelComplete.textFont({ type: 'normal', weight: 'normal', size: '100px', family: Game.fontFamily })
+    this.levelComplete.textFont({ type: 'normal', weight: 'normal', size: '80px', family: Game.fontFamily })
     this.levelComplete.textColor(textColour);
 
     this.pressAnyKey = Crafty.e('FlashingText');
     this.pressAnyKey.setName("PressAnyKeyText");
-    this.pressAnyKey.attr({ x: x, y: y + 240, w: width, h:height })
+    this.pressAnyKey.attr({ x: x, y: y + 260, w: width, h:height })
     this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
     this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     this.pressAnyKey.textColor(textColour);
+
+    this.overlay = Crafty.e('2D, Canvas, spr_glass_overlay');
+    x = Crafty.viewport.width/2 - Crafty.viewport.x - (700 / 2);
+    y = Crafty.viewport.height/2 - Crafty.viewport.y - (450 / 2);
+    this.overlay.attr({ x: x, y: y, z: 7000, w: 700, h: 450 });
 
     // After a short delay, watch for the player to press a key, then restart
     // the game when a key is pressed
@@ -918,6 +923,7 @@ Crafty.c('LevelCompleteControl', {
 
   showLoading: function() {
     if (!this.keyPressDelay) {
+      this.overlay.destroy();
       this.pressAnyKey.text("LOADING");
       this.levelComplete.text("");
       // Introduce delay to ensure Loading... text is rendered before next level or restart
@@ -950,7 +956,7 @@ Crafty.c('GameOverControl', {
     this.reasonText = Crafty.e('OutlineText');
     this.reasonText.setName("GameOverReason");
     var x = Crafty.viewport.width/2 - Crafty.viewport.x - (width / 2);
-    var y = Crafty.viewport.height/2 - Crafty.viewport.y - 200;
+    var y = Crafty.viewport.height/2 - Crafty.viewport.y - 180;
     this.reasonText.attr({ x: x, y: y, w: width, height: height })
     this.reasonText.textFont({ type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE' })
     this.reasonText.textColor(textColour,1.0);
@@ -958,18 +964,23 @@ Crafty.c('GameOverControl', {
     this.gameOverText = Crafty.e('OutlineText');
     this.gameOverText.setName("GameOver");
     this.gameOverText.text('GAME OVER!')
-    this.gameOverText.attr({ x: x, y: y + 100, w: width, height: height })
+    this.gameOverText.attr({ x: x, y: y + 70, w: width, height: height })
     this.gameOverText.textFont({ type: 'normal', weight: 'normal', size: '100px', family: Game.fontFamily })
     this.gameOverText.textColor(textColour);
 
     this.pressAnyKey = Crafty.e('FlashingText');
     this.pressAnyKey.setName("GameOverPressAnyKey");
-    this.pressAnyKey.attr({ x: x, y: y + 320, w: width, height: height })
+    this.pressAnyKey.attr({ x: x, y: y + 290, w: width, height: height })
     this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
     this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     this.pressAnyKey.textColor(textColour);
 
     Game.playSoundEffect('game_over', 1, 1.0);
+
+    this.overlay = Crafty.e('2D, Canvas, spr_glass_overlay');
+    x = Crafty.viewport.width/2 - Crafty.viewport.x - (700 / 2);
+    y = Crafty.viewport.height/2 - Crafty.viewport.y - (450 / 2);
+    this.overlay.attr({ x: x, y: y, z: 7000, w: 700, h: 450 });
 
     // After a short delay, watch for the player to press a key, then restart
     // the game when a key is pressed
@@ -1008,6 +1019,7 @@ Crafty.c('GameOverControl', {
       this.reasonText.destroy();
       this.gameOverText.destroy();
       this.pressAnyKey.destroy();
+      this.overlay.destroy();
       this.destroy();
 
       Game.retryLevel();
@@ -1077,12 +1089,18 @@ Crafty.c('PauseControl', {
 
     this.pressAnyKey.attr({ x: x, y: y + 30 });
     this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
+
+    this.overlay = Crafty.e('2D, Canvas, spr_glass_overlay');
+    x = Crafty.viewport.width/2 - Crafty.viewport.x - (700 / 2);
+    y = Crafty.viewport.height/2 - Crafty.viewport.y - (450 / 2);
+    this.overlay.attr({ x: x, y: y, z: 7000, w: 700, h: 450 });
   },
 
   unpause: function () {
     this.paused = false;
     this.pauseText.text("");
     this.pressAnyKey.text("");
+    this.overlay.destroy();
 
     Crafty.audio.unmute();
 
