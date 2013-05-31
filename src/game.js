@@ -109,6 +109,14 @@ Game = {
     });
   },
 
+  createGlassOverlay: function() {
+    var overlay = Crafty.e('2D, Canvas, spr_glass_overlay');
+    x = Crafty.viewport.width/2 - Crafty.viewport.x - (700 / 2);
+    y = Crafty.viewport.height/2 - Crafty.viewport.y - (450 / 2);
+    overlay.attr({ x: x, y: y, z: 7000, w: 700, h: 450 });
+    return overlay;
+  },
+
   showMainMenu: function() {
     Game.playMusic('menu_music');
     Game.mainMenu = Crafty.e('MainMenu');
