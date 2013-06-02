@@ -465,33 +465,13 @@ Crafty.c('Countdown', {
     this.complete = false;
     this.paused = false;
 
-    this.startTime = Date.now();
+    this.startTime = 0;
     this.totalTime = 0;
 
     this.bind("PlayerMoved", this._updatePosition);
-
-    this.bind("EnterFrame", function() {
-      if (this.complete || this.paused) {
-        return;
-      }
-      var timeLeft = this._timeLeft();
-      if (timeLeft <= 0) {
-        this.complete = true;
-        Crafty.trigger('TimesUp', this);
-      } else {
-        this._update(timeLeft);
-      }
-    });
-
-    this.bind("PauseGame", function() {
-      this.paused = true;
-      this.totalTime = this._timeLeft();
-    });
-
-    this.bind("UnpauseGame", function() {
-      this.startTime = Date.now();
-      this.paused = false;
-    });
+    this.bind("EnterFrame", this._enterFrame);
+    this.bind("PauseGame", this._pauseGame);
+    this.bind("UnpauseGame", this._unpauseGame);
   },
 
   _updatePosition:function () {
@@ -501,13 +481,31 @@ Crafty.c('Countdown', {
     this.seconds.attr({ x: x + 70, y: y - 100 });
   },
 
-  _timeLeft:function() {
-    var timeElapsed = Date.now() - this.startTime;
-    var timeLeft = this.totalTime - timeElapsed;
-    return  timeLeft;
+  _enterFrame: function() {
+    if (this.complete || this.paused) {
+      return;
+    }
+    var timeLeft = this.totalTime - (Date.now() - this.startTime);
+
+    if (timeLeft <= 0) {
+      this.complete = true;
+      Crafty.trigger('TimesUp', this);
+    } else {
+      this._updateDisplay(timeLeft);
+    }
   },
 
-  _update:function(timeLeft) {
+  _pauseGame: function() {
+    this.paused = true;
+    this.totalTime -= (Date.now() - this.startTime);
+  },
+
+  _unpauseGame: function() {
+    this.startTime = Date.now();
+    this.paused = false;
+  },
+
+  _updateDisplay:function(timeLeft) {
     if (timeLeft <= 10000 && !this.lowTime) {
       this.lowTime = true;
       this.minutes.css(this.lowTimeAnimation);
@@ -534,7 +532,6 @@ Crafty.c('Countdown', {
     if (this.playWarningSound && msecs <= 3) {
       Game.playSoundEffect('low_time', 1, 1.0);
     }
-
     this.minutes.text(secsPadding + secs + ":");
     this.seconds.text(msecsPadding + msecs);
   },
