@@ -67,7 +67,6 @@ Crafty.scene('Loading', function(){
   Crafty.load([
     'assets/engine_idle.ogg',
     'assets/engine_rev.ogg',
-    'assets/engine_rev_faster.ogg',
     'assets/wheel_spin.ogg',
     'assets/woop.ogg',
     'assets/beep_1.mp3',
@@ -143,7 +142,6 @@ Crafty.scene('Loading', function(){
     Crafty.audio.add({
       engine_idle:        ['assets/engine_idle.ogg'],
       engine_rev:         ['assets/engine_rev.ogg'],
-      engine_rev_faster:  ['assets/engine_rev_faster.ogg'],
       wheel_spin:         ['assets/wheel_spin.ogg'],
       woop:               ['assets/woop.ogg'],
       low_time:           ['assets/simple_beep_nav.mp3'],

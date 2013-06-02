@@ -1276,15 +1276,13 @@ Crafty.c('Car', {
       'DPAD_RIGHT': 'RIGHT_ARROW'
     };
 
-    this.LOW_SPEED = 4;
-    this.HIGH_SPEED = 10;
+    this.ENGINE_MAGNITUDE = 1.1;
     this.TURN_DELAY = 40;
     this.turningStartTime = 0;
-    this.speed = this.LOW_SPEED;
+    this.enginePower = this.ENGINE_MAGNITUDE;
     this.direction = -26.6;
     this.directionIncrement = 0;
-    this.moving = false;
-    this.movingStartTime = 0;
+    this.engineOn = false;
     this.movement = {};
     this.falling = false;
     this.fallStepsMoving = 0;
@@ -1294,7 +1292,7 @@ Crafty.c('Car', {
     this.leftArrowDown = false;
     this.paused = false;
     this.goingOneWay = false;
-    this.oneWayStepsMoving = 0;
+    this.velocity = new Vec2(0,0);
 
     this.requires('Actor, Keyboard, Collision, spr_car, SpriteAnimation');
 
@@ -1307,7 +1305,7 @@ Crafty.c('Car', {
 
     this.onHit('Breaking', this.breakingGroundHit);
 
-    this.onHit('OneWay', this.oneWayHit);
+    this.onHit('OneWay', this.oneWayHit, this.oneWayFinished);
 
     this.onHit('Waypoint', this.waypointReached);
 
@@ -1372,15 +1370,13 @@ Crafty.c('Car', {
       if (this.paused) {
         return;
       }
-      if (!this.moving && this.isDown('UP_ARROW')) {
-        this.moving = true;
+      if (!this.engineOn && this.isDown('UP_ARROW')) {
+        this.engineOn = true;
         this.reversing = false;
-        this.movingStartTime = Date.now();
       }
-      if (!this.moving && this.isDown('DOWN_ARROW')) {
-        this.moving = true;
+      if (!this.engineOn && this.isDown('DOWN_ARROW')) {
+        this.engineOn = true;
         this.reversing = true;
-        this.movingStartTime = Date.now();
       }
       if (this.isDown('LEFT_ARROW')) {
         this.directionIncrement = (this.reversing ? +1 : -1);
@@ -1406,9 +1402,9 @@ Crafty.c('Car', {
         this.DIRECTIONS[this.directionIndex].snapRightIndex);
       this.directionIncrement = 0;
     } else if (e.key == Crafty.keys['UP_ARROW']) {
-      this.moving = false;
+      this.engineOn = false;
     } else if (e.key == Crafty.keys['DOWN_ARROW']) {
-      this.moving = false;
+      this.engineOn = false;
     }
   },
 
@@ -1493,21 +1489,16 @@ Crafty.c('Car', {
     }
   },
 
-  _adjustSpeedAndChangeSoundEffect: function () {
-    if (this.moving) {
-      this.speed = this.reversing ? -this.LOW_SPEED : this.LOW_SPEED;
+  _adjustEnginePowerAndChangeSoundEffect: function () {
+    if (this.engineOn) {
+      this.enginePower = this.reversing ? -this.ENGINE_MAGNITUDE : this.ENGINE_MAGNITUDE;
       if (this.directionIncrement == 0) {
-        var timeMoving = Date.now() - this.movingStartTime;
-        if (timeMoving < 500) {
-          Game.playSoundEffect('engine_rev', -1, 1.0);
-        } else {
-          Game.playSoundEffect('engine_rev_faster', -1, 1.0);
-          this.speed = this.reversing ? -this.HIGH_SPEED : this.HIGH_SPEED;
-        }
+        Game.playSoundEffect('engine_rev', -1, 1.0);
       } else {
         Game.playSoundEffect('wheel_spin', -1, 1.0);
       }
     } else {
+      this.enginePower = 0.0;
       Game.playSoundEffect('engine_idle', -1, 0.3);
     }
   },
@@ -1518,7 +1509,7 @@ Crafty.c('Car', {
     }
 
     var timeTurning = Date.now() - this.turningStartTime;
-    if (timeTurning > this.TURN_DELAY) {
+    if (timeTurning > this.TURN_DELAY && this.velocity.length() > 0.1) {
       if (this.directionIncrement < 0) {
         this.directionIndex++;
       } else if (this.directionIncrement > 0) {
@@ -1537,8 +1528,42 @@ Crafty.c('Car', {
   },
 
   _updateMovement: function () {
-    this.movement.x = Math.round(Math.cos(this.direction * (Math.PI / 180)) * 1000 * this.speed) / 1000;
-    this.movement.y = Math.round(Math.sin(this.direction * (Math.PI / 180)) * 1000 * this.speed) / 1000;
+    // going one-way means enginePower is set to max
+    var enginePower = this.goingOneWay ? this.ENGINE_MAGNITUDE : this.enginePower;
+
+    var engineForce = new Vec2(
+      Math.cos(this.direction * (Math.PI / 180)) * enginePower,
+      Math.sin(this.direction * (Math.PI / 180)) * enginePower
+    );
+
+    if (enginePower == 0.0 && this.velocity.length() < 0.5) {
+      // force car to stop
+      this.velocity = new Vec2(0.0, 0.0);
+    } else {
+      var frictionMag = 0.8;
+      var friction = this.velocity.mulS(1.0);
+      friction.normalize();
+      friction = friction.mulS(-1.0);
+      friction.x = (isNaN(friction.x) ? 0.0 : friction.x);
+      friction.y = (isNaN(friction.y) ? 0.0 : friction.y);
+      friction = friction.mulS(frictionMag);
+
+      var acceleration = new Vec2(0.0, 0.0);
+      acceleration = acceleration.addV(engineForce);
+      acceleration = acceleration.addV(friction);
+
+      this.velocity = this.velocity.addV(acceleration);
+    }
+
+    // Limit max velocity
+    var maxVelocity = 10;
+    if (this.velocity.length() > maxVelocity) {
+      this.velocity.normalize();
+      this.velocity = this.velocity.mulS(maxVelocity);
+    }
+
+    this.movement.x = this.velocity.x;
+    this.movement.y = this.velocity.y;
   },
 
   _updatePosition: function () {
@@ -1609,32 +1634,17 @@ Crafty.c('Car', {
       }
     }
 
-    if (this.goingOneWay) {
-      if (this.oneWayStepsMoving === 0) {
-        // Stop going one way
-        this.moving = false;
-        this.goingOneWay = false;
-        return;
-      } else {
-        // Keep going one way
-        this.moving = true;
-        this.oneWayStepsMoving--;
-      }
-    }
-
     this._changeSprite();
     this._adjustDirectionIndexForSnapToDirection();
-    this._adjustSpeedAndChangeSoundEffect();
+    this._adjustEnginePowerAndChangeSoundEffect();
 
-    if (this.moving) {
-      this._updateDirection();
-      this._updateMovement();
-      this._updatePosition();
-      this._updateCollisionBoundingBox();
-      //console.log("Player:", "x", this.x, "y", this.y);
-      this._updateViewportWithPlayerInCenter();
-      this._triggerPlayerMoved();
-    }
+    this._updateDirection();
+    this._updateMovement();
+    this._updatePosition();
+    this._updateCollisionBoundingBox();
+    //console.log("Player:", "x", this.x, "y", this.y);
+    this._updateViewportWithPlayerInCenter();
+    this._triggerPlayerMoved();
     //console.log("EnterFrame: player: x", this.x, "y", this.y, "z", this.z, "w", this.w, "h", this.h);
   },
 
@@ -1649,7 +1659,10 @@ Crafty.c('Car', {
   setPosition: function(x, y) {
     this.falling = false;
     this.goingOneWay = false;
-    this.moving = false;
+    this.engineOn = false;
+    this.enginePower = 0.0;
+    this.velocity = new Vec2(0,0);
+    this.directionIncrement = 0;
     this.directionIndex = 27;  // NE
     this.snappedDirectionIndex = this.directionIndex;
     this.x = x;
@@ -1676,11 +1689,17 @@ Crafty.c('Car', {
   },
 
   stopMovement: function(hitData) {
+    if (this.falling) {
+      return;
+    }
     // undo previous movement
-    if (this.moving) {
+    if (this.engineOn) {
       this.x -= this.movement.x;
       this.y -= this.movement.y;
     }
+    // set velocity to zero
+    this.velocity = new Vec2(0.0, 0.0);
+
     // move away from obstacle
     // Note: not exactly sure what 'normal' is, but adding it x and y seems to avoid the car getting stuck :-)
     var hd = hitData[0];
@@ -1698,7 +1717,7 @@ Crafty.c('Car', {
     if (totalOverlap > 25) {
       //console.log("Begin Fall Mode!");
       this.falling = true;
-      this.fallStepsMoving = Math.round(80 / Math.abs(this.speed));
+      this.fallStepsMoving = Math.round(80 / Math.abs(this.velocity.length()));
     }
   },
 
@@ -1718,10 +1737,15 @@ Crafty.c('Car', {
     }
     var hd = hitData[0];
     if (!this.reversing && hd.obj.isDirectionAllowed(this.direction)) {
-      this.oneWayStepsMoving = Math.round(70 / Math.abs(this.speed));
       this.goingOneWay = true;
     } else {
       this.stopMovement(hitData);
+    }
+  },
+
+  oneWayFinished: function() {
+    if (this.goingOneWay) {
+      this.goingOneWay = false;
     }
   },
 
