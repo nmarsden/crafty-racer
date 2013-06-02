@@ -4,7 +4,6 @@ Javascript Libraries/Frameworks/Components:
 * Crafty JS (http://craftyjs.com/)
 * TiledMapBuilder (https://github.com/Kibo/TiledMapBuilder)
 * HTML5-JavaScript-Gamepad-Controller-Library (https://github.com/kallaspriit/HTML5-JavaScript-Gamepad-Controller-Library)
-* 2D Vector Library (http://www.cgrats.com/javascript-2d-vector-library.html)
 * DebugBar (http://craftycomponents.com/debugbar)
 
 Graphics:

@@ -1289,7 +1289,7 @@ Crafty.c('Car', {
     this.leftArrowDown = false;
     this.paused = false;
     this.goingOneWay = false;
-    this.velocity = new Vec2(0,0);
+    this.velocity = new Crafty.math.Vector2D(0,0);
 
     this.requires('Actor, Keyboard, Collision, spr_car, SpriteAnimation');
 
@@ -1506,7 +1506,7 @@ Crafty.c('Car', {
     }
 
     var timeTurning = Date.now() - this.turningStartTime;
-    if (timeTurning > this.TURN_DELAY && this.velocity.length() > 0.1) {
+    if (timeTurning > this.TURN_DELAY && this.velocity.magnitude() > 0.1) {
       if (this.directionIncrement < 0) {
         this.directionIndex++;
       } else if (this.directionIncrement > 0) {
@@ -1528,35 +1528,34 @@ Crafty.c('Car', {
     // going one-way means enginePower is set to max
     var enginePower = this.goingOneWay ? this.ENGINE_MAGNITUDE : this.enginePower;
 
-    var engineForce = new Vec2(
+    var engineForce = new Crafty.math.Vector2D(
       Math.cos(this.direction * (Math.PI / 180)) * enginePower,
       Math.sin(this.direction * (Math.PI / 180)) * enginePower
     );
 
-    if (enginePower == 0.0 && this.velocity.length() < 0.5) {
+    if (enginePower == 0.0 && this.velocity.magnitude() < 0.5) {
       // force car to stop
-      this.velocity = new Vec2(0.0, 0.0);
+      this.velocity = new Crafty.math.Vector2D(0.0, 0.0);
     } else {
       var frictionMag = 0.8;
-      var friction = this.velocity.mulS(1.0);
+      var friction = this.velocity.clone();
       friction.normalize();
-      friction = friction.mulS(-1.0);
+      friction.negate();
       friction.x = (isNaN(friction.x) ? 0.0 : friction.x);
       friction.y = (isNaN(friction.y) ? 0.0 : friction.y);
-      friction = friction.mulS(frictionMag);
+      friction.scale(frictionMag);
 
-      var acceleration = new Vec2(0.0, 0.0);
-      acceleration = acceleration.addV(engineForce);
-      acceleration = acceleration.addV(friction);
+      var acceleration = new Crafty.math.Vector2D(0.0, 0.0);
+      acceleration.add(engineForce);
+      acceleration.add(friction);
 
-      this.velocity = this.velocity.addV(acceleration);
+      this.velocity.add(acceleration);
     }
 
     // Limit max velocity
     var maxVelocity = 10;
-    if (this.velocity.length() > maxVelocity) {
-      this.velocity.normalize();
-      this.velocity = this.velocity.mulS(maxVelocity);
+    if (this.velocity.magnitude() > maxVelocity) {
+      this.velocity.scaleToMagnitude(maxVelocity);
     }
 
     this.movement.x = this.velocity.x;
@@ -1658,7 +1657,7 @@ Crafty.c('Car', {
     this.goingOneWay = false;
     this.engineOn = false;
     this.enginePower = 0.0;
-    this.velocity = new Vec2(0,0);
+    this.velocity = new Crafty.math.Vector2D(0,0);
     this.directionIncrement = 0;
     this.directionIndex = 27;  // NE
     this.snappedDirectionIndex = this.directionIndex;
@@ -1695,7 +1694,7 @@ Crafty.c('Car', {
       this.y -= this.movement.y;
     }
     // set velocity to zero
-    this.velocity = new Vec2(0.0, 0.0);
+    this.velocity = new Crafty.math.Vector2D(0.0, 0.0);
 
     // move away from obstacle
     // Note: not exactly sure what 'normal' is, but adding it x and y seems to avoid the car getting stuck :-)
@@ -1714,7 +1713,7 @@ Crafty.c('Car', {
     if (totalOverlap > 25) {
       //console.log("Begin Fall Mode!");
       this.falling = true;
-      this.fallStepsMoving = Math.round(80 / Math.abs(this.velocity.length()));
+      this.fallStepsMoving = Math.round(80 / Math.abs(this.velocity.magnitude()));
     }
   },
 
