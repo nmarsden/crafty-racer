@@ -1192,6 +1192,69 @@ Crafty.c('OneWay', {
   }
 });
 
+Crafty.c('Exhaust', {
+
+  init: function() {
+    this.requires('Actor,Particles');
+
+    var options = {
+      maxParticles: 50,
+      size: 10,
+      sizeRandom: 4,
+      speed: 0.2,
+      speedRandom: 0.2,
+      // Lifespan in frames
+      lifeSpan: 100,
+      lifeSpanRandom: 7,
+      // Angle is calculated clockwise: 12pm is 0deg, 3pm is 90deg etc.
+      angle: 270,
+      angleRandom: 10,
+      startColour: [60, 60, 60, 1],
+      startColourRandom: [5, 5, 5, 0],
+      endColour: [60, 60, 60, 0],
+      endColourRandom: [60, 60, 60, 0],
+      // Only applies when fastMode is off, specifies how sharp the gradients are drawn
+      sharpness: 20,
+      sharpnessRandom: 10,
+      // Random spread from origin
+      spread: 1,
+      // How many frames should this last
+      duration: -1,
+      // Will draw squares instead of circle gradients
+      fastMode: false,
+      gravity: { x: 0, y: 0 },
+      // sensible values are 0-3
+      jitter: 1 //0
+    }
+
+    this.particles(options);
+  },
+
+  updatePosition: function(carX, carY, carAngle) {
+    var directionVector = new Crafty.math.Vector2D(
+      Math.cos(carAngle * (Math.PI / 180)),
+      Math.sin(carAngle * (Math.PI / 180))
+    );
+    directionVector.scaleToMagnitude(44);
+    directionVector.negate();
+
+    var exhaustPosition = new Crafty.math.Vector2D(carX, carY);
+    exhaustPosition.translate(46, 36);
+    exhaustPosition.add(directionVector);
+
+    this.x = exhaustPosition.x;
+    this.y = exhaustPosition.y;
+  },
+
+  updateAngle: function(carAngle) {
+    this._Particles.angle = (carAngle + 270.0) % 360.0;
+  },
+
+  stop: function() {
+    this._Particles.duration = 0;
+  }
+});
+
 Crafty.c('Car', {
   init: function() {
     this.directionIndex = 27;  // NE
@@ -1325,6 +1388,9 @@ Crafty.c('Car', {
       spriteSheet = this.spriteSheetXY(64 + pos);
       this.animate('TurnRight_'+pos,  spriteSheet.x, spriteSheet.y, spriteSheet.x)
     }
+
+    // Init exhaust
+    this.exhaust = Crafty.e('Exhaust');
 
     // Generate all bounding polygons
 //    var boundingBoxes = "[";
@@ -1522,15 +1588,20 @@ Crafty.c('Car', {
 
       this.turningStartTime = Date.now();
     }
+
+    // update exhaust angle
+    this.exhaust.updateAngle(this.DIRECTIONS[this.directionIndex].angle);
   },
 
   _updateMovement: function () {
     // going one-way means enginePower is set to max
     var enginePower = this.goingOneWay ? this.ENGINE_MAGNITUDE : this.enginePower;
 
+    var carAngleInRadians = this.DIRECTIONS[this.directionIndex].angle * (Math.PI / 180);
+
     var engineForce = new Crafty.math.Vector2D(
-      Math.cos(this.direction * (Math.PI / 180)) * enginePower,
-      Math.sin(this.direction * (Math.PI / 180)) * enginePower
+      Math.cos(carAngleInRadians) * enginePower,
+      Math.sin(carAngleInRadians) * enginePower
     );
 
     if (enginePower == 0.0 && this.velocity.magnitude() < 0.5) {
@@ -1570,6 +1641,9 @@ Crafty.c('Car', {
     var z = this._y;
     //console.log("Car:", "z", z);
     this.z = Math.floor(z);
+
+    // update exhaust position
+    this.exhaust.updatePosition(this.x, this.y, this.DIRECTIONS[this.directionIndex].angle);
   },
 
   _clonePoints: function (points) {
@@ -1615,13 +1689,16 @@ Crafty.c('Car', {
 
       if (this.fallStepsMoving === 0) {
         // Start dropping
+        // -play sound
         Game.playSoundEffect('falling', 1, 1.0);
-
+        // -stop exhaust
+        this.exhaust.stop();
+        // -show falling text
         var fallingText = Crafty.e('TipText');
         fallingText.setName("FallingText");
         fallingText.text("UH OH!");
         fallingText.show();
-
+        // -setup dropping movement
         this.fallStepsDropping = 40;
         return;
       } else {
@@ -1646,10 +1723,16 @@ Crafty.c('Car', {
 
   _pause: function() {
     this.paused = true;
+    // destroy exhaust
+    this.exhaust.destroy();
   },
 
   _unpause: function() {
     this.paused = false;
+    // recreate exhaust
+    this.exhaust = Crafty.e('Exhaust');
+    this.exhaust.updateAngle(this.DIRECTIONS[this.directionIndex].angle);
+    this.exhaust.updatePosition(this.x, this.y, this.DIRECTIONS[this.directionIndex].angle);
   },
 
   setPosition: function(x, y) {
@@ -1666,6 +1749,9 @@ Crafty.c('Car', {
     this.z = Math.floor(y);
     this._updateViewportWithPlayerInCenter();
     this._triggerPlayerMoved();
+    // set exhaust
+    this.exhaust.updateAngle(this.DIRECTIONS[this.directionIndex].angle);
+    this.exhaust.updatePosition(this.x, this.y, this.DIRECTIONS[this.directionIndex].angle);
   },
 
   waypointReached: function(data) {
