@@ -1097,7 +1097,7 @@ Crafty.c('PauseControl', {
 
 });
 
-Crafty.c('Breaking', {
+Crafty.c('BreakingGround', {
   init: function() {
     this.TOTAL_BREAKING_FRAMES = 40;
     this.breakingSide = null;
@@ -1345,10 +1345,11 @@ Crafty.c('Car', {
       'DPAD_RIGHT': 'RIGHT_ARROW'
     };
 
-    this.ENGINE_MAGNITUDE = 1.1;
+    this.engineMagnitude = 1.1;
+    this.frictionMagnitude = 0.8;
     this.TURN_DELAY = 40;
     this.turningStartTime = 0;
-    this.enginePower = this.ENGINE_MAGNITUDE;
+    this.enginePower = this.engineMagnitude;
     this.direction = -26.6;
     this.directionIncrement = 0;
     this.engineOn = false;
@@ -1372,7 +1373,9 @@ Crafty.c('Car', {
 
     this.onHit('Hole', this.holeHit);
 
-    this.onHit('Breaking', this.breakingGroundHit);
+    this.onHit('NormalGround', this.normalGroundHit);
+    this.onHit('IceGround', this.iceGroundHit);
+    this.onHit('BreakingGround', this.breakingGroundHit);
 
     this.onHit('OneWay', this.oneWayHit, this.oneWayFinished);
 
@@ -1563,7 +1566,7 @@ Crafty.c('Car', {
 
   _adjustEnginePowerAndChangeSoundEffect: function () {
     if (this.engineOn) {
-      this.enginePower = this.reversing ? -this.ENGINE_MAGNITUDE : this.ENGINE_MAGNITUDE;
+      this.enginePower = this.reversing ? -this.engineMagnitude : this.engineMagnitude;
       if (this.directionIncrement == 0) {
         Game.playSoundEffect('engine_rev', -1, 1.0);
       } else {
@@ -1604,7 +1607,7 @@ Crafty.c('Car', {
 
   _updateMovement: function () {
     // going one-way means enginePower cannot be zero
-    var enginePower = this.goingOneWay ? (this.reversing ? -this.ENGINE_MAGNITUDE : this.ENGINE_MAGNITUDE) : this.enginePower;
+    var enginePower = this.goingOneWay ? (this.reversing ? -this.engineMagnitude : this.engineMagnitude) : this.enginePower;
 
     var carAngleInRadians = this.DIRECTIONS[this.directionIndex].angle * (Math.PI / 180);
 
@@ -1617,13 +1620,12 @@ Crafty.c('Car', {
       // force car to stop
       this.velocity = new Crafty.math.Vector2D(0.0, 0.0);
     } else {
-      var frictionMag = 0.8;
       var friction = this.velocity.clone();
       friction.normalize();
       friction.negate();
       friction.x = (isNaN(friction.x) ? 0.0 : friction.x);
       friction.y = (isNaN(friction.y) ? 0.0 : friction.y);
-      friction.scale(frictionMag);
+      friction.scale(this.frictionMagnitude);
 
       var acceleration = new Crafty.math.Vector2D(0.0, 0.0);
       acceleration.add(engineForce);
@@ -1812,10 +1814,28 @@ Crafty.c('Car', {
     }
   },
 
+  normalGroundHit: function(hitData) {
+    if (this.falling) {
+      return;
+    }
+    this.frictionMagnitude = 0.8;
+    this.engineMagnitude = 1.1;
+  },
+
+  iceGroundHit: function(hitData) {
+    if (this.falling) {
+      return;
+    }
+    this.frictionMagnitude = 0.05;
+    this.engineMagnitude = 0.2;
+  },
+
   breakingGroundHit: function(hitData) {
     if (this.falling) {
       return;
     }
+    this.frictionMagnitude = 0.8;
+    this.engineMagnitude = 1.1;
     hitData.forEach(function(hd) {
       var breakingGround = hd.obj;
       breakingGround.startBreaking();

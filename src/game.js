@@ -295,15 +295,25 @@ Game = {
           //Set z-index for correct view: front, back
           entity.z = Math.floor(entity._y - entity._h - 10);
 
-          if (entity.__image === "assets/Iso_Cubes_01_128x128_Alt_00_007.png") {
+          if (entity.__image === "assets/ice_block.png") {
+            // Ice Top
+            entity.addComponent("IceGround");
+            entity.addComponent("Collision")
+            entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
+          } else if (entity.__image === "assets/Iso_Cubes_01_128x128_Alt_00_007.png") {
             // Breaking Top
-            entity.addComponent("Breaking");
+            entity.addComponent("BreakingGround");
             entity.addComponent("Collision")
             entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
             // Set Breaking Side
             var tilePosition = Game.toTilePosition({x:entity._x, y:entity._y});
             var breakingSide = tiledmap.getTile(tilePosition.row+1, tilePosition.col+1, 'Ground_Sides');
             entity.setBreakingSide(breakingSide);
+          } else {
+            // Ground Top
+            entity.addComponent("NormalGround");
+            entity.addComponent("Collision")
+            entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
           }
         }
 
