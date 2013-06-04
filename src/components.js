@@ -1231,7 +1231,7 @@ Crafty.c('Exhaust', {
       duration: -1,
       // Will draw squares instead of circle gradients
       fastMode: false,
-      gravity: { x: 0, y: 0 },
+      gravity: { x: 0, y: -0.01 },
       // sensible values are 0-3
       jitter: 1 //0
     }
