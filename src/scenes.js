@@ -85,6 +85,7 @@ Crafty.scene('Loading', function(){
     "assets/Iso_Cubes_01_128x128_Alt_00_004.png",
     "assets/Iso_Cubes_01_128x128_Alt_00_007.png",
     "assets/ice_block.png",
+    "assets/mud_block.png",
     "assets/waypoint_indicator.png",
     "assets/Collision_Marker.png",
     "assets/Player_Marker.png",

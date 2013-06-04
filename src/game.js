@@ -298,13 +298,12 @@ Game = {
           if (entity.__image === "assets/ice_block.png") {
             // Ice Top
             entity.addComponent("IceGround");
-            entity.addComponent("Collision")
-            entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
+          } else if (entity.__image === "assets/mud_block.png") {
+            // Mud Top
+            entity.addComponent("MudGround");
           } else if (entity.__image === "assets/Iso_Cubes_01_128x128_Alt_00_007.png") {
             // Breaking Top
             entity.addComponent("BreakingGround");
-            entity.addComponent("Collision")
-            entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
             // Set Breaking Side
             var tilePosition = Game.toTilePosition({x:entity._x, y:entity._y});
             var breakingSide = tiledmap.getTile(tilePosition.row+1, tilePosition.col+1, 'Ground_Sides');
@@ -312,9 +311,9 @@ Game = {
           } else {
             // Ground Top
             entity.addComponent("NormalGround");
-            entity.addComponent("Collision")
-            entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
           }
+          entity.addComponent("Collision")
+          entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
         }
 
         // Set properties of entities on the 'Solid_Sides' layer

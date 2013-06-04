@@ -1375,6 +1375,7 @@ Crafty.c('Car', {
 
     this.onHit('NormalGround', this.normalGroundHit);
     this.onHit('IceGround', this.iceGroundHit);
+    this.onHit('MudGround', this.mudGroundHit);
     this.onHit('BreakingGround', this.breakingGroundHit);
 
     this.onHit('OneWay', this.oneWayHit, this.oneWayFinished);
@@ -1828,6 +1829,14 @@ Crafty.c('Car', {
     }
     this.frictionMagnitude = 0.05;
     this.engineMagnitude = 0.2;
+  },
+
+  mudGroundHit: function(hitData) {
+    if (this.falling) {
+      return;
+    }
+    this.frictionMagnitude = 0.9;
+    this.engineMagnitude = 0.5;
   },
 
   breakingGroundHit: function(hitData) {
