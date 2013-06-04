@@ -1187,8 +1187,17 @@ Crafty.c('OneWay', {
     this.allowedDirection = this.oneWayDirections[type];
   },
 
-  isDirectionAllowed: function(direction) {
-    return direction == this.allowedDirection;
+  isDirectionAllowed: function(carDirection, isReversing) {
+    if (isReversing) {
+      return this.oppositeCarDirection(carDirection) == this.allowedDirection;
+    } else {
+      return carDirection == this.allowedDirection;
+    }
+  },
+
+  oppositeCarDirection: function(carDirection) {
+    // Note: carDirection: 0 is East, -90 is North, +90 is South, and -180/+180 is West
+    return Math.round((((carDirection + 360) % 360 - 180)) * 10) / 10;
   }
 });
 
@@ -1594,8 +1603,8 @@ Crafty.c('Car', {
   },
 
   _updateMovement: function () {
-    // going one-way means enginePower is set to max
-    var enginePower = this.goingOneWay ? this.ENGINE_MAGNITUDE : this.enginePower;
+    // going one-way means enginePower cannot be zero
+    var enginePower = this.goingOneWay ? (this.reversing ? -this.ENGINE_MAGNITUDE : this.ENGINE_MAGNITUDE) : this.enginePower;
 
     var carAngleInRadians = this.DIRECTIONS[this.directionIndex].angle * (Math.PI / 180);
 
@@ -1818,7 +1827,7 @@ Crafty.c('Car', {
       return;
     }
     var hd = hitData[0];
-    if (!this.reversing && hd.obj.isDirectionAllowed(this.direction)) {
+    if (hd.obj.isDirectionAllowed(this.direction, this.reversing)) {
       this.goingOneWay = true;
     } else {
       this.stopMovement(hitData);
