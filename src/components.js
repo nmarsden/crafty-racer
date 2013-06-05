@@ -1605,14 +1605,12 @@ Crafty.c('Car', {
   },
 
   _updateMovement: function () {
-    if (this.spinning) {
-      // keep same movement if spinning
-      return;
-    }
-    // going one-way means enginePower cannot be zero
-    var enginePower = this.goingOneWay ? (this.reversing ? -this.engineMagnitude : this.engineMagnitude) : this.enginePower;
+    // going one-way or spinning means enginePower cannot be zero
+    var enginePower = (this.goingOneWay || this.spinning) ? (this.reversing ? -this.engineMagnitude : this.engineMagnitude) : this.enginePower;
 
-    var carAngleInRadians = this.DIRECTIONS[this.directionIndex].angle * (Math.PI / 180);
+    var directionIndex = this.spinning ? this.spinningDirectionIndex : this.directionIndex;
+
+    var carAngleInRadians = this.DIRECTIONS[directionIndex].angle * (Math.PI / 180);
 
     var engineForce = new Crafty.math.Vector2D(
       Math.cos(carAngleInRadians) * enginePower,
@@ -1836,6 +1834,7 @@ Crafty.c('Car', {
       return;
     }
     this.spinning = true;
+    this.spinningDirectionIndex = this.directionIndex;
     this.spinningSteps = 100;
   },
 
