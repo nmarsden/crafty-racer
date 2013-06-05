@@ -1606,7 +1606,9 @@ Crafty.c('Car', {
 
   _updateMovement: function () {
     // going one-way or spinning means enginePower cannot be zero
-    var enginePower = (this.goingOneWay || this.spinning) ? (this.reversing ? -this.engineMagnitude : this.engineMagnitude) : this.enginePower;
+
+    var enginePower = this.goingOneWay ? (this.reversing ? -this.engineMagnitude : this.engineMagnitude) : this.enginePower;
+    enginePower = this.spinning ? this.spinningEnginePower : enginePower;
 
     var directionIndex = this.spinning ? this.spinningDirectionIndex : this.directionIndex;
 
@@ -1834,6 +1836,7 @@ Crafty.c('Car', {
       return;
     }
     this.spinning = true;
+    this.spinningEnginePower = (this.reversing ? -this.engineMagnitude : this.engineMagnitude);
     this.spinningDirectionIndex = this.directionIndex;
     this.spinningSteps = 100;
   },
