@@ -372,6 +372,14 @@ Game = {
             entity.addComponent("Collision")
             entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
           }
+
+          // Setup Oil entities
+          if (entity.__image === "assets/oil_spill.png") {
+            entity.z = Math.floor(entity._y - entity._h - 10);
+            entity.addComponent('Oil');
+            entity.addComponent("Collision")
+            entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
+          }
         }
 
       });

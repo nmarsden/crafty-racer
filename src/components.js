@@ -1355,6 +1355,7 @@ Crafty.c('Car', {
     this.engineOn = false;
     this.movement = {};
     this.falling = false;
+    this.spinning = false;
     this.fallStepsMoving = 0;
     this.fallStepsDropping = 0;
     this.reversing = false;
@@ -1370,16 +1371,13 @@ Crafty.c('Car', {
     this.collision( new Crafty.polygon([35,15],[63,15],[63,68],[35,68]) );
 
     this.onHit('Solid', this.stopMovement);
-
     this.onHit('Hole', this.holeHit);
-
+    this.onHit('Oil', this.oilHit);
     this.onHit('NormalGround', this.normalGroundHit);
     this.onHit('IceGround', this.iceGroundHit);
     this.onHit('MudGround', this.mudGroundHit);
     this.onHit('BreakingGround', this.breakingGroundHit);
-
     this.onHit('OneWay', this.oneWayHit, this.oneWayFinished);
-
     this.onHit('Waypoint', this.waypointReached);
 
     this._bindKeyControls();
@@ -1545,7 +1543,7 @@ Crafty.c('Car', {
   },
 
   _adjustDirectionIndexForSnapToDirection: function () {
-    if (this.falling || this.goingOneWay) {
+    if (this.falling || this.goingOneWay || this.spinning) {
       return;
     }
     var timeTurning = Date.now() - this.turningStartTime;
@@ -1585,7 +1583,7 @@ Crafty.c('Car', {
     }
 
     var timeTurning = Date.now() - this.turningStartTime;
-    if (timeTurning > this.TURN_DELAY && this.velocity.magnitude() > 0.1) {
+    if (this.spinning || (timeTurning > this.TURN_DELAY && this.velocity.magnitude() > 0.1)) {
       if (this.directionIncrement < 0) {
         this.directionIndex++;
       } else if (this.directionIncrement > 0) {
@@ -1607,6 +1605,10 @@ Crafty.c('Car', {
   },
 
   _updateMovement: function () {
+    if (this.spinning) {
+      // keep same movement if spinning
+      return;
+    }
     // going one-way means enginePower cannot be zero
     var enginePower = this.goingOneWay ? (this.reversing ? -this.engineMagnitude : this.engineMagnitude) : this.enginePower;
 
@@ -1719,6 +1721,19 @@ Crafty.c('Car', {
       }
     }
 
+    if (this.spinning) {
+      if (this.spinningSteps > 0) {
+        // force turning
+        this.spinningSteps--;
+        this.directionIncrement = +1;
+      }
+      if (this.spinningSteps === 0) {
+        // finish turning
+        this.directionIncrement = 0;
+        this.spinning = false;
+      }
+    }
+
     this._changeSprite();
     this._adjustDirectionIndexForSnapToDirection();
     this._adjustEnginePowerAndChangeSoundEffect();
@@ -1749,6 +1764,7 @@ Crafty.c('Car', {
 
   setPosition: function(x, y) {
     this.falling = false;
+    this.spinning = false;
     this.goingOneWay = false;
     this.engineOn = false;
     this.enginePower = 0.0;
@@ -1813,6 +1829,14 @@ Crafty.c('Car', {
       this.falling = true;
       this.fallStepsMoving = Math.round(80 / Math.abs(this.velocity.magnitude()));
     }
+  },
+
+  oilHit: function(hitData) {
+    if (this.falling || this.spinning) {
+      return;
+    }
+    this.spinning = true;
+    this.spinningSteps = 100;
   },
 
   normalGroundHit: function(hitData) {

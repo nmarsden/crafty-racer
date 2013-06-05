@@ -33,9 +33,11 @@ Entities
             - disappears when reached by car, and next waypoint displayed
             - 10th (last) waypoint is indicated in some way (different colour and/or flashing, etc..)
 
-* Sand - causes the player to slow down
+* Mud - causes the player to slow down
 
-* Ice - causes the player to slide around and lose control
+* Ice - causes the player to slide around
+
+* Oil - causes the player to spin
 
 * Fire - causes damage
 
@@ -67,6 +69,7 @@ Entities
       - jump
 
 * Enemy truck - drops landmines
+* Enemy turrets - fire at the car
 
 
 Achievements
