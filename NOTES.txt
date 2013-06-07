@@ -22,9 +22,12 @@ Entities
 
 * Distance - indicates the distance to the waypoint
 
-* Time power up - adds time to countdown
-
-* Speed power up (NOS) - increases the top speed of the car for a few seconds
+* Pick-ups
+  - Note: All items obtained have an immediate effect
+  - Time power up - adds time to countdown
+  - Speed power up (NOS) - increases the top speed of the car for a few seconds
+  - Steering switcher - causes steering left to turn right and vice-versa for a few seconds
+  - Spring - causes car to bounce repeatedly for a few seconds (useful for jumping over gaps in the ground)
 
 * Landmine - damages car
 
@@ -70,6 +73,15 @@ Entities
 
 * Enemy truck - drops landmines
 * Enemy turrets - fire at the car
+
+* Attract mode  - accessed via the main menu by either hitting ESC or after 1 minute idle time
+                - shows a replay of a level being played
+                - used to demonstrate the game and highlight some interesting game play
+                - shows flashing text of 'Crafty Racer' title
+                - shows flashing text of 'PRESS ANY KEY'
+                - pressing any key returns to the main menu
+
+* Level editor
 
 
 Achievements
