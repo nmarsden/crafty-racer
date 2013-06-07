@@ -1775,8 +1775,8 @@ Crafty.c('Car', {
       var friction = this.velocity.clone();
       friction.normalize();
       friction.negate();
-      friction.x = (isNaN(friction.x) ? 0.0 : friction.x);
-      friction.y = (isNaN(friction.y) ? 0.0 : friction.y);
+      friction.x = (isNaN(friction.x) ? 0.0 : Math.round(friction.x * 100)/100);
+      friction.y = (isNaN(friction.y) ? 0.0 : Math.round(friction.y * 100)/100);
       friction.scale(this.frictionMagnitude);
 
       var acceleration = new Crafty.math.Vector2D(0.0, 0.0);
