@@ -1713,6 +1713,46 @@ Crafty.c('Car', {
     this.movement.y = this.velocity.y;
   },
 
+  _handleFalling: function() {
+    if (this.fallStepsDropping > 0) {
+      this.fallStepsDropping--;
+      if (this.fallStepsDropping === 0) {
+        // Game over - off the edge
+        Crafty.trigger('OffTheEdge', this);
+      }
+      // Animate dropping
+      this.movement.x = 0;
+      this.movement.y = 20;
+      this.x += this.movement.x;
+      this.y += this.movement.y;
+      return;
+    }
+
+    // Keep moving towards falling target
+    if (Math.round(this.x) === this.fallingTarget.x && Math.round(this.y) === this.fallingTarget.y) {
+      // Arrived at falling target, so start dropping
+      // -adjust z otherwise the car sometimes drops through the floor
+      this.z -= 50;
+      // -play sound
+      Game.playSoundEffect('falling', 1, 1.0);
+      // -stop exhaust
+      this.exhaust.stop();
+      // -show falling text
+      var fallingText = Crafty.e('TipText');
+      fallingText.setName("FallingText");
+      fallingText.text("UH OH!");
+      fallingText.show();
+      // -setup dropping movement
+      this.fallStepsDropping = 40;
+    } else {
+      // Move towards falling target
+      this._updateMovementToArrive(this.fallingTarget.x, this.fallingTarget.y);
+      this._updatePosition();
+      this._updateViewportWithPlayerInCenter();
+      this._triggerPlayerMoved();
+    }
+  },
+
   _updateMovement: function () {
     // going one-way or spinning means enginePower cannot be zero
 
@@ -1795,43 +1835,7 @@ Crafty.c('Car', {
     }
 
     if (this.falling) {
-      if (this.fallStepsDropping > 0) {
-        this.fallStepsDropping--;
-        if (this.fallStepsDropping === 0) {
-          // Game over - off the edge
-          Crafty.trigger('OffTheEdge', this);
-        }
-        // Animate dropping
-        this.movement.x = 0;
-        this.movement.y = 20;
-        this.x += this.movement.x;
-        this.y += this.movement.y;
-        return;
-      }
-
-      // Keep moving towards falling target
-      if (Math.round(this.x) === this.fallingTarget.x && Math.round(this.y) === this.fallingTarget.y) {
-        // Arrived at falling target, so start dropping
-        // -adjust z otherwise the car sometimes drops through the floor
-        this.z -= 50;
-        // -play sound
-        Game.playSoundEffect('falling', 1, 1.0);
-        // -stop exhaust
-        this.exhaust.stop();
-        // -show falling text
-        var fallingText = Crafty.e('TipText');
-        fallingText.setName("FallingText");
-        fallingText.text("UH OH!");
-        fallingText.show();
-        // -setup dropping movement
-        this.fallStepsDropping = 40;
-      } else {
-        // Move towards falling target
-        this._updateMovementToArrive(this.fallingTarget.x, this.fallingTarget.y);
-        this._updatePosition();
-        this._updateViewportWithPlayerInCenter();
-        this._triggerPlayerMoved();
-      }
+      this._handleFalling();
       return;
     }
 
