@@ -1358,7 +1358,7 @@ Crafty.c('Car', {
     this.movement = {};
     this.falling = false;
     this.spinning = false;
-    this.fallStepsMoving = 0;
+    this.fallingTarget = null;
     this.fallStepsDropping = 0;
     this.reversing = false;
     this.rightArrowDown = false;
@@ -1366,6 +1366,7 @@ Crafty.c('Car', {
     this.paused = false;
     this.goingOneWay = false;
     this.velocity = new Crafty.math.Vector2D(0,0);
+    this.MAX_VELOCITY = 10;
 
     this.RECORDABLE_METHODS =  [
       this._upArrowPressed,
@@ -1665,6 +1666,53 @@ Crafty.c('Car', {
     this.exhaust.updateAngle(this.DIRECTIONS[this.directionIndex].angle);
   },
 
+  _updateMovementToSeek: function(targetX, targetY) {
+    var target = new Crafty.math.Vector2D(targetX, targetY);
+    var position = new Crafty.math.Vector2D(this.x, this.y);
+    var desiredVelocity = target.subtract(position);
+    desiredVelocity.normalize();
+    // Calculating the desired velocity to target at max speed
+    desiredVelocity.scale(this.MAX_VELOCITY);
+
+    // Steering force = desired velocity - current velocity
+    var steeringForce = desiredVelocity.clone();
+    steeringForce.subtract(this.velocity);
+
+    // Apply the force to the car’s velocity
+    this.velocity.add(steeringForce);
+
+    this.movement.x = this.velocity.x;
+    this.movement.y = this.velocity.y;
+  },
+
+  _updateMovementToArrive: function(targetX, targetY) {
+    var target = new Crafty.math.Vector2D(targetX, targetY);
+    var position = new Crafty.math.Vector2D(this.x, this.y);
+    var desiredVelocity = target.subtract(position);
+
+    // The distance is the magnitude of the vector pointing from location to target.
+    var distance = desiredVelocity.magnitude();
+    desiredVelocity.normalize();
+    // If we are closer than 100 pixels...
+    if (distance < 100) {
+      // Set the magnitude according to how close we are.
+      var m = (distance / 100) * (this.MAX_VELOCITY*2);
+      desiredVelocity.scale(m);
+    } else {
+      // Otherwise, proceed at maximum speed.
+      desiredVelocity.scale(this.MAX_VELOCITY*2);
+    }
+    // Steering force = desired velocity - current velocity
+    var steeringForce = desiredVelocity.clone();
+    steeringForce.subtract(this.velocity);
+
+    // Apply the force to the car’s velocity
+    this.velocity.add(steeringForce);
+
+    this.movement.x = this.velocity.x;
+    this.movement.y = this.velocity.y;
+  },
+
   _updateMovement: function () {
     // going one-way or spinning means enginePower cannot be zero
 
@@ -1699,9 +1747,8 @@ Crafty.c('Car', {
     }
 
     // Limit max velocity
-    var maxVelocity = 10;
-    if (this.velocity.magnitude() > maxVelocity) {
-      this.velocity.scaleToMagnitude(maxVelocity);
+    if (this.velocity.magnitude() > this.MAX_VELOCITY) {
+      this.velocity.scaleToMagnitude(this.MAX_VELOCITY);
     }
 
     this.movement.x = this.velocity.x;
@@ -1762,8 +1809,11 @@ Crafty.c('Car', {
         return;
       }
 
-      if (this.fallStepsMoving === 0) {
-        // Start dropping
+      // Keep moving towards falling target
+      if (Math.round(this.x) === this.fallingTarget.x && Math.round(this.y) === this.fallingTarget.y) {
+        // Arrived at falling target, so start dropping
+        // -adjust z otherwise the car sometimes drops through the floor
+        this.z -= 50;
         // -play sound
         Game.playSoundEffect('falling', 1, 1.0);
         // -stop exhaust
@@ -1775,11 +1825,14 @@ Crafty.c('Car', {
         fallingText.show();
         // -setup dropping movement
         this.fallStepsDropping = 40;
-        return;
       } else {
-        // Keep moving
-        this.fallStepsMoving--;
+        // Move towards falling target
+        this._updateMovementToArrive(this.fallingTarget.x, this.fallingTarget.y);
+        this._updatePosition();
+        this._updateViewportWithPlayerInCenter();
+        this._triggerPlayerMoved();
       }
+      return;
     }
 
     if (this.spinning) {
@@ -1888,11 +1941,20 @@ Crafty.c('Car', {
       return;
     }
     var totalOverlap = 0;
-    hitData.forEach(function(hd) { totalOverlap += Math.abs(hd.overlap); });
+    var hdWithMaxOverlap = null;
+    hitData.forEach(function(hd) {
+      totalOverlap += Math.abs(hd.overlap);
+      if (hdWithMaxOverlap == null) {
+        hdWithMaxOverlap = hd;
+      } else {
+        if (Math.abs(hd.overlap) > Math.abs(hdWithMaxOverlap.overlap)) {
+          hdWithMaxOverlap = hd;
+        }
+      }
+    });
     if (totalOverlap > 25) {
-      //console.log("Begin Fall Mode!");
       this.falling = true;
-      this.fallStepsMoving = Math.round(20 / Math.max(Math.abs(this.velocity.magnitude()), 1));
+      this.fallingTarget = { x: Math.round(hdWithMaxOverlap.obj.x) + 15, y: Math.round(hdWithMaxOverlap.obj.y - 23) };
     }
   },
 
