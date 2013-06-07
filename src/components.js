@@ -1892,7 +1892,7 @@ Crafty.c('Car', {
     if (totalOverlap > 25) {
       //console.log("Begin Fall Mode!");
       this.falling = true;
-      this.fallStepsMoving = Math.round(80 / Math.abs(this.velocity.magnitude()));
+      this.fallStepsMoving = Math.round(20 / Math.max(Math.abs(this.velocity.magnitude()), 1));
     }
   },
 
