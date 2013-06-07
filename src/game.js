@@ -27,6 +27,7 @@ Game = {
   NUMBER_OF_WAYPOINTS:10,
   waypoints:{},
   initialPlayerPosition:null,
+  attractMode:false,
 
   width:function () {
     return this.map_grid.width * this.map_grid.tile.width;
@@ -121,9 +122,6 @@ Game = {
     Game.playMusic('menu_music');
     Game.mainMenu = Crafty.e('MainMenu');
     Game.mainMenu.setName("MainMenu");
-    Game.mainMenu.setMenuOptions({
-      escapeKeyHidesMenu: false
-    });
     Game.mainMenu.showMenu();
   },
 
@@ -178,6 +176,10 @@ Game = {
     Game.player.setPosition(Game.initialPlayerPosition.x, Game.initialPlayerPosition.y);
   },
 
+  initRecordControl: function() {
+    Game.recordControl = Crafty.e('RecordControl');
+  },
+
   initLevel: function () {
     this.waypointIndex = 0;
     Game.initPauseControl();
@@ -188,6 +190,7 @@ Game = {
     Game.resetWaypoint();
     Game.initWaypointsCollectedIndicator();
     Game.initPlayer();
+    Game.initRecordControl();
   },
 
   isLevelComplete: function () {
@@ -385,6 +388,20 @@ Game = {
       });
   },
 
+  isAttractMode: function() {
+    return this.attractMode;
+  },
+
+  startAttractMode: function() {
+    this.attractMode = true;
+    Game.selectLevel(1); // Level 2
+  },
+
+  initPlayerPlaybackControl: function() {
+    Game.playerPlaybackControl = Crafty.e('PlayerPlaybackControl');
+    Game.playerPlaybackControl.start([100, 0, 113, 0, 113, 4, 133, 5, 149, 0, 149, 6, 176, 7, 212, 0, 212, 6, 267, 7, 346, 1, 350, 2, 396, 2, 396, 4, 407, 5, 408, 3, 420, 0, 439, 0, 439, 4, 453, 5, 456, 1, 460, 0, 470, 0, 470, 6, 494, 7, 497, 1, 515, 2, 532, 3, 539, 0, 582, 0, 582, 4, 607, 5, 609, 1, 626, 0, 657, 1]);
+  },
+
   startLevel: function() {
     Game.destroyAll2DEntities();
 
@@ -416,6 +433,10 @@ Game = {
       Game.loadLevel();
 
       Game.initLevel();
+
+      if (Game.isAttractMode()) {
+        Game.initPlayerPlaybackControl();
+      }
 
       loadingText.destroy();
 
@@ -488,6 +509,47 @@ Game = {
   }
 
 }
+
+RecordUtils = {
+  recording : false,
+  recordedData : [],
+
+  isRecording: function() {
+    return this.recording;
+  },
+
+  startRecording: function() {
+    this.recording = true;
+    this.recordedData = [];
+  },
+
+  stopRecording: function() {
+    this.recording = false;
+    console.log("recordedData: ", this._normalizeFrameValues(this.recordedData));
+  },
+
+  recordValue: function(storedValue) {
+    if (!this.recording) {
+      return;
+    }
+    this.recordedData.push(Crafty.frame());
+    this.recordedData.push(storedValue);
+  },
+
+  _normalizeFrameValues: function(recordedData) {
+    if (recordedData.length === 0) {
+      return [];
+    }
+    // adjust frame values to start from frame 100
+    var normalizedRecordedData = [];
+    var startFrame = recordedData[0];
+    for (var i=0; i<recordedData.length; i++) {
+      normalizedRecordedData.push(recordedData[i++] - startFrame + 100);
+      normalizedRecordedData.push(recordedData[i]);
+    }
+    return normalizedRecordedData;
+  }
+};
 
 Debug = {
   isEnabled:false,

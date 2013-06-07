@@ -862,6 +862,8 @@ Crafty.c('Menu', {
       this.hideMenu();
       if (this.options.parentMenu) {
         this.options.parentMenu.showMenu();
+      } else {
+        Game.startAttractMode();
       }
     }
 
@@ -1365,6 +1367,17 @@ Crafty.c('Car', {
     this.goingOneWay = false;
     this.velocity = new Crafty.math.Vector2D(0,0);
 
+    this.RECORDABLE_METHODS =  [
+      this._upArrowPressed,
+      this._upArrowReleased,
+      this._downArrowPressed,
+      this._downArrowReleased,
+      this._leftArrowPressed,
+      this._leftArrowReleased,
+      this._rightArrowPressed,
+      this._rightArrowReleased
+    ];
+
     this.requires('Actor, Keyboard, Collision, spr_car, SpriteAnimation');
 
     this.attr({z:1000});
@@ -1440,24 +1453,78 @@ Crafty.c('Car', {
       return polyString;
   },
 
+  _recordPlayerAction: function _recordPlayerAction() {
+    RecordUtils.recordValue(this.RECORDABLE_METHODS.indexOf(_recordPlayerAction.caller));
+  },
+
+  _upArrowPressed: function () {
+    this._recordPlayerAction();
+    if (!this.engineOn) {
+      this.engineOn = true;
+      this.reversing = false;
+    }
+  },
+
+  _downArrowPressed: function () {
+    this._recordPlayerAction();
+    if (!this.engineOn) {
+      this.engineOn = true;
+      this.reversing = true;
+    }
+  },
+
+  _leftArrowPressed: function () {
+    this._recordPlayerAction();
+    this.directionIncrement = (this.reversing ? +1 : -1);
+    this.turningStartTime = Date.now();
+  },
+
+  _rightArrowPressed: function () {
+    this._recordPlayerAction();
+    this.directionIncrement = (this.reversing ? -1 : +1);
+    this.turningStartTime = Date.now();
+  },
+
+  _leftArrowReleased: function () {
+    this._recordPlayerAction();
+    this.snappedDirectionIndex = (this.reversing ?
+      this.DIRECTIONS[this.directionIndex].snapRightIndex :
+      this.DIRECTIONS[this.directionIndex].snapLeftIndex);
+    this.directionIncrement = 0;
+  },
+
+  _rightArrowReleased: function () {
+    this._recordPlayerAction();
+    this.snappedDirectionIndex = (this.reversing ?
+      this.DIRECTIONS[this.directionIndex].snapLeftIndex :
+      this.DIRECTIONS[this.directionIndex].snapRightIndex);
+    this.directionIncrement = 0;
+  },
+
+  _upArrowReleased: function () {
+    this._recordPlayerAction();
+    this.engineOn = false;
+  },
+
+  _downArrowReleased: function () {
+    this._recordPlayerAction();
+    this.engineOn = false;
+  },
+
   _keyDown: function() {
       if (this.paused) {
         return;
       }
-      if (!this.engineOn && this.isDown('UP_ARROW')) {
-        this.engineOn = true;
-        this.reversing = false;
+      if (this.isDown('UP_ARROW')) {
+        this._upArrowPressed();
       }
-      if (!this.engineOn && this.isDown('DOWN_ARROW')) {
-        this.engineOn = true;
-        this.reversing = true;
+      if (this.isDown('DOWN_ARROW')) {
+        this._downArrowPressed();
       }
       if (this.isDown('LEFT_ARROW')) {
-        this.directionIncrement = (this.reversing ? +1 : -1);
-        this.turningStartTime = Date.now();
+        this._leftArrowPressed();
       } else if (this.isDown('RIGHT_ARROW')) {
-        this.directionIncrement = (this.reversing ? -1 : +1);
-        this.turningStartTime = Date.now();
+        this._rightArrowPressed();
       }
   },
 
@@ -1466,19 +1533,13 @@ Crafty.c('Car', {
       return;
     }
     if(e.key == Crafty.keys['LEFT_ARROW']) {
-      this.snappedDirectionIndex = (this.reversing ?
-        this.DIRECTIONS[this.directionIndex].snapRightIndex :
-        this.DIRECTIONS[this.directionIndex].snapLeftIndex);
-      this.directionIncrement = 0;
+      this._leftArrowReleased();
     } else if (e.key == Crafty.keys['RIGHT_ARROW']) {
-      this.snappedDirectionIndex = (this.reversing ?
-        this.DIRECTIONS[this.directionIndex].snapLeftIndex :
-        this.DIRECTIONS[this.directionIndex].snapRightIndex);
-      this.directionIncrement = 0;
+      this._rightArrowReleased();
     } else if (e.key == Crafty.keys['UP_ARROW']) {
-      this.engineOn = false;
+      this._upArrowReleased();
     } else if (e.key == Crafty.keys['DOWN_ARROW']) {
-      this.engineOn = false;
+      this._downArrowReleased();
     }
   },
 
@@ -1782,6 +1843,10 @@ Crafty.c('Car', {
     this.exhaust.updatePosition(this.x, this.y, this.DIRECTIONS[this.directionIndex].angle);
   },
 
+  playbackStoredValue: function(storedValue) {
+    this.RECORDABLE_METHODS[storedValue].call(this);
+  },
+
   waypointReached: function(data) {
     //console.log("Waypoint reached");
     var waypoint = data[0].obj;
@@ -1928,3 +1993,76 @@ Crafty.c('Car', {
     return 360 - ((direction + 360 + 90) % 360);
   }
 });
+
+Crafty.c('RecordControl', {
+  init: function() {
+    this.requires('2D, DOM, Keyboard');
+
+    this.bind('KeyDown', this._keyDown);
+    this.bind("PlayerMoved", this._updatePosition);
+  },
+
+  _updatePosition: function() {
+    if (RecordUtils.isRecording()) {
+      this.recordingMessage.x = 10 - Crafty.viewport.x;
+      this.recordingMessage.y = 10 - Crafty.viewport.y;
+    }
+  },
+
+  _keyDown: function() {
+    if (this.isDown('F2')) {
+      if (RecordUtils.isRecording()) {
+        this._hideRecordingMessage();
+        RecordUtils.stopRecording();
+      } else {
+        this._showRecordingMessage();
+        RecordUtils.startRecording();
+      }
+    }
+  },
+
+  _showRecordingMessage: function() {
+    this.recordingMessage = Crafty.e('FlashingText');
+    this.recordingMessage.setName("Recording");
+    this.recordingMessage.attr({ w: 150, h:100 })
+    this.recordingMessage.text("RECORDING");
+    this.recordingMessage.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
+    this.recordingMessage.textColor("#0061FF");
+  },
+
+  _hideRecordingMessage: function() {
+    this.recordingMessage.destroy()
+  }
+});
+
+Crafty.c('PlayerPlaybackControl', {
+  init: function() {
+    this.playbackIndex = 0;
+    this.recordedData = [];
+    this.playing = false;
+
+    this.bind("EnterFrame", this._enterFrame);
+  },
+
+  start: function(recordedData) {
+    this.playbackIndex = 0;
+    this.recordedData = recordedData;
+    this.playing = true;
+  },
+
+  _enterFrame: function(frameData) {
+    if (!this.playing) {
+      return;
+    }
+    if (this.playbackIndex === this.recordedData.length) {
+      this.playing = false;
+      return;
+    }
+    while (frameData.frame === this.recordedData[this.playbackIndex]) {
+      this.playbackIndex++;
+      Game.player.playbackStoredValue(this.recordedData[this.playbackIndex]);
+      this.playbackIndex++;
+    }
+  }
+});
+
