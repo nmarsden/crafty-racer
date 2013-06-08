@@ -2124,6 +2124,7 @@ Crafty.c('PlayerPlaybackControl', {
   init: function() {
     this.playbackIndex = 0;
     this.recordedData = [];
+    this.frameNumber = 0;
     this.playing = false;
 
     this.bind("EnterFrame", this._enterFrame);
@@ -2132,10 +2133,11 @@ Crafty.c('PlayerPlaybackControl', {
   start: function(recordedData) {
     this.playbackIndex = 0;
     this.recordedData = recordedData;
+    this.frameNumber = 0;
     this.playing = true;
   },
 
-  _enterFrame: function(frameData) {
+  _enterFrame: function() {
     if (!this.playing) {
       return;
     }
@@ -2143,11 +2145,12 @@ Crafty.c('PlayerPlaybackControl', {
       this.playing = false;
       return;
     }
-    while (frameData.frame === this.recordedData[this.playbackIndex]) {
+    while (this.frameNumber === this.recordedData[this.playbackIndex]) {
       this.playbackIndex++;
       Game.player.playbackStoredValue(this.recordedData[this.playbackIndex]);
       this.playbackIndex++;
     }
+    this.frameNumber++;
   }
 });
 
