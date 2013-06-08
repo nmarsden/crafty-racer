@@ -1365,6 +1365,7 @@ Crafty.c('Car', {
     this.rightArrowDown = false;
     this.leftArrowDown = false;
     this.paused = false;
+    this.playback = false;
     this.goingOneWay = false;
     this.velocity = new Crafty.math.Vector2D(0,0);
     this.MAX_VELOCITY = 10;
@@ -1514,7 +1515,7 @@ Crafty.c('Car', {
   },
 
   _keyDown: function() {
-      if (this.paused) {
+      if (this.paused || this.playback) {
         return;
       }
       if (this.isDown('UP_ARROW')) {
@@ -1531,7 +1532,7 @@ Crafty.c('Car', {
   },
 
   _keyUp: function(e) {
-    if (this.paused) {
+    if (this.paused || this.playback) {
       return;
     }
     if(e.key == Crafty.keys['LEFT_ARROW']) {
@@ -1557,21 +1558,21 @@ Crafty.c('Car', {
   },
 
   _gamePadButtonDown: function(e) {
-    if (this.paused) {
+    if (this.paused || this.playback) {
       return;
     }
     Game.dispatchKeyDown(this.gamePadMapping[e.control]);
   },
 
   _gamePadButtonUp: function(e) {
-    if (this.paused) {
+    if (this.paused || this.playback) {
       return;
     }
     Game.dispatchKeyUp(this.gamePadMapping[e.control]);
   },
 
   _gamePadAxisChanged: function(e) {
-    if (this.paused) {
+    if (this.paused || this.playback) {
       return;
     }
     if (e.axis === "LEFT_STICK_X") {
@@ -1897,6 +1898,10 @@ Crafty.c('Car', {
     this.exhaust.updatePosition(this.x, this.y, this.DIRECTIONS[this.directionIndex].angle);
   },
 
+  setPlaybackMode: function() {
+    this.playback = true;
+  },
+
   playbackStoredValue: function(storedValue) {
     this.RECORDABLE_METHODS[storedValue].call(this);
   },
@@ -2126,11 +2131,14 @@ Crafty.c('PlayerPlaybackControl', {
     this.recordedData = [];
     this.frameNumber = 0;
     this.playing = false;
+    this.player = null;
 
     this.bind("EnterFrame", this._enterFrame);
   },
 
-  start: function(recordedData) {
+  start: function(player, recordedData) {
+    this.player = player;
+    this.player.setPlaybackMode();
     this.playbackIndex = 0;
     this.recordedData = recordedData;
     this.frameNumber = 0;
@@ -2147,7 +2155,7 @@ Crafty.c('PlayerPlaybackControl', {
     }
     while (this.frameNumber === this.recordedData[this.playbackIndex]) {
       this.playbackIndex++;
-      Game.player.playbackStoredValue(this.recordedData[this.playbackIndex]);
+      this.player.playbackStoredValue(this.recordedData[this.playbackIndex]);
       this.playbackIndex++;
     }
     this.frameNumber++;
