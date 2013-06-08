@@ -1359,6 +1359,7 @@ Crafty.c('Car', {
     this.falling = false;
     this.spinning = false;
     this.fallingTarget = null;
+    this.fallingTargetSteps = 0;
     this.fallStepsDropping = 0;
     this.reversing = false;
     this.rightArrowDown = false;
@@ -1729,23 +1730,19 @@ Crafty.c('Car', {
     }
 
     // Keep moving towards falling target
-    if (Math.round(this.x) === this.fallingTarget.x && Math.round(this.y) === this.fallingTarget.y) {
+    if (this.fallingTargetSteps < 0 && Math.round(this.x) === this.fallingTarget.x && Math.round(this.y) === this.fallingTarget.y) {
       // Arrived at falling target, so start dropping
+      // -play falling sound
+      Game.playSoundEffect('falling', 1, 1.0);
       // -adjust z otherwise the car sometimes drops through the floor
       this.z -= 50;
-      // -play sound
-      Game.playSoundEffect('falling', 1, 1.0);
       // -stop exhaust
       this.exhaust.stop();
-      // -show falling text
-      var fallingText = Crafty.e('TipText');
-      fallingText.setName("FallingText");
-      fallingText.text("UH OH!");
-      fallingText.show();
       // -setup dropping movement
       this.fallStepsDropping = 40;
     } else {
       // Move towards falling target
+      this.fallingTargetSteps--;
       this._updateMovementToArrive(this.fallingTarget.x, this.fallingTarget.y);
       this._updatePosition();
       this._updateViewportWithPlayerInCenter();
@@ -1945,20 +1942,42 @@ Crafty.c('Car', {
       return;
     }
     var totalOverlap = 0;
-    var hdWithMaxOverlap = null;
     hitData.forEach(function(hd) {
       totalOverlap += Math.abs(hd.overlap);
-      if (hdWithMaxOverlap == null) {
-        hdWithMaxOverlap = hd;
-      } else {
-        if (Math.abs(hd.overlap) > Math.abs(hdWithMaxOverlap.overlap)) {
-          hdWithMaxOverlap = hd;
-        }
-      }
     });
     if (totalOverlap > 25) {
+      // play car horn sound
+      Game.playSoundEffect('car_horn', 1, 1.0);
+      // show falling text
+      var fallingText = Crafty.e('TipText');
+      fallingText.setName("FallingText");
+      fallingText.text("UH OH!");
+      fallingText.show();
+      // start falling mode
+      this.fallingTarget = this._calculateFallingTarget(hitData);
+      this.fallingTargetSteps = 40;
       this.falling = true;
-      this.fallingTarget = { x: Math.round(hdWithMaxOverlap.obj.x) + 15, y: Math.round(hdWithMaxOverlap.obj.y - 23) };
+    }
+  },
+
+  _calculateFallingTarget: function(hitData) {
+    if (hitData.length == 1) {
+      // overlapping 1 hole:  fall from center of hole
+      return { x: Math.round(hitData[0].obj.x) + 15, y: Math.round(hitData[0].obj.y - 23) };
+    } else if (hitData.length == 2) {
+      // overlapping 2 holes:  fall from closest point from the car to a line drawn from one hole to the other hole
+      var holeOnePosition = new Crafty.math.Vector2D(hitData[0].obj.x + 15, hitData[0].obj.y - 23);
+      var holeTwoPosition = new Crafty.math.Vector2D(hitData[1].obj.x + 15, hitData[1].obj.y - 23);
+      var carPosition = new Crafty.math.Vector2D(this.x, this.y);
+      var a = carPosition.clone().subtract(holeOnePosition);
+      var b = holeTwoPosition.clone().subtract(holeOnePosition);
+      b.normalize();
+      b.scale(a.dotProduct(b));
+      var target = holeOnePosition.clone().add(b);
+      return { x: Math.round(target.x), y: Math.round(target.y) };
+    } else {
+      // overlapping 3 or more holes:  fall in place
+      return { x: Math.round(this.x), y: Math.round(this.y) };
     }
   },
 
