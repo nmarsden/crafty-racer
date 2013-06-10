@@ -1369,6 +1369,7 @@ Crafty.c('Car', {
     this.goingOneWay = false;
     this.velocity = new Crafty.math.Vector2D(0,0);
     this.MAX_VELOCITY = 10;
+    this.currentReelId = "";
 
     this.RECORDABLE_METHODS =  [
       this._upArrowPressed,
@@ -1598,12 +1599,20 @@ Crafty.c('Car', {
   _changeSprite: function () {
     var spriteNumber = this.DIRECTIONS[this.directionIndex].spriteNum;
     if (this.directionIncrement == 0) {
-      this.animate('Straight_' + spriteNumber, 1, 1);
+      this._animateIfNecessary('Straight_' + spriteNumber);
     } else if (this.directionIncrement > 0) {
-      this.animate('TurnRight_' + spriteNumber, 1, 1);
+      this._animateIfNecessary('TurnRight_' + spriteNumber);
     } else if (this.directionIncrement < 0) {
-      this.animate('TurnLeft_' + spriteNumber, 1, 1);
+      this._animateIfNecessary('TurnLeft_' + spriteNumber);
     }
+  },
+
+  _animateIfNecessary: function (reelId) {
+    if (this.currentReelId === reelId) {
+      return;
+    }
+    this.currentReelId = reelId;
+    this.animate(reelId, 1, 1);
   },
 
   _adjustDirectionIndexForSnapToDirection: function () {
