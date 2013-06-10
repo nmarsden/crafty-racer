@@ -28,6 +28,7 @@ Game = {
   waypoints:{},
   initialPlayerPosition:null,
   attractMode:false,
+  CAR_PLAYBACK_DATA: [100,0,106,0,106,4,117,5,163,0,163,4,175,5,213,0,213,4,223,5,256,0,256,4,310,5,348,0,348,6,360,7,411,0,411,4,429,5,466,0,466,4,486,5,571,0,571,6,590,7,638,0,638,4,664,5,698,1],
 
   width:function () {
     return this.map_grid.width * this.map_grid.tile.width;
@@ -123,6 +124,10 @@ Game = {
     Game.mainMenu = Crafty.e('MainMenu');
     Game.mainMenu.setName("MainMenu");
     Game.mainMenu.showMenu();
+  },
+
+  destroyMainMenu: function() {
+    Game.mainMenu.destroy();
   },
 
   initWaypoint: function () {
@@ -393,13 +398,22 @@ Game = {
   },
 
   startAttractMode: function() {
+    Game.attractModeControl = Crafty.e('AttractModeControl');
     this.attractMode = true;
     Game.selectLevel(1); // Level 2
   },
 
+  stopAttractMode: function() {
+    Game.attractModeControl.destroy();
+    this.attractMode = false;
+    Game.stopAllSoundsExcept();
+    Game.destroyAll2DEntities();
+    Game.showMainMenu();
+  },
+
   initPlayerPlaybackControl: function() {
     Game.playerPlaybackControl = Crafty.e('PlayerPlaybackControl');
-    Game.playerPlaybackControl.start(Game.player, [100, 0, 113, 0, 113, 4, 133, 5, 149, 0, 149, 6, 176, 7, 212, 0, 212, 6, 267, 7, 346, 1, 350, 2, 396, 2, 396, 4, 407, 5, 408, 3, 420, 0, 439, 0, 439, 4, 453, 5, 456, 1, 460, 0, 470, 0, 470, 6, 494, 7, 497, 1, 515, 2, 532, 3, 539, 0, 582, 0, 582, 4, 607, 5, 609, 1, 626, 0, 657, 1]);
+    Game.playerPlaybackControl.start(Game.player, Game.CAR_PLAYBACK_DATA);
   },
 
   startLevel: function() {
@@ -435,6 +449,7 @@ Game = {
       Game.initLevel();
 
       if (Game.isAttractMode()) {
+        Game.destroyMainMenu();
         Game.disablePauseControl();
         Game.initPlayerPlaybackControl();
       }
@@ -526,7 +541,7 @@ RecordUtils = {
 
   stopRecording: function() {
     this.recording = false;
-    console.log("recordedData: ", this._normalizeFrameValues(this.recordedData));
+    console.log("recordedData: [" + this._normalizeFrameValues(this.recordedData).join(",") + "]");
   },
 
   recordValue: function(storedValue) {

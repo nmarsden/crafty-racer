@@ -745,7 +745,7 @@ Crafty.c('Menu', {
   },
 
   displayMenuInstructions: function() {
-    var x = Game.viewportWidth() - 300;
+    var x = this.overlay.x + this.overlay._w - 240;
     var y = this.overlay.y + 555 - 130;
     var alpha = 0.5
     var textColour = '#0061FF';
@@ -804,17 +804,7 @@ Crafty.c('Menu', {
     this.unbind('SelectionChanged', this.handleSelectionChanged);
     // hide menu items
     for(var i=0; i<this.menuItems.length; i++) {
-      var entity = this.menuItems[i].entity;
-      entity._visible = false;
-      entity.css({
-        '-moz-animation-duration': '',
-        '-moz-animation-name': '',
-        '-moz-animation-iteration-count': '',
-        '-webkit-animation-duration': '',
-        '-webkit-animation-name': '',
-        '-webkit-animation-iteration-count': ''
-      });
-
+      this.menuItems[i].entity.destroy();
     }
     this.overlay.tween({ y: (Crafty.viewport.y + Crafty.viewport.height) }, 15);
   },
@@ -2142,32 +2132,7 @@ Crafty.c('PlayerPlaybackControl', {
     this.frameNumber = 0;
     this.playing = false;
     this.player = null;
-    var width = 650;
-    var height = 100;
-    var titleColour = "#AD0000";
-    var pressAnyKeyColour = "#0061FF";
-
-    var x = Crafty.viewport.width/2 - Crafty.viewport.x - (width/2);
-    var y = Crafty.viewport.height/2 - Crafty.viewport.y - 140;
-
-    this.title = Crafty.e('OutlineText');
-    this.title.setName("TitleText");
-    this.title.attr({ x: x, y: y - 120, w: width, h:height })
-    this.title.text("CRAFTY RACER");
-    this.title.textFont({ type: 'normal', weight: 'normal', size: '100px', family: Game.fontFamily })
-    this.title.textColor(titleColour);
-    
-    this.pressAnyKey = Crafty.e('FlashingText');
-    this.pressAnyKey.setName("PressAnyKeyText");
-    this.pressAnyKey.attr({ x: x, y: y + 260, w: width, h:height })
-    this.pressAnyKey.text("PRESS ANY KEY");
-    this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
-    this.pressAnyKey.textColor(pressAnyKeyColour);
-
-    this.bind("PlayerMoved", this._updatePosition);
     this.bind("EnterFrame", this._enterFrame);
-    this.bind('KeyDown', this._handleKeyDownOrButtonDown);
-    Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this._handleKeyDownOrButtonDown.bind(this));
   },
 
   start: function(player, recordedData) {
@@ -2177,14 +2142,7 @@ Crafty.c('PlayerPlaybackControl', {
     this.recordedData = recordedData;
     this.frameNumber = 0;
     this.playing = true;
-  },
-
-  _updatePosition:function () {
-    var x = Crafty.viewport.width/2 - Crafty.viewport.x - (650/2);
-    var y = Crafty.viewport.height/2 - Crafty.viewport.y - 140;
-
-    this.title.attr({ x: x, y: y - 120 })
-    this.pressAnyKey.attr({ x: x, y: y + 260 })
+    Crafty.trigger("PlaybackStarted");
   },
 
   _enterFrame: function() {
@@ -2193,6 +2151,7 @@ Crafty.c('PlayerPlaybackControl', {
     }
     if (this.playbackIndex === this.recordedData.length) {
       this.playing = false;
+      Crafty.trigger("PlaybackEnded");
       return;
     }
     while (this.frameNumber === this.recordedData[this.playbackIndex]) {
@@ -2201,15 +2160,81 @@ Crafty.c('PlayerPlaybackControl', {
       this.playbackIndex++;
     }
     this.frameNumber++;
+  }
+});
+
+Crafty.c('AttractModeControl', {
+  init: function() {
+    this.requires('2D, DOM, Text, Persist');
+    var width = 650;
+    var height = 100;
+    var titleColour = "#AD0000";
+    var pressAnyKeyColour = "#0061FF";
+
+    var x = Crafty.viewport.width/2 - Crafty.viewport.x - (width/2);
+    var y = Crafty.viewport.height/2 - Crafty.viewport.y - 140;
+
+    this.title = Crafty.e('OutlineText');
+    this.title.addComponent("Persist");
+    this.title.setName("TitleText");
+    this.title.attr({ x: x, y: y - 130, w: width, h:height })
+    this.title.text("CRAFTY RACER");
+    this.title.textFont({ type: 'normal', weight: 'normal', size: '40px', family: Game.fontFamily })
+    this.title.textColor(titleColour);
+    this.title.visible = false;
+    
+    this.demo = Crafty.e('OutlineText');
+    this.demo.addComponent("Persist");
+    this.demo.setName("TitleText");
+    this.demo.attr({ x: x, y: y - 100, w: width, h:height })
+    this.demo.text("DEMO");
+    this.demo.textFont({ type: 'normal', weight: 'normal', size: '100px', family: Game.fontFamily })
+    this.demo.textColor(titleColour);
+    this.demo.visible = false;
+
+    this.pressAnyKey = Crafty.e('FlashingText');
+    this.pressAnyKey.addComponent("Persist");
+    this.pressAnyKey.setName("PressAnyKeyText");
+    this.pressAnyKey.attr({ x: x, y: y + 260, w: width, h:height })
+    this.pressAnyKey.text("PRESS ANY KEY");
+    this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
+    this.pressAnyKey.textColor(pressAnyKeyColour);
+    this.pressAnyKey.visible = false;
+
+    this.bind("PlaybackStarted", this._playbackStarted);
+    this.bind("PlaybackEnded", this._playbackEnded);
+    this.bind("PlayerMoved", this._updatePosition);
+    this.bind('KeyDown', this._handleKeyDownOrButtonDown);
+    Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this._handleKeyDownOrButtonDown.bind(this));
+  },
+
+  stop: function() {
+    this.title.visible = false;
+    this.demo.visible = false;
+    this.pressAnyKey.visible = false;
+    Game.stopAttractMode();
+  },
+
+  _updatePosition:function () {
+    var x = Crafty.viewport.width/2 - Crafty.viewport.x - (650/2);
+    var y = Crafty.viewport.height/2 - Crafty.viewport.y - 140;
+
+    this.title.attr({ x: x, y: y - 130 })
+    this.demo.attr({ x: x, y: y - 100 })
+    this.pressAnyKey.attr({ x: x, y: y + 260 })
+  },
+
+  _playbackStarted: function() {
+    this.title.visible = true;
+    this.demo.visible = true;
+    this.pressAnyKey.visible = true;
+  },
+
+  _playbackEnded: function() {
+    this.stop();
   },
 
   _handleKeyDownOrButtonDown: function(e) {
-    if (!this.playing) {
-      return;
-    }
-    this.playing = false;
-//    Game.pauseGame();
-    Game.destroyAll2DEntities();
-//    Game.showMainMenu();
+    this.stop();
   }
 });
