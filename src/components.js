@@ -2127,13 +2127,38 @@ Crafty.c('RecordControl', {
 
 Crafty.c('PlayerPlaybackControl', {
   init: function() {
+    this.requires('2D, DOM, Text');
     this.playbackIndex = 0;
     this.recordedData = [];
     this.frameNumber = 0;
     this.playing = false;
     this.player = null;
+    var width = 650;
+    var height = 100;
+    var titleColour = "#AD0000";
+    var pressAnyKeyColour = "#0061FF";
 
+    var x = Crafty.viewport.width/2 - Crafty.viewport.x - (width/2);
+    var y = Crafty.viewport.height/2 - Crafty.viewport.y - 140;
+
+    this.title = Crafty.e('OutlineText');
+    this.title.setName("TitleText");
+    this.title.attr({ x: x, y: y - 120, w: width, h:height })
+    this.title.text("CRAFTY RACER");
+    this.title.textFont({ type: 'normal', weight: 'normal', size: '100px', family: Game.fontFamily })
+    this.title.textColor(titleColour);
+    
+    this.pressAnyKey = Crafty.e('FlashingText');
+    this.pressAnyKey.setName("PressAnyKeyText");
+    this.pressAnyKey.attr({ x: x, y: y + 260, w: width, h:height })
+    this.pressAnyKey.text("PRESS ANY KEY");
+    this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
+    this.pressAnyKey.textColor(pressAnyKeyColour);
+
+    this.bind("PlayerMoved", this._updatePosition);
     this.bind("EnterFrame", this._enterFrame);
+    this.bind('KeyDown', this._handleKeyDownOrButtonDown);
+    Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this._handleKeyDownOrButtonDown.bind(this));
   },
 
   start: function(player, recordedData) {
@@ -2143,6 +2168,14 @@ Crafty.c('PlayerPlaybackControl', {
     this.recordedData = recordedData;
     this.frameNumber = 0;
     this.playing = true;
+  },
+
+  _updatePosition:function () {
+    var x = Crafty.viewport.width/2 - Crafty.viewport.x - (650/2);
+    var y = Crafty.viewport.height/2 - Crafty.viewport.y - 140;
+
+    this.title.attr({ x: x, y: y - 120 })
+    this.pressAnyKey.attr({ x: x, y: y + 260 })
   },
 
   _enterFrame: function() {
@@ -2159,6 +2192,15 @@ Crafty.c('PlayerPlaybackControl', {
       this.playbackIndex++;
     }
     this.frameNumber++;
+  },
+
+  _handleKeyDownOrButtonDown: function(e) {
+    if (!this.playing) {
+      return;
+    }
+    this.playing = false;
+//    Game.pauseGame();
+    Game.destroyAll2DEntities();
+//    Game.showMainMenu();
   }
 });
-

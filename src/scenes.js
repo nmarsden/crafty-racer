@@ -9,6 +9,9 @@ Crafty.scene('Game', function() {
   // Show the victory screen once all waypoints are reached
   this.show_victory = function() {
     if (Game.isLevelComplete()) {
+      if (Game.isAttractMode()) {
+        return;
+      }
       Game.pauseGame();
       Game.disablePauseControl();
       Game.stopAllSoundsExcept('woop');
@@ -23,6 +26,9 @@ Crafty.scene('Game', function() {
 
   // Show the game over screen when time is up
   this.show_game_over_times_up = function() {
+    if (Game.isAttractMode()) {
+      return;
+    }
     Game.stopAllSoundsExcept();
     Game.pauseGame();
     Game.disablePauseControl();
@@ -35,6 +41,9 @@ Crafty.scene('Game', function() {
 
   // Show the game over screen when off the edge
   this.show_game_over_off_the_edge = function() {
+    if (Game.isAttractMode()) {
+      return;
+    }
     Game.stopAllSoundsExcept();
     Game.pauseGame();
     Game.disablePauseControl();

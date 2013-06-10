@@ -435,6 +435,7 @@ Game = {
       Game.initLevel();
 
       if (Game.isAttractMode()) {
+        Game.disablePauseControl();
         Game.initPlayerPlaybackControl();
       }
 
@@ -579,6 +580,7 @@ Debug = {
     for (var id in entities) {
       if (!entities.hasOwnProperty(id) || id == "length") continue; //skip
       var entity = Crafty(parseInt(id, 10));
+      if (entity.length == 0) continue; //skip
       if (entity.has("Ground_Sides") || entity.has("Ground_Tops") || entity.has("Solid_Sides") || entity.has("Solid_Tops") || entity.has("Objects") ) {
         // do nothing
       } else {
