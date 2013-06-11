@@ -10,6 +10,7 @@ Crafty.scene('Game', function() {
   this.show_victory = function() {
     if (Game.isLevelComplete()) {
       if (Game.isAttractMode()) {
+        Crafty.trigger("PlaybackEnded");
         return;
       }
       Game.pauseGame();
@@ -27,6 +28,7 @@ Crafty.scene('Game', function() {
   // Show the game over screen when time is up
   this.show_game_over_times_up = function() {
     if (Game.isAttractMode()) {
+      Crafty.trigger("PlaybackEnded");
       return;
     }
     Game.stopAllSoundsExcept();
@@ -42,6 +44,7 @@ Crafty.scene('Game', function() {
   // Show the game over screen when off the edge
   this.show_game_over_off_the_edge = function() {
     if (Game.isAttractMode()) {
+      Crafty.trigger("PlaybackEnded");
       return;
     }
     Game.stopAllSoundsExcept();

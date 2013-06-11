@@ -2086,12 +2086,16 @@ Crafty.c('Car', {
 Crafty.c('RecordControl', {
   init: function() {
     this.requires('2D, DOM, Keyboard');
+    this.playerX = 0;
+    this.playerY = 0;
 
     this.bind('KeyDown', this._keyDown);
     this.bind("PlayerMoved", this._updatePosition);
   },
 
-  _updatePosition: function() {
+  _updatePosition: function(playerPos) {
+    this.playerX = playerPos.x;
+    this.playerY = playerPos.y;
     if (RecordUtils.isRecording()) {
       this.recordingMessage.x = 10 - Crafty.viewport.x;
       this.recordingMessage.y = 10 - Crafty.viewport.y;
@@ -2105,7 +2109,7 @@ Crafty.c('RecordControl', {
         RecordUtils.stopRecording();
       } else {
         this._showRecordingMessage();
-        RecordUtils.startRecording();
+        RecordUtils.startRecording(this.playerX, this.playerY);
       }
     }
   },
@@ -2135,10 +2139,21 @@ Crafty.c('PlayerPlaybackControl', {
     this.bind("EnterFrame", this._enterFrame);
   },
 
+  /*
+    Recorded Data Format:
+    0:    player start x pos
+    1:    player start y pos
+    2:    1st frame - number
+    3:    1st frame - key pressed or released
+    ...
+    n-1:  Last frame - number
+    n:    Last frame - key pressed or released
+   */
   start: function(player, recordedData) {
     this.player = player;
     this.player.setPlaybackMode();
-    this.playbackIndex = 0;
+    this.player.setPosition(recordedData[0], recordedData[1]);
+    this.playbackIndex = 2;
     this.recordedData = recordedData;
     this.frameNumber = 0;
     this.playing = true;
@@ -2167,7 +2182,7 @@ Crafty.c('AttractModeControl', {
   init: function() {
     this.requires('2D, DOM, Text, Persist');
     var width = 650;
-    var height = 100;
+    var height = 60;
     var titleColour = "#AD0000";
     var pressAnyKeyColour = "#0061FF";
 
@@ -2179,23 +2194,23 @@ Crafty.c('AttractModeControl', {
     this.title.setName("TitleText");
     this.title.attr({ x: x, y: y - 130, w: width, h:height })
     this.title.text("CRAFTY RACER");
-    this.title.textFont({ type: 'normal', weight: 'normal', size: '40px', family: Game.fontFamily })
+    this.title.textFont({ type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE' })
     this.title.textColor(titleColour);
     this.title.visible = false;
     
-    this.demo = Crafty.e('OutlineText');
+    this.demo = Crafty.e('FlashingText');
     this.demo.addComponent("Persist");
     this.demo.setName("TitleText");
-    this.demo.attr({ x: x, y: y - 100, w: width, h:height })
+    this.demo.attr({ x: x, y: y + 300, w: width, h:height })
     this.demo.text("DEMO");
-    this.demo.textFont({ type: 'normal', weight: 'normal', size: '100px', family: Game.fontFamily })
+    this.demo.textFont({ type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE' })
     this.demo.textColor(titleColour);
     this.demo.visible = false;
 
     this.pressAnyKey = Crafty.e('FlashingText');
     this.pressAnyKey.addComponent("Persist");
     this.pressAnyKey.setName("PressAnyKeyText");
-    this.pressAnyKey.attr({ x: x, y: y + 260, w: width, h:height })
+    this.pressAnyKey.attr({ x: x, y: y + 360, w: width, h:height })
     this.pressAnyKey.text("PRESS ANY KEY");
     this.pressAnyKey.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     this.pressAnyKey.textColor(pressAnyKeyColour);
@@ -2220,8 +2235,8 @@ Crafty.c('AttractModeControl', {
     var y = Crafty.viewport.height/2 - Crafty.viewport.y - 140;
 
     this.title.attr({ x: x, y: y - 130 })
-    this.demo.attr({ x: x, y: y - 100 })
-    this.pressAnyKey.attr({ x: x, y: y + 260 })
+    this.demo.attr({ x: x, y: y + 300 })
+    this.pressAnyKey.attr({ x: x, y: y + 360 })
   },
 
   _playbackStarted: function() {
@@ -2231,7 +2246,7 @@ Crafty.c('AttractModeControl', {
   },
 
   _playbackEnded: function() {
-    this.stop();
+    Game.resetAttractMode();
   },
 
   _handleKeyDownOrButtonDown: function(e) {
