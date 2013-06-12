@@ -625,6 +625,8 @@ Crafty.c('Menu', {
     this.selectedMenuIndex = 0;
     this.colour = '#0061FF';
     this.selectedColour = '#FFFF00';
+    this.timeIdle = 0;
+    this.MAX_IDLE_FRAMES = 60 * 30; // approx. 30 seconds
     this.gamePadMapping = {
       'DPAD_UP':    'UP_ARROW',
       'DPAD_DOWN':  'DOWN_ARROW',
@@ -639,6 +641,8 @@ Crafty.c('Menu', {
     this.overlay.attr({ x: x, y: y, w: Crafty.viewport.width-102, h: Crafty.viewport.height-102 });
 
     this.displayMenuInstructions();
+
+    this.bind('EnterFrame', this._enterFrame);
 
     this.options = {
       parentMenu: null,
@@ -799,6 +803,7 @@ Crafty.c('Menu', {
   hideMenu: function() {
     // unbind event handlers
     this.unbind('KeyDown', this.handleKeyDown);
+    this.unbind('EnterFrame', this._enterFrame);
     Game.gamePad.unbind(Gamepad.Event.BUTTON_DOWN);
     Game.gamePad.unbind(Gamepad.Event.BUTTON_UP);
     this.unbind('SelectionChanged', this.handleSelectionChanged);
@@ -821,7 +826,16 @@ Crafty.c('Menu', {
     Game.dispatchKeyUp(this.gamePadMapping[e.control]);
   },
 
+  _enterFrame: function() {
+    this.timeIdle++;
+    if (this.timeIdle > this.MAX_IDLE_FRAMES) {
+      this.timeIdle = 0;
+      Game.startAttractMode();
+    }
+  },
+
   handleKeyDown: function() {
+    this.timeIdle = 0;
     var selectedMenuItem = null;
     var previousIndex = this.selectedMenuIndex;
 
