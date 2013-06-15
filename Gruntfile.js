@@ -51,9 +51,9 @@ module.exports = function(grunt) {
           /* Production files (html, css, fonts & audio) */
           {src: ['index-prod.html'], dest: 'build/index.html'},
           {expand: true, src: ['*.css'], dest: 'build/'},
-          {expand: true, src: ['assets/*.mp3'], dest: 'build/'},
-          {expand: true, src: ['assets/*.wav'], dest: 'build/'},
-          {expand: true, src: ['assets/*.ogg'], dest: 'build/'},
+          {expand: true, src: ['assets/audio/*.mp3'], dest: 'build/'},
+          {expand: true, src: ['assets/audio/*.wav'], dest: 'build/'},
+          {expand: true, src: ['assets/audio/*.ogg'], dest: 'build/'},
           {expand: true, src: ['assets/*.TTF'], dest: 'build/'},
           /* Extra html & unminified js files for dev */
           {expand: true, src: ['index-dev.html'], dest: 'build/'},
