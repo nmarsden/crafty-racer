@@ -4,9 +4,6 @@
     <script src="lib/jquery-1.9.1.js"></script>
     <script src="lib/crafty_0.5.4.js"></script>
     <script src="lib/gamepad.js"></script>
-    <script src="lib/crafty-debug/debugBar.js"></script>
-    <script src="lib/crafty-debug/panels/entities.js"></script>
-    <script src="lib/crafty-debug/panels/assets.js"></script>
     <script src="lib/tiledmapbuilder/create_mocks_module.js"></script>
     <script src="lib/tiledmapbuilder/tiledmapbuilder.js"></script>
     <script src="src/levels.js"></script>
@@ -16,111 +13,7 @@
     <script>
         window.addEventListener('load', Game.start);
     </script>
-    <style type="text/css">
-
-        @font-face {
-            font-family: UNICODE0;
-            src: url(assets/UNICODE0.TTF);
-            font-weight:400;
-        }
-
-        @font-face {
-            font-family: ARCADE;
-            src: url(assets/ARCADE.TTF);
-            font-weight:400;
-        }
-
-        @font-face {
-            font-family: SIMPLETYPE;
-            src: url(assets/SIMPLETYPE.TTF);
-            font-weight:400;
-        }
-
-        @font-face {
-            font-family: QBO;
-            src: url(assets/QBO.TTF);
-            font-weight:400;
-        }
-
-        body {
-            background: black;
-            text-align: center;
-            color: red;
-            font-family: UNICODE0;
-            font-size: 20px;
-        }
-
-        @-moz-keyframes flash {
-            from { opacity: 0; }
-            50%  { opacity: 1; }
-            to   { opacity: 0; }
-        }
-
-        @-webkit-keyframes flash {
-            from { opacity: 0; }
-            50%  { opacity: 1; }
-            to   { opacity: 0; }
-        }
-
-        @-moz-keyframes selected_menu_item {
-            from { color: rgb(0,97,255); }
-            50%  { color: rgb(255,255,255); }
-            to   { color: rgb(0,97,255); }
-        }
-
-        @-webkit-keyframes selected_menu_item {
-            from { color: rgb(0,97,255); }
-            50%  { color: rgb(255,255,255); }
-            to   { color: rgb(0,97,255); }
-        }
-
-        @-moz-keyframes low_time {
-            from { color: rgb(0,0,0); }
-            50%  { color: rgb(255,0,0); }
-            to   { color: rgb(0,0,0); }
-        }
-
-        @-webkit-keyframes low_time {
-            from { color: rgb(0,0,0); }
-            50%  { color: rgb(255,0,0); }
-            to   { color: rgb(0,0,0); }
-        }
-
-        #container {
-            margin: 0 auto 0;
-            width: 1024px;
-            height: 680px;
-        }
-
-        #cr-stage {
-        }
-
-        #options {
-            margin: 0 auto 5px;
-            height: 32px;
-        }
-
-        .option {
-            width: 32px;
-            height: 32px;
-            float: right;
-            color: red;
-            font-family: Arial;
-            font-size: 28px;
-        }
-
-        .sfx {
-            background-image: url(assets/sound.png);
-        }
-
-        .music {
-            background-image: url(assets/music.png);
-        }
-
-        .off:before {
-            content: "X";
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="src/crafty-racer.css"/>
 </head>
 <body>
 <div id="container">
