@@ -100,15 +100,23 @@ Game = {
     }
   },
 
+  toggleClass: function (elem, className) {
+    if (q(elem).hasClass(className)) {
+      q(elem).removeClass(className);
+    } else {
+      q(elem).addClass(className);
+    }
+  },
+
   initOptions:function () {
-    $(".music").click(function () {
-      $(".music").toggleClass("off");
+    document.getElementsByClassName("music")[0].onclick = function() {
+      Game.toggleClass(this, 'off');
       Game.toggleMusic();
-    });
-    $(".sfx").click(function () {
-      $(".sfx").toggleClass("off");
+    }
+    document.getElementsByClassName("sfx")[0].onclick = function() {
+      Game.toggleClass(this, 'off');
       Game.toggleSoundEffects();
-    });
+    };
   },
 
   createGlassOverlay: function() {
