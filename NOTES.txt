@@ -26,8 +26,20 @@ Entities
   - Note: All items obtained have an immediate effect
   - Time power up - adds time to countdown
   - Speed power up (NOS) - increases the top speed of the car for a few seconds
-  - Steering switcher - causes steering left to turn right and vice-versa for a few seconds
+  - Inverter - causes steering left to turn right and vice-versa for a few seconds
   - Spring - causes car to bounce repeatedly for a few seconds (useful for jumping over gaps in the ground)
+
+* Switches/Triggers
+  - Note: these will trigger some kind of event when touched by the player
+  - Open Wall       - opens a hole in a wall
+                    - triggers a block in a wall to lower so that it can be driven over
+                    - hole will close again after a few seconds if the player is not driving over it
+  - Close Ground    - closes a hole in the ground
+                    - triggers a block to rise from below ground level to be at the ground so that it can be driver over
+                    - hole will open again after a few seconds if the player is not driving over it
+  - Enemy Racer     - spawns an enemy racing car
+                    - the enemy car will race towards the waypoint causing game over if it reaches the waypoint before you do
+                    - the enemy car is destroyed when you reach the waypoint first
 
 * Landmine - damages car
 
