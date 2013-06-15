@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="isometric" width="100" height="100" tilewidth="128" tileheight="64">
  <tileset firstgid="1" name="Ground" tilewidth="128" tileheight="64">
-  <image source="../assets/Iso_Cubes_01_128x128_Alt_00_004.png" width="128" height="128"/>
+  <image source="../assets/images/Iso_Cubes_01_128x128_Alt_00_004.png" width="128" height="128"/>
  </tileset>
  <tileset firstgid="3" name="Solid" tilewidth="128" tileheight="64">
-  <image source="../assets/Iso_Cubes_01_128x128_Alt_00_003.png" width="128" height="128"/>
+  <image source="../assets/images/Iso_Cubes_01_128x128_Alt_00_003.png" width="128" height="128"/>
  </tileset>
  <tileset firstgid="5" name="Collision" tilewidth="128" tileheight="64">
-  <image source="../assets/Collision_Marker.png" width="128" height="64"/>
+  <image source="../assets/images/Collision_Marker.png" width="128" height="64"/>
  </tileset>
  <tileset firstgid="6" name="Player" tilewidth="128" tileheight="64">
-  <image source="../assets/Player_Marker.png" width="128" height="64"/>
+  <image source="../assets/images/Player_Marker.png" width="128" height="64"/>
  </tileset>
  <tileset firstgid="7" name="Waypoint" tilewidth="128" tileheight="64">
-  <image source="../assets/Waypoints_Marker.png" width="1280" height="64"/>
+  <image source="../assets/images/Waypoints_Marker.png" width="1280" height="64"/>
   <tile id="0">
    <properties>
     <property name="waypoint" value="1"/>
@@ -66,19 +66,19 @@
   </tile>
  </tileset>
  <tileset firstgid="17" name="Breaking Ground" tilewidth="128" tileheight="64">
-  <image source="../assets/Iso_Cubes_01_128x128_Alt_00_007.png" width="128" height="128"/>
+  <image source="../assets/images/Iso_Cubes_01_128x128_Alt_00_007.png" width="128" height="128"/>
  </tileset>
  <tileset firstgid="19" name="One Way" tilewidth="128" tileheight="64">
-  <image source="../assets/one_way_marker.png" width="512" height="64"/>
+  <image source="../assets/images/one_way_marker.png" width="512" height="64"/>
  </tileset>
  <tileset firstgid="23" name="Ice" tilewidth="128" tileheight="64">
-  <image source="../assets/ice_block.png" width="128" height="128"/>
+  <image source="../assets/images/ice_block.png" width="128" height="128"/>
  </tileset>
  <tileset firstgid="25" name="Mud" tilewidth="128" tileheight="64">
-  <image source="../assets/mud_block.png" width="128" height="128"/>
+  <image source="../assets/images/mud_block.png" width="128" height="128"/>
  </tileset>
  <tileset firstgid="27" name="Oil" tilewidth="128" tileheight="64">
-  <image source="../assets/oil_spill.png" width="128" height="64"/>
+  <image source="../assets/images/oil_spill.png" width="128" height="64"/>
  </tileset>
  <layer name="Ground_Sides" width="100" height="100">
   <data encoding="base64" compression="zlib">

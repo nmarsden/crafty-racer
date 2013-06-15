@@ -311,13 +311,13 @@ Game = {
           //Set z-index for correct view: front, back
           entity.z = Math.floor(entity._y - entity._h - 10);
 
-          if (entity.__image === "assets/ice_block.png") {
+          if (entity.__image === "assets/images/ice_block.png") {
             // Ice Top
             entity.addComponent("IceGround");
-          } else if (entity.__image === "assets/mud_block.png") {
+          } else if (entity.__image === "assets/images/mud_block.png") {
             // Mud Top
             entity.addComponent("MudGround");
-          } else if (entity.__image === "assets/Iso_Cubes_01_128x128_Alt_00_007.png") {
+          } else if (entity.__image === "assets/images/Iso_Cubes_01_128x128_Alt_00_007.png") {
             // Breaking Top
             entity.addComponent("BreakingGround");
             // Set Breaking Side
@@ -345,7 +345,7 @@ Game = {
           entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
 
           // Hide collision marker
-          if (entity.__image === "assets/Collision_Marker.png") {
+          if (entity.__image === "assets/images/Collision_Marker.png") {
             entity.addComponent("Hole");
             entity._visible = false;
           } else {
@@ -368,20 +368,20 @@ Game = {
           var entity = entities[obstacle];
 
           // Setup player and hide player marker
-          if (entity.__image === "assets/Player_Marker.png") {
+          if (entity.__image === "assets/images/Player_Marker.png") {
             Game.setInitialPlayerPosition(entity._x + 15, entity._y - 17);
             entity._visible = false;
           }
 
           // Setup waypoints and hide waypoint markers
-          if (entity.__image === "assets/Waypoints_Marker.png") {
+          if (entity.__image === "assets/images/Waypoints_Marker.png") {
             var waypointIndex = getWaypointIndex(entity);
             Game.addWaypoint(waypointIndex, entity._x + 32, entity._y - 16);
             entity._visible = false;
           }
 
           // Setup one way entities
-          if (entity.__image === "assets/one_way_marker.png") {
+          if (entity.__image === "assets/images/one_way_marker.png") {
             entity.z = Math.floor(entity._y - entity._h - 10);
             entity.addComponent('OneWay');
             entity.setOneWayType(getOneWayType(entity));
@@ -390,7 +390,7 @@ Game = {
           }
 
           // Setup Oil entities
-          if (entity.__image === "assets/oil_spill.png") {
+          if (entity.__image === "assets/images/oil_spill.png") {
             entity.z = Math.floor(entity._y - entity._h - 10);
             entity.addComponent('Oil');
             entity.addComponent("Collision")

@@ -66,7 +66,7 @@ var LEVELS = [
     "tilesets":[
       {
         "firstgid":1,
-        "image":"assets/Iso_Cubes_01_128x128_Alt_00_004.png",
+        "image":"assets/images/Iso_Cubes_01_128x128_Alt_00_004.png",
         "imageheight":128,
         "imagewidth":128,
         "margin":0,
@@ -81,7 +81,7 @@ var LEVELS = [
       },
       {
         "firstgid":3,
-        "image":"assets/Iso_Cubes_01_128x128_Alt_00_003.png",
+        "image":"assets/images/Iso_Cubes_01_128x128_Alt_00_003.png",
         "imageheight":128,
         "imagewidth":128,
         "margin":0,
@@ -96,7 +96,7 @@ var LEVELS = [
       },
       {
         "firstgid":5,
-        "image":"assets/Collision_Marker.png",
+        "image":"assets/images/Collision_Marker.png",
         "imageheight":64,
         "imagewidth":128,
         "margin":0,
@@ -111,7 +111,7 @@ var LEVELS = [
       },
       {
         "firstgid":6,
-        "image":"assets/Player_Marker.png",
+        "image":"assets/images/Player_Marker.png",
         "imageheight":64,
         "imagewidth":128,
         "margin":0,
@@ -126,7 +126,7 @@ var LEVELS = [
       },
       {
         "firstgid":7,
-        "image":"assets/Waypoints_Marker.png",
+        "image":"assets/images/Waypoints_Marker.png",
         "imageheight":64,
         "imagewidth":1280,
         "margin":0,
@@ -254,7 +254,7 @@ var LEVELS = [
     "tilesets":[
       {
         "firstgid":1,
-        "image":"assets/Iso_Cubes_01_128x128_Alt_00_004.png",
+        "image":"assets/images/Iso_Cubes_01_128x128_Alt_00_004.png",
         "imageheight":128,
         "imagewidth":128,
         "margin":0,
@@ -269,7 +269,7 @@ var LEVELS = [
       },
       {
         "firstgid":3,
-        "image":"assets/Iso_Cubes_01_128x128_Alt_00_003.png",
+        "image":"assets/images/Iso_Cubes_01_128x128_Alt_00_003.png",
         "imageheight":128,
         "imagewidth":128,
         "margin":0,
@@ -284,7 +284,7 @@ var LEVELS = [
       },
       {
         "firstgid":5,
-        "image":"assets/Collision_Marker.png",
+        "image":"assets/images/Collision_Marker.png",
         "imageheight":64,
         "imagewidth":128,
         "margin":0,
@@ -299,7 +299,7 @@ var LEVELS = [
       },
       {
         "firstgid":6,
-        "image":"assets/Player_Marker.png",
+        "image":"assets/images/Player_Marker.png",
         "imageheight":64,
         "imagewidth":128,
         "margin":0,
@@ -314,7 +314,7 @@ var LEVELS = [
       },
       {
         "firstgid":7,
-        "image":"assets/Waypoints_Marker.png",
+        "image":"assets/images/Waypoints_Marker.png",
         "imageheight":64,
         "imagewidth":1280,
         "margin":0,
@@ -442,7 +442,7 @@ var LEVELS = [
     "tilesets":[
       {
         "firstgid":1,
-        "image":"assets\/Iso_Cubes_01_128x128_Alt_00_004.png",
+        "image":"assets/images/Iso_Cubes_01_128x128_Alt_00_004.png",
         "imageheight":128,
         "imagewidth":128,
         "margin":0,
@@ -457,7 +457,7 @@ var LEVELS = [
       },
       {
         "firstgid":3,
-        "image":"assets\/Iso_Cubes_01_128x128_Alt_00_003.png",
+        "image":"assets/images/Iso_Cubes_01_128x128_Alt_00_003.png",
         "imageheight":128,
         "imagewidth":128,
         "margin":0,
@@ -472,7 +472,7 @@ var LEVELS = [
       },
       {
         "firstgid":5,
-        "image":"assets\/Collision_Marker.png",
+        "image":"assets/images/Collision_Marker.png",
         "imageheight":64,
         "imagewidth":128,
         "margin":0,
@@ -487,7 +487,7 @@ var LEVELS = [
       },
       {
         "firstgid":6,
-        "image":"assets\/Player_Marker.png",
+        "image":"assets/images/Player_Marker.png",
         "imageheight":64,
         "imagewidth":128,
         "margin":0,
@@ -502,7 +502,7 @@ var LEVELS = [
       },
       {
         "firstgid":7,
-        "image":"assets\/Waypoints_Marker.png",
+        "image":"assets/images/Waypoints_Marker.png",
         "imageheight":64,
         "imagewidth":1280,
         "margin":0,
@@ -629,7 +629,7 @@ var LEVELS = [
     "tilesets":[
       {
         "firstgid":1,
-        "image":"assets/Iso_Cubes_01_128x128_Alt_00_004.png",
+        "image":"assets/images/Iso_Cubes_01_128x128_Alt_00_004.png",
         "imageheight":128,
         "imagewidth":128,
         "margin":0,
@@ -644,7 +644,7 @@ var LEVELS = [
       },
       {
         "firstgid":3,
-        "image":"assets/Iso_Cubes_01_128x128_Alt_00_003.png",
+        "image":"assets/images/Iso_Cubes_01_128x128_Alt_00_003.png",
         "imageheight":128,
         "imagewidth":128,
         "margin":0,
@@ -659,7 +659,7 @@ var LEVELS = [
       },
       {
         "firstgid":5,
-        "image":"assets/Collision_Marker.png",
+        "image":"assets/images/Collision_Marker.png",
         "imageheight":64,
         "imagewidth":128,
         "margin":0,
@@ -674,7 +674,7 @@ var LEVELS = [
       },
       {
         "firstgid":6,
-        "image":"assets/Player_Marker.png",
+        "image":"assets/images/Player_Marker.png",
         "imageheight":64,
         "imagewidth":128,
         "margin":0,
@@ -689,7 +689,7 @@ var LEVELS = [
       },
       {
         "firstgid":7,
-        "image":"assets/Waypoints_Marker.png",
+        "image":"assets/images/Waypoints_Marker.png",
         "imageheight":64,
         "imagewidth":1280,
         "margin":0,
@@ -747,7 +747,7 @@ var LEVELS = [
       },
       {
         "firstgid":17,
-        "image":"assets/Iso_Cubes_01_128x128_Alt_00_007.png",
+        "image":"assets/images/Iso_Cubes_01_128x128_Alt_00_007.png",
         "imageheight":128,
         "imagewidth":128,
         "margin":0,
@@ -762,7 +762,7 @@ var LEVELS = [
       },
       {
         "firstgid":19,
-        "image":"assets/one_way_marker.png",
+        "image":"assets/images/one_way_marker.png",
         "imageheight":64,
         "imagewidth":512,
         "margin":0,
@@ -777,7 +777,7 @@ var LEVELS = [
       },
       {
         "firstgid":23,
-        "image":"assets/ice_block.png",
+        "image":"assets/images/ice_block.png",
         "imageheight":128,
         "imagewidth":128,
         "margin":0,
@@ -792,7 +792,7 @@ var LEVELS = [
       },
       {
         "firstgid":25,
-        "image":"assets/mud_block.png",
+        "image":"assets/images/mud_block.png",
         "imageheight":128,
         "imagewidth":128,
         "margin":0,
@@ -807,7 +807,7 @@ var LEVELS = [
       },
       {
         "firstgid":27,
-        "image":"assets/oil_spill.png",
+        "image":"assets/images/oil_spill.png",
         "imageheight":64,
         "imagewidth":128,
         "margin":0,

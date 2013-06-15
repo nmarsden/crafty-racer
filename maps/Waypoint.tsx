@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset name="Waypoint" tilewidth="128" tileheight="64">
- <image source="../assets/Waypoints_Marker.png" width="1280" height="64"/>
+ <image source="../assets/images/Waypoints_Marker.png" width="1280" height="64"/>
  <tile id="0">
   <properties>
    <property name="waypoint" value="1"/>
