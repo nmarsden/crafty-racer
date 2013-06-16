@@ -86,11 +86,11 @@ Crafty.scene('Loading', function(){
     'assets/audio/low_time_warning.mp3',
     'assets/audio/menu_change_page.mp3',
     'assets/audio/falling.mp3',
-    'assets/audio/game_over.wav',
+    'assets/audio/game_over.mp3',
     'assets/audio/disappear.mp3',
-    'assets/audio/Happy_Bee.mp3',
-    'assets/audio/Enter_the_party.mp3',
-    'assets/audio/Show_Your_Moves.mp3',
+    'assets/audio/Mighty_Eight_Bit_Ranger.mp3',
+    'assets/audio/Ring_Road.mp3',
+    'assets/audio/Bloom_Full_Groove.mp3',
     'assets/images/car.png',
     'assets/images/waypoint_animation.png',
     'assets/images/navigator.png',
@@ -166,10 +166,10 @@ Crafty.scene('Loading', function(){
       disappear:          ['assets/audio/disappear.mp3'],
       menu_nav:           ['assets/audio/menu_nav.mp3'],
       menu_change_page:   ['assets/audio/menu_change_page.mp3'],
-      game_over:          ['assets/audio/game_over.wav'],
-      level_music:        ['assets/audio/Happy_Bee.mp3'],
-      menu_music:         ['assets/audio/Enter_the_Party.mp3'],
-      end_level_music:    ['assets/audio/Show_Your_Moves.mp3']
+      game_over:          ['assets/audio/game_over.mp3'],
+      level_music:        ['assets/audio/Mighty_Eight_Bit_Ranger.mp3'],
+      menu_music:         ['assets/audio/Ring_Road.mp3'],
+      end_level_music:    ['assets/audio/Bloom_Full_Groove.mp3']
     });
 
     Crafty.scene('Game');

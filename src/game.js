@@ -56,7 +56,7 @@ Game = {
   playMusic:function (music) {
     Game.musicPlaying = music;
     if (Game.options.music) {
-      Crafty.audio.play(Game.musicPlaying, -1, 1.0);
+      Crafty.audio.play(Game.musicPlaying, -1, 0.7);
     }
   },
 

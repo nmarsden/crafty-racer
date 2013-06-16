@@ -20,6 +20,8 @@ Sound FX:
 
 Music:
 * Incompetech (http://incompetech.com/music/royalty-free/)
+* Looperman (http://www.looperman.com)
+* Teknoaxe.com (http://teknoaxe.com)
 
 Fonts:
 * FontSpace (http://www.fontspace.com)
@@ -47,9 +49,9 @@ menu_change_page:   badminton_racket_fast_movement_swoosh_002.mp3 - http://www.f
 game_over:          76376__spazzo-1493__game-over.wav - http://www.freesound.org/people/spazzo_1493/sounds/76376/
 
 Music
-level_music:        Happy Bee - http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300014
-menu_music:         Enter the Party - http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100240
-end_level_music:    Show Your Moves - http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100751
+level_music:        Mighty Eight Bit Ranger - http://teknoaxe.com/cgi-bin/link_code_3.pl?265
+menu_music:         Ring Road - http://www.looperman.com/loops/detail/15071
+end_level_music:    Full Bloom Groove - http://www.looperman.com/loops/detail/61697
 
 Fonts
 Unicode 0024 - http://www.fontspace.com/fenotype/unicode-0024
