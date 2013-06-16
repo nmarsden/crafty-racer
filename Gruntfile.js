@@ -55,6 +55,7 @@ module.exports = function(grunt) {
           {expand: true, src: ['assets/audio/*.wav'], dest: 'build/'},
           {expand: true, src: ['assets/audio/*.ogg'], dest: 'build/'},
           {expand: true, src: ['assets/*.TTF'], dest: 'build/'},
+          {expand: true, src: ['assets/images/favicon.ico'], dest: 'build/'},
           /* Extra html & unminified js files for dev */
           {expand: true, src: ['index-dev.html'], dest: 'build/'},
           {expand: true, src: ['lib/**'], dest: 'build/'},
@@ -70,6 +71,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
 
   // Default task(s).
-  grunt.registerTask('default', ['concat','uglify','pngmin','copy']);
+  grunt.registerTask('default', ['concat','uglify','copy','pngmin']);
 
 };
