@@ -62,6 +62,15 @@ module.exports = function(grunt) {
           {expand: true, src: ['src/**'], dest: 'build/'}
         ]
       }
+    },
+    watch: {
+      files: ['**/*'],
+      tasks: ['default'],
+      options: {
+        nospawn: true,
+        interval: 500,
+        livereload: true
+      }
     }
   });
 
@@ -69,6 +78,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-pngmin');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
   // Default task(s).
   grunt.registerTask('default', ['concat','uglify','copy','pngmin']);
