@@ -1753,11 +1753,11 @@ Crafty.c('Car', {
     // If we are closer than a certain number of pixels...
     if (distance < Game.SEEK_DISTANCE_BEFORE_SLOW_DOWN) {
       // Set the magnitude according to how close we are.
-      var m = (distance / 100) * (this.MAX_VELOCITY);
+      var m = (distance / 100) * (Game.SEEK_MAX_VELOCITY);
       desiredVelocity.scale(m);
     } else {
       // Otherwise, proceed at maximum speed.
-      desiredVelocity.scale(this.MAX_VELOCITY);
+      desiredVelocity.scale(Game.SEEK_MAX_VELOCITY);
     }
 
     // Steering force = desired velocity - current velocity
@@ -1841,6 +1841,8 @@ Crafty.c('Car', {
     enginePower = this.spinning ? this.spinningEnginePower : enginePower;
     enginePower = this.seekMode ? this.seekEnginePower : enginePower;
 
+    var maxVelocity = this.seekMode ? Game.SEEK_MAX_VELOCITY : this.MAX_VELOCITY;
+
     var directionIndex = this.spinning ? this.spinningDirectionIndex : this.directionIndex;
 
     var carAngleInRadians = this.DIRECTIONS[directionIndex].angle * (Math.PI / 180);
@@ -1869,8 +1871,8 @@ Crafty.c('Car', {
     }
 
     // Limit max velocity
-    if (this.velocity.magnitude() > this.MAX_VELOCITY) {
-      this.velocity.scaleToMagnitude(this.MAX_VELOCITY);
+    if (this.velocity.magnitude() > maxVelocity) {
+      this.velocity.scaleToMagnitude(maxVelocity);
     }
 
     this.movement.x = this.velocity.x;
@@ -2242,7 +2244,7 @@ Crafty.c('PlayerPlaybackControl', {
     this.recordedData = [];
     this.player = null;
     this.seekTarget = null;
-    this.debugMode = false;
+    this.debugMode = Game.SEEK_DEBUG_MODE_ON;
 
     this.bind("SeekTargetReached", this._seekTargetReached);
   },
@@ -2293,12 +2295,7 @@ Crafty.c('PlayerPlaybackControl', {
       this.seekTarget.setPosition(target.x, target.y);
     }
     this.player.seek(target.x, target.y);
-    // TODO adjust frequency of targets
-    this.playbackIndex += 2;
-    //this.playbackIndex += 4;
-    //this.playbackIndex += 6;
-    //this.playbackIndex += 8;
-    //this.playbackIndex += 10;
+    this.playbackIndex += Game.SEEK_TARGET_FREQUENCY * 2;
   }
 });
 
