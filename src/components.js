@@ -1374,6 +1374,9 @@ Crafty.c('Car', {
     this.velocity = new Crafty.math.Vector2D(0,0);
     this.MAX_VELOCITY = 10;
     this.currentReelId = "";
+    this.lastRecordedFrame = 0;
+    this.seekTarget = {x:0, y:0};
+    this.seekMode = false;
 
     this.RECORDABLE_METHODS =  [
       this._upArrowPressed,
@@ -1462,7 +1465,7 @@ Crafty.c('Car', {
   },
 
   _recordPlayerAction: function _recordPlayerAction() {
-    RecordUtils.recordValue(this.RECORDABLE_METHODS.indexOf(_recordPlayerAction.caller));
+//    RecordUtils.recordValue(this.RECORDABLE_METHODS.indexOf(_recordPlayerAction.caller));
   },
 
   _upArrowPressed: function () {
@@ -1728,6 +1731,27 @@ Crafty.c('Car', {
     this.movement.y = this.velocity.y;
   },
 
+  _handleSeeking: function() {
+    if (this._isSeekTargetReached()) {
+      console.log("Seek target reached!");
+      this.seekMode = false;
+      Crafty.trigger("SeekTargetReached");
+      return;
+    }
+    this._updateMovementToSeek(this.seekTarget.x, this.seekTarget.y);
+    this._updatePosition();
+    this._updateViewportWithPlayerInCenter();
+    this._triggerPlayerMoved();
+  },
+
+  _isSeekTargetReached: function() {
+    var target = new Crafty.math.Vector2D(this.seekTarget.x, this.seekTarget.y);
+    var position = new Crafty.math.Vector2D(this.x, this.y);
+    var distanceVector = target.subtract(position);
+    var distance = distanceVector.magnitude();
+    return (distance < 20);
+  },
+
   _handleFalling: function() {
     if (this.fallStepsDropping > 0) {
       this.fallStepsDropping--;
@@ -1845,9 +1869,23 @@ Crafty.c('Car', {
       return;
     }
 
+    if (this.seekMode) {
+      this._handleSeeking();
+      return;
+    }
+
     if (this.falling) {
       this._handleFalling();
       return;
+    }
+
+    if (RecordUtils.isRecording()) {
+      var RECORDING_RATE = 15;
+      var frameDelta = (this.lastRecordedFrame === 0) ? RECORDING_RATE : (Crafty.frame() - this.lastRecordedFrame);
+      if (frameDelta === RECORDING_RATE) {
+        RecordUtils.recordPosition(Math.round(this.x), Math.round(this.y));
+        this.lastRecordedFrame = Crafty.frame();
+      }
     }
 
     if (this.spinning) {
@@ -1894,6 +1932,7 @@ Crafty.c('Car', {
   setPosition: function(x, y) {
     this.falling = false;
     this.spinning = false;
+    this.seekMode = false;
     this.goingOneWay = false;
     this.engineOn = false;
     this.enginePower = 0.0;
@@ -1901,6 +1940,7 @@ Crafty.c('Car', {
     this.directionIncrement = 0;
     this.directionIndex = 27;  // NE
     this.snappedDirectionIndex = this.directionIndex;
+    this.lastRecordedFrame = 0;
     this.x = x;
     this.y = y;
     this.z = Math.floor(y);
@@ -1909,6 +1949,12 @@ Crafty.c('Car', {
     // set exhaust
     this.exhaust.updateAngle(this.DIRECTIONS[this.directionIndex].angle);
     this.exhaust.updatePosition(this.x, this.y, this.DIRECTIONS[this.directionIndex].angle);
+  },
+
+  seek: function(targetX, targetY) {
+    this.seekTarget.x = targetX;
+    this.seekTarget.y = targetY;
+    this.seekMode = true;
   },
 
   setPlaybackMode: function() {
@@ -1987,11 +2033,7 @@ Crafty.c('Car', {
       var holeOnePosition = new Crafty.math.Vector2D(hitData[0].obj.x + 15, hitData[0].obj.y - 23);
       var holeTwoPosition = new Crafty.math.Vector2D(hitData[1].obj.x + 15, hitData[1].obj.y - 23);
       var carPosition = new Crafty.math.Vector2D(this.x, this.y);
-      var a = carPosition.clone().subtract(holeOnePosition);
-      var b = holeTwoPosition.clone().subtract(holeOnePosition);
-      b.normalize();
-      b.scale(a.dotProduct(b));
-      var target = holeOnePosition.clone().add(b);
+      var target = VectorUtils.getNormalPoint(carPosition, holeOnePosition, holeTwoPosition);
       return { x: Math.round(target.x), y: Math.round(target.y) };
     } else {
       // overlapping 3 or more holes:  fall in place
@@ -2147,48 +2189,52 @@ Crafty.c('PlayerPlaybackControl', {
     this.requires('2D, DOM, Text');
     this.playbackIndex = 0;
     this.recordedData = [];
-    this.frameNumber = 0;
-    this.playing = false;
     this.player = null;
-    this.bind("EnterFrame", this._enterFrame);
+    this.seekTarget = null;
+
+    this.bind("SeekTargetReached", this._seekTargetReached);
   },
 
   /*
-    Recorded Data Format:
-    0:    player start x pos
-    1:    player start y pos
-    2:    1st frame - number
-    3:    1st frame - key pressed or released
-    ...
-    n-1:  Last frame - number
-    n:    Last frame - key pressed or released
+   Recorded Data Format:
+   0:    player start x pos
+   1:    player start y pos
+   2:    1st seek target x pos
+   3:    1st seek target y pos
+   ...
+   n-1:  Last seek target x pos
+   n:    Last seek target y pos
    */
   start: function(player, recordedData) {
     this.player = player;
-    this.player.setPlaybackMode();
     this.player.setPosition(recordedData[0], recordedData[1]);
+
+    this.seekTarget = Crafty.e('Point');
+    this.seekTarget.setPosition(0, 0);
+    this.seekTarget.setCircleColour('blue');
+
     this.playbackIndex = 2;
     this.recordedData = recordedData;
-    this.frameNumber = 0;
-    this.playing = true;
+
+    this._setupNextSeekTarget();
+
     Crafty.trigger("PlaybackStarted");
   },
 
-  _enterFrame: function() {
-    if (!this.playing) {
-      return;
-    }
+  _seekTargetReached: function() {
     if (this.playbackIndex === this.recordedData.length) {
-      this.playing = false;
+      this.seekTarget.setPosition(0, 0);
       Crafty.trigger("PlaybackEnded");
       return;
     }
-    while (this.frameNumber === this.recordedData[this.playbackIndex]) {
-      this.playbackIndex++;
-      this.player.playbackStoredValue(this.recordedData[this.playbackIndex]);
-      this.playbackIndex++;
-    }
-    this.frameNumber++;
+    this._setupNextSeekTarget();
+  },
+
+  _setupNextSeekTarget: function() {
+    var target = {x: this.recordedData[this.playbackIndex], y: this.recordedData[this.playbackIndex+1]};
+    this.seekTarget.setPosition(target.x, target.y);
+    this.player.seek(target.x, target.y);
+    this.playbackIndex += 2;
   }
 });
 
@@ -2265,5 +2311,150 @@ Crafty.c('AttractModeControl', {
 
   _handleKeyDownOrButtonDown: function(e) {
     this.stop();
+  }
+});
+
+Crafty.c('Path', {
+  init: function() {
+    this.requires('2D, Canvas');
+    this.z = 7000;
+    this.points = { x1:0, y1:0, x2:0, y2:0 };
+    this.xOffset = 50;
+    this.yOffset = 50;
+
+    this.bind("Draw", this._drawHandler);
+
+    this.ready = true;
+  },
+
+  setPoints: function(x1, y1, x2, y2) {
+    this.points.x1 = x1;
+    this.points.y1 = y1;
+    this.points.x2 = x2;
+    this.points.y2 = y2;
+    this.x = Math.min(x1, x2);
+    this.y = Math.min(y1, y2);
+    this.w = Math.abs(x1 - x2);
+    this.h = Math.abs(y1 - y2);
+  },
+
+  _drawHandler : function (e) {
+    this._drawLine(e.ctx);
+  },
+
+  _drawLine : function(ctx) {
+    ctx.save();
+    ctx.strokeStyle = "rgba(0,0,0,1.0)";
+    ctx.beginPath();
+    ctx.moveTo(this.xOffset + this.points.x1, this.yOffset + this.points.y1);
+    ctx.lineTo(this.xOffset + this.points.x2, this.yOffset + this.points.y2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+});
+
+Crafty.c('Point', {
+  init: function() {
+    this.requires('2D, Canvas');
+    this.z = 8000;
+    this.position = { x:0, y:0 };
+    this.xOffset = 50;
+    this.yOffset = 50;
+    this.radius = 5;
+    this.circleColour = 'green';
+
+    this.bind("Draw", this._drawHandler);
+
+    this.ready = true;
+  },
+
+  setPosition: function(x, y) {
+    this.position.x = x;
+    this.position.y = y;
+    this.x = x;
+    this.y = y;
+    this.w = 100;
+    this.h = 100;
+  },
+
+  setCircleColour: function(circleColour) {
+      this.circleColour = circleColour;
+  },
+
+  _drawHandler : function (e) {
+    this._drawCircle(e.ctx);
+  },
+
+  _drawCircle : function(ctx) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(this.xOffset + this.position.x, this.yOffset + this.position.y, this.radius, 0, 2 * Math.PI, false);
+    ctx.fillStyle = this.circleColour;
+    ctx.fill();
+//    ctx.lineWidth = 1;
+//    ctx.strokeStyle = '#003300';
+//    ctx.stroke();
+    ctx.restore();
+  }
+});
+
+
+Crafty.c('Arrow', {
+  init: function() {
+    this.requires('2D, Canvas');
+    this.z = 7000;
+    this.points = { x1:0, y1:0, x2:0, y2:0 };
+    this.xOffset = 50;
+    this.yOffset = 50;
+    this.arrowPoints = [{x:0, y:0}, {x:0, y:0}];
+
+    this.bind("Draw", this._drawHandler);
+
+    this.ready = true;
+  },
+
+  setPoints: function(x1, y1, x2, y2) {
+    this.points.x1 = x1;
+    this.points.y1 = y1;
+    this.points.x2 = x2;
+    this.points.y2 = y2;
+    this.x = Math.min(x1, x2);
+    this.y = Math.min(y1, y2);
+    this.w = Math.abs(x1 - x2);
+    this.h = Math.abs(y1 - y2);
+
+    this.arrowPoints = this._calcArrowPoints(this.points);
+  },
+
+  _calcArrowPoints: function(linePoints) {
+    var a = new Crafty.math.Vector2D(linePoints.x1, linePoints.y1);
+    var b = new Crafty.math.Vector2D(linePoints.x2, linePoints.y2);
+    var ab = b.clone().subtract(a);
+    var c = ab.clone().scaleToMagnitude(20);
+    var bc = b.clone().subtract(c);
+
+    var arrowPoints = [];
+    arrowPoints.push(VectorUtils.rotate(bc, b, 45));
+    arrowPoints.push(VectorUtils.rotate(bc, b, -45));
+    return arrowPoints;
+  },
+
+  _drawHandler : function (e) {
+    this._drawLine(e.ctx);
+  },
+
+  _drawLine : function(ctx) {
+    ctx.save();
+    ctx.strokeStyle = "rgba(0,0,0,1.0)";
+    ctx.beginPath();
+    ctx.moveTo(this.xOffset + this.points.x1, this.yOffset + this.points.y1);
+    ctx.lineTo(this.xOffset + this.points.x2, this.yOffset + this.points.y2);
+    ctx.moveTo(this.xOffset + this.arrowPoints[0].x, this.yOffset + this.arrowPoints[0].y);
+    ctx.lineTo(this.xOffset + this.points.x2, this.yOffset + this.points.y2);
+    ctx.moveTo(this.xOffset + this.arrowPoints[1].x, this.yOffset + this.arrowPoints[1].y);
+    ctx.lineTo(this.xOffset + this.points.x2, this.yOffset + this.points.y2);
+    ctx.stroke();
+    ctx.restore();
   }
 });

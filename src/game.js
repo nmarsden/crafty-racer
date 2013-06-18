@@ -28,7 +28,13 @@ Game = {
   waypoints:{},
   initialPlayerPosition:null,
   attractMode:false,
-  CAR_PLAYBACK_DATA: [15,6063,100,0,109,0,109,4,121,5,177,0,177,4,192,5,213,1,226,2,244,2,244,4,272,5,273,3,282,0,340,0,340,4,365,5,417,0,417,6,436,1,437,7,462,0,516,0,516,4,543,5,591,0,591,6,621,7,682,0,682,6,698,7,815,0,815,6,831,7,877,0,877,6,895,7,959,1,987,2,1039,2,1039,4,1042,3,1046,5,1086,0,1091,0,1091,4,1101,5,1135,1,1149,2,1204,2,1204,4,1210,3,1212,5,1249,0,1252,0,1252,4,1258,1,1262,5,1284,0,1343,1,1363,2,1422,2,1422,4,1441,5,1442,3,1460,0,1550,0,1550,4,1575,5,1632,1,1642,2,1722,2,1722,6,1742,3,1745,7,1753,0,1786,0,1786,6,1816,7,2014,0,2014,6,2037,7,2136,0,2136,6,2188,7,2237,0,2237,4,2248,5,2308,0,2308,6,2326,7,2443,0,2443,6,2466,7,2509,0,2509,6,2517,7,2601,0,2601,4,2612,5,2625,0,2625,4,2643,5,2666,0,2666,6,2678,1,2682,7,2687,2,2712,2,2712,4,2721,5,2724,3,2731,0,2808,0,2808,4,2828,5,2871,0,2871,4,2891,5,2917,0,2917,4,2929,5,2931,1,2973,0,2976,0,2976,4,2989,1,2991,5,3027,2,3068,2,3068,4,3077,5,3081,3,3125,0,3132,0,3132,4,3145,5,3147,1,3175,0,3177,0,3177,4,3186,1,3188,5,3206,0,3234,0,3234,6,3247,7,3249,1,3278,0,3292,1,3304,2,3342,2,3342,4,3359,3,3361,5,3385,0,3399,0,3399,6,3452,7,3490,0,3490,6,3514,7,3532,0,3532,4,3607,5,3624,0,3624,6,3667,7,3702,0,3702,4,3716,5,3732,1,3745,4,3762,0,3762,4,3772,1,3773,5,3799,0],
+
+  CAR_PLAYBACK_DATA: [
+    15,6063,
+    61+200,6040,
+    165+200,5988,
+    299,5921,
+    433,5854],
 
   width:function () {
     return this.map_grid.width * this.map_grid.tile.width;
@@ -467,6 +473,9 @@ Game = {
       Game.initLevel();
 
       if (Game.isAttractMode()) {
+        // TODO Remove this once finished debugging recorded path
+        RecordUtils.drawRecordedPath(Game.CAR_PLAYBACK_DATA);
+
         Game.destroyMainMenu();
         Game.disablePauseControl();
         Game.initPlayerPlaybackControl();
@@ -537,9 +546,6 @@ Game = {
     };
     Crafty.background('rgb(130,192,255)');
     Crafty.scene('Loading');
-
-    // Uncomment to show debug bar
-    //Crafty.debugBar.show();
   }
 
 }
@@ -559,7 +565,7 @@ RecordUtils = {
 
   stopRecording: function() {
     this.recording = false;
-    console.log("recordedData: [" + this._normalizeFrameValues(this.recordedData).join(",") + "]");
+    console.log("recordedData: [" + this._cleanData(this.recordedData).join(",") + "]");
   },
 
   recordValue: function(storedValue) {
@@ -570,21 +576,79 @@ RecordUtils = {
     this.recordedData.push(storedValue);
   },
 
-  _normalizeFrameValues: function(recordedData) {
+  recordPosition: function(playerX, playerY) {
+    if (!this.recording) {
+      return;
+    }
+    this.recordedData.push(playerX);
+    this.recordedData.push(playerY);
+
+    // Debug - draw recorded line
+    var i = this.recordedData.length - 4;
+    this._drawLine(this.recordedData[i],this.recordedData[i+1],this.recordedData[i+2],this.recordedData[i+3]);
+  },
+
+  drawRecordedPath: function(recordedData) {
+    var maxIndex = recordedData.length - 2;
+    for (var i=0; i<maxIndex; i=i+2) {
+      //this._drawLine(recordedData[i],recordedData[i+1],recordedData[i+2],recordedData[i+3]);
+      this._drawArrow(recordedData[i],recordedData[i+1],recordedData[i+2],recordedData[i+3]);
+      this._drawPoint(recordedData[i],recordedData[i+1]);
+    }
+  },
+
+  _drawLine: function(x1, y1, x2, y2) {
+    var path = Crafty.e('Path');
+    path.setPoints(x1, y1, x2, y2);
+  },
+
+  _drawArrow: function(x1, y1, x2, y2) {
+    var path = Crafty.e('Arrow');
+    path.setPoints(x1, y1, x2, y2);
+  },
+
+  _drawPoint: function(x, y) {
+    var point = Crafty.e('Point');
+    point.setPosition(x, y);
+  },
+
+  _cleanData: function(recordedData) {
     if (recordedData.length === 0) {
       return [];
     }
-    // adjust frame values to start from frame 100
-    var normalizedRecordedData = [];
-    normalizedRecordedData.push(recordedData[0]); // player x start pos
-    normalizedRecordedData.push(recordedData[1]); // player y start pos
-    var startFrame = recordedData[2];
-    for (var i=2; i<recordedData.length; i++) {
-      normalizedRecordedData.push(recordedData[i++] - startFrame + 100);
-      normalizedRecordedData.push(recordedData[i]);
+    var cleanedData = [];
+    var recordedPoint = new Crafty.math.Vector2D(recordedData[0], recordedData[1]);
+    var latestCleanPoint = recordedPoint.clone();
+    cleanedData.push(recordedPoint.x); // player x start pos
+    cleanedData.push(recordedPoint.y); // player y start pos
+    for (var i=2; i<recordedData.length; i=i+2) {
+      recordedPoint.setValues(recordedData[i], recordedData[i+1]);
+      if (latestCleanPoint.distance(recordedPoint) > 30) {
+        latestCleanPoint.setValues(recordedPoint);
+        cleanedData.push(recordedPoint.x);
+        cleanedData.push(recordedPoint.y);
+      }
     }
-    return normalizedRecordedData;
+    return cleanedData;
   }
+};
+
+VectorUtils = {
+  // Finds the normal point from p to a line segment defined by points a and b
+  getNormalPoint: function(p, a, b) {
+    var ap = p.clone().subtract(a);
+    var ab = b.clone().subtract(a);
+    ab.normalize();
+    ab.scale(ap.dotProduct(ab));
+    return a.clone().add(ab);
+  },
+
+  // Rotates the point about the given pivot point
+  rotate: function(point, pivot, angle) {
+    var translatedToPivot = point.clone().subtract(pivot);
+    return (new Matrix2D()).rotate(angle * (Math.PI / 180)).apply(translatedToPivot).add(pivot);
+  }
+
 };
 
 Debug = {
