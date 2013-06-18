@@ -1634,7 +1634,7 @@ Crafty.c('Car', {
   },
 
   _adjustDirectionIndexForSnapToDirection: function () {
-    if (this.falling || this.goingOneWay || this.spinning) {
+    if (this.falling || this.goingOneWay || this.spinning || this.seekMode) {
       return;
     }
     var timeTurning = Date.now() - this.turningStartTime;
@@ -1750,9 +1750,8 @@ Crafty.c('Car', {
     // The distance is the magnitude of the vector pointing from location to target.
     var distance = desiredVelocity.magnitude();
     desiredVelocity.normalize();
-    // If we are closer than 100 pixels...
-    // TODO adjust distance threshold for slowing car
-    if (distance < 50) {
+    // If we are closer than a certain number of pixels...
+    if (distance < Game.SEEK_DISTANCE_BEFORE_SLOW_DOWN) {
       // Set the magnitude according to how close we are.
       var m = (distance / 100) * (this.MAX_VELOCITY);
       desiredVelocity.scale(m);
@@ -1772,11 +1771,9 @@ Crafty.c('Car', {
     // Determine angle between current and new velocity
     var angleBetween = Crafty.math.radToDeg(this.velocity.angleBetween(newVelocity));
 
-    // TODO change seek angle
-    var SEEK_ANGLE = 30;
-    if (angleBetween > SEEK_ANGLE) {
+    if (angleBetween > Game.SEEK_ANGLE) {
       this.directionIncrement = +1;
-    } else if (angleBetween < -SEEK_ANGLE) {
+    } else if (angleBetween < -Game.SEEK_ANGLE) {
       this.directionIncrement = -1;
     } else {
       this.directionIncrement = 0;
@@ -1798,7 +1795,6 @@ Crafty.c('Car', {
     var position = new Crafty.math.Vector2D(this.x, this.y);
     var distanceVector = target.subtract(position);
     var distance = distanceVector.magnitude();
-    // TODO adjust target distance threshold which triggers target reached
     return (distance < Game.SEEK_TARGET_RADIUS);
   },
 
@@ -2297,9 +2293,12 @@ Crafty.c('PlayerPlaybackControl', {
       this.seekTarget.setPosition(target.x, target.y);
     }
     this.player.seek(target.x, target.y);
-    // TODO skipping 4 targets seems to improve the smoothness of the car's path (ie. less changing of direction)
-    this.playbackIndex += 10;
-    //this.playbackIndex += 2;
+    // TODO adjust frequency of targets
+    this.playbackIndex += 2;
+    //this.playbackIndex += 4;
+    //this.playbackIndex += 6;
+    //this.playbackIndex += 8;
+    //this.playbackIndex += 10;
   }
 });
 
