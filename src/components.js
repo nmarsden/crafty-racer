@@ -1207,6 +1207,16 @@ Crafty.c('OneWay', {
   }
 });
 
+// TODO Use this to have no exhaust
+//Crafty.c('Exhaust', {
+//  init: function() {
+//    this.requires('Actor');
+//  },
+//  updatePosition: function(carX, carY, carAngle) {},
+//  updateAngle: function(carAngle) {},
+//  stop: function() {}
+//});
+
 Crafty.c('Exhaust', {
 
   init: function() {
@@ -1731,17 +1741,41 @@ Crafty.c('Car', {
     this.movement.y = this.velocity.y;
   },
 
-  _handleSeeking: function() {
-    if (this._isSeekTargetReached()) {
-      console.log("Seek target reached!");
-      this.seekMode = false;
-      Crafty.trigger("SeekTargetReached");
-      return;
+  _adjustDirectionIncrementForSeekTarget: function() {
+    var target = new Crafty.math.Vector2D(this.seekTarget.x, this.seekTarget.y);
+    var position = new Crafty.math.Vector2D(this.x, this.y);
+    var desiredVelocity = target.subtract(position);
+    desiredVelocity.normalize();
+    // Calculating the desired velocity to target at max speed
+    desiredVelocity.scale(this.MAX_VELOCITY);
+
+    // Steering force = desired velocity - current velocity
+    var steeringForce = desiredVelocity.clone();
+    steeringForce.subtract(this.velocity);
+
+    // New velocity = current velocity + steering force
+    var newVelocity = this.velocity.clone();
+    newVelocity.add(steeringForce);
+
+    // Determine angle between current and new velocity
+    var angleBetween = Crafty.math.radToDeg(this.velocity.angleBetween(newVelocity));
+
+    // TODO change seek angle
+    var SEEK_ANGLE = 5;
+    if (angleBetween > SEEK_ANGLE) {
+      this.directionIncrement = +1;
+    } else if (angleBetween < -SEEK_ANGLE) {
+      this.directionIncrement = -1;
+    } else {
+      this.directionIncrement = 0;
     }
-    this._updateMovementToSeek(this.seekTarget.x, this.seekTarget.y);
-    this._updatePosition();
-    this._updateViewportWithPlayerInCenter();
-    this._triggerPlayerMoved();
+  },
+
+  _finishSeeking: function () {
+    // TODO remove logging
+    //console.log("Seek target reached!");
+    this.seekMode = false;
+    Crafty.trigger("SeekTargetReached");
   },
 
   _isSeekTargetReached: function() {
@@ -1749,7 +1783,7 @@ Crafty.c('Car', {
     var position = new Crafty.math.Vector2D(this.x, this.y);
     var distanceVector = target.subtract(position);
     var distance = distanceVector.magnitude();
-    return (distance < 20);
+    return (distance < 40);
   },
 
   _handleFalling: function() {
@@ -1870,8 +1904,11 @@ Crafty.c('Car', {
     }
 
     if (this.seekMode) {
-      this._handleSeeking();
-      return;
+      if (this._isSeekTargetReached()) {
+        this._finishSeeking();
+        return;
+      }
+      this._adjustDirectionIncrementForSeekTarget();
     }
 
     if (this.falling) {
@@ -1880,7 +1917,7 @@ Crafty.c('Car', {
     }
 
     if (RecordUtils.isRecording()) {
-      var RECORDING_RATE = 15;
+      var RECORDING_RATE = 10;
       var frameDelta = (this.lastRecordedFrame === 0) ? RECORDING_RATE : (Crafty.frame() - this.lastRecordedFrame);
       if (frameDelta === RECORDING_RATE) {
         RecordUtils.recordPosition(Math.round(this.x), Math.round(this.y));
@@ -1954,6 +1991,7 @@ Crafty.c('Car', {
   seek: function(targetX, targetY) {
     this.seekTarget.x = targetX;
     this.seekTarget.y = targetY;
+    this.engineOn = true;
     this.seekMode = true;
   },
 
@@ -2191,6 +2229,7 @@ Crafty.c('PlayerPlaybackControl', {
     this.recordedData = [];
     this.player = null;
     this.seekTarget = null;
+    this.debugMode = false;
 
     this.bind("SeekTargetReached", this._seekTargetReached);
   },
@@ -2209,9 +2248,11 @@ Crafty.c('PlayerPlaybackControl', {
     this.player = player;
     this.player.setPosition(recordedData[0], recordedData[1]);
 
-    this.seekTarget = Crafty.e('Point');
-    this.seekTarget.setPosition(0, 0);
-    this.seekTarget.setCircleColour('blue');
+    if (this.debugMode) {
+      this.seekTarget = Crafty.e('Point');
+      this.seekTarget.setPosition(0, 0);
+      this.seekTarget.setCircleColour('blue');
+    }
 
     this.playbackIndex = 2;
     this.recordedData = recordedData;
@@ -2222,8 +2263,10 @@ Crafty.c('PlayerPlaybackControl', {
   },
 
   _seekTargetReached: function() {
-    if (this.playbackIndex === this.recordedData.length) {
-      this.seekTarget.setPosition(0, 0);
+    if (this.playbackIndex >= this.recordedData.length) {
+      if (this.debugMode) {
+        this.seekTarget.setPosition(0, 0);
+      }
       Crafty.trigger("PlaybackEnded");
       return;
     }
@@ -2232,8 +2275,12 @@ Crafty.c('PlayerPlaybackControl', {
 
   _setupNextSeekTarget: function() {
     var target = {x: this.recordedData[this.playbackIndex], y: this.recordedData[this.playbackIndex+1]};
-    this.seekTarget.setPosition(target.x, target.y);
+    if (this.debugMode) {
+      this.seekTarget.setPosition(target.x, target.y);
+    }
     this.player.seek(target.x, target.y);
+    // TODO skipping 4 targets seems to improve the smoothness of the car's path (ie. less changing of direction)
+    //this.playbackIndex += 10;
     this.playbackIndex += 2;
   }
 });

@@ -29,12 +29,7 @@ Game = {
   initialPlayerPosition:null,
   attractMode:false,
 
-  CAR_PLAYBACK_DATA: [
-    15,6063,
-    61+200,6040,
-    165+200,5988,
-    299,5921,
-    433,5854],
+  CAR_PLAYBACK_DATA: [15,6063,55,5999,60,5919,62,5819,63,5719,63,5619,63,5519,62,5419,30,5326,-42,5257,-114,5189,-142,5094,-109,5001,-36,4934,43,4872,88,4785,66,4690,-4,4619,-89,4566,-177,4518,-265,4472,-355,4427,-444,4382,-534,4338,-623,4293,-713,4248,-802,4204,-892,4159,-981,4115,-1071,4070,-1158,4022,-1216,3942,-1207,3845,-1141,3770,-1058,3715,-968,3671,-869,3662,-773,3687,-681,3725,-590,3768,-501,3812,-411,3857,-322,3902,-232,3946,-140,3985,-41,3995,55,3969,147,3930,238,3887,327,3843,417,3799,506,3754,596,3709,685,3665,775,3620,866,3579,964,3565,1062,3587,1154,3625,1245,3667,1334,3711,1424,3756,1514,3800,1602,3846,1665,3921,1654,4012,1586,4083,1502,4137,1414,4185,1322,4223,1223,4227,1139,4176],
 
   width:function () {
     return this.map_grid.width * this.map_grid.tile.width;
@@ -474,7 +469,7 @@ Game = {
 
       if (Game.isAttractMode()) {
         // TODO Remove this once finished debugging recorded path
-        RecordUtils.drawRecordedPath(Game.CAR_PLAYBACK_DATA);
+//        RecordUtils.drawRecordedPath(Game.CAR_PLAYBACK_DATA);
 
         Game.destroyMainMenu();
         Game.disablePauseControl();
@@ -583,9 +578,9 @@ RecordUtils = {
     this.recordedData.push(playerX);
     this.recordedData.push(playerY);
 
-    // Debug - draw recorded line
-    var i = this.recordedData.length - 4;
-    this._drawLine(this.recordedData[i],this.recordedData[i+1],this.recordedData[i+2],this.recordedData[i+3]);
+    // TODO Debug - draw recorded line
+//    var i = this.recordedData.length - 4;
+//    this._drawLine(this.recordedData[i],this.recordedData[i+1],this.recordedData[i+2],this.recordedData[i+3]);
   },
 
   drawRecordedPath: function(recordedData) {
