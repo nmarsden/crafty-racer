@@ -1387,6 +1387,7 @@ Crafty.c('Car', {
     this.lastRecordedFrame = 0;
     this.seekTarget = {x:0, y:0};
     this.seekMode = false;
+    this.seekEnginePower = this.engineMagnitude;
 
     this.RECORDABLE_METHODS =  [
       this._upArrowPressed,
@@ -1745,9 +1746,20 @@ Crafty.c('Car', {
     var target = new Crafty.math.Vector2D(this.seekTarget.x, this.seekTarget.y);
     var position = new Crafty.math.Vector2D(this.x, this.y);
     var desiredVelocity = target.subtract(position);
+
+    // The distance is the magnitude of the vector pointing from location to target.
+    var distance = desiredVelocity.magnitude();
     desiredVelocity.normalize();
-    // Calculating the desired velocity to target at max speed
-    desiredVelocity.scale(this.MAX_VELOCITY);
+    // If we are closer than 100 pixels...
+    // TODO adjust distance threshold for slowing car
+    if (distance < 50) {
+      // Set the magnitude according to how close we are.
+      var m = (distance / 100) * (this.MAX_VELOCITY);
+      desiredVelocity.scale(m);
+    } else {
+      // Otherwise, proceed at maximum speed.
+      desiredVelocity.scale(this.MAX_VELOCITY);
+    }
 
     // Steering force = desired velocity - current velocity
     var steeringForce = desiredVelocity.clone();
@@ -1761,7 +1773,7 @@ Crafty.c('Car', {
     var angleBetween = Crafty.math.radToDeg(this.velocity.angleBetween(newVelocity));
 
     // TODO change seek angle
-    var SEEK_ANGLE = 5;
+    var SEEK_ANGLE = 30;
     if (angleBetween > SEEK_ANGLE) {
       this.directionIncrement = +1;
     } else if (angleBetween < -SEEK_ANGLE) {
@@ -1769,6 +1781,9 @@ Crafty.c('Car', {
     } else {
       this.directionIncrement = 0;
     }
+
+    // Adjust seek engine power according to distance from target
+    this.seekEnginePower = desiredVelocity.magnitude();
   },
 
   _finishSeeking: function () {
@@ -1783,7 +1798,8 @@ Crafty.c('Car', {
     var position = new Crafty.math.Vector2D(this.x, this.y);
     var distanceVector = target.subtract(position);
     var distance = distanceVector.magnitude();
-    return (distance < 40);
+    // TODO adjust target distance threshold which triggers target reached
+    return (distance < Game.SEEK_TARGET_RADIUS);
   },
 
   _handleFalling: function() {
@@ -1827,6 +1843,7 @@ Crafty.c('Car', {
 
     var enginePower = this.goingOneWay ? (this.reversing ? -this.engineMagnitude : this.engineMagnitude) : this.enginePower;
     enginePower = this.spinning ? this.spinningEnginePower : enginePower;
+    enginePower = this.seekMode ? this.seekEnginePower : enginePower;
 
     var directionIndex = this.spinning ? this.spinningDirectionIndex : this.directionIndex;
 
@@ -2251,6 +2268,7 @@ Crafty.c('PlayerPlaybackControl', {
     if (this.debugMode) {
       this.seekTarget = Crafty.e('Point');
       this.seekTarget.setPosition(0, 0);
+      this.seekTarget.setRadius(Game.SEEK_TARGET_RADIUS);
       this.seekTarget.setCircleColour('blue');
     }
 
@@ -2280,8 +2298,8 @@ Crafty.c('PlayerPlaybackControl', {
     }
     this.player.seek(target.x, target.y);
     // TODO skipping 4 targets seems to improve the smoothness of the car's path (ie. less changing of direction)
-    //this.playbackIndex += 10;
-    this.playbackIndex += 2;
+    this.playbackIndex += 10;
+    //this.playbackIndex += 2;
   }
 });
 
@@ -2427,6 +2445,10 @@ Crafty.c('Point', {
 
   setCircleColour: function(circleColour) {
       this.circleColour = circleColour;
+  },
+
+  setRadius: function(radius) {
+    this.radius = radius;
   },
 
   _drawHandler : function (e) {
