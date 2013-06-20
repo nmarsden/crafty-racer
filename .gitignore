@@ -1,1 +1,4 @@
 .idea/
+build/
+node_modules/
+src/.allow-devtools-edit

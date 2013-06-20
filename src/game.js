@@ -28,6 +28,7 @@ Game = {
   waypoints:{},
   initialPlayerPosition:null,
   attractMode:false,
+  musicPlaying:'',
 
   // TODO tweek seek constants
   SEEK_TARGET_RADIUS: 30,
@@ -63,9 +64,10 @@ Game = {
   },
 
   playMusic:function (music) {
-    Game.musicPlaying = music;
     if (Game.options.music) {
-      Crafty.audio.play(Game.musicPlaying, -1, 0.7);
+      Game.stopSound(Game.musicPlaying);
+      Game.musicPlaying = music;
+      Game.playSound(music, -1, 0.5);
     }
   },
 
@@ -86,18 +88,27 @@ Game = {
     }
   },
 
-  playSoundEffect:function (effectName, repeat, volume) {
+  playSoundEffect: function (effectName, repeat, volume, startTime) {
     if (Game.options.sfx) {
-      Game.stopAllSoundsExcept(effectName, Game.musicPlaying, "woop", "low_time", "disappear");
-      Crafty.audio.play(effectName, repeat, volume);
+//      Game.stopAllSoundsExcept(effectName, Game.musicPlaying, "woop", "low_time", "disappear");
+      Game.playSound(effectName, repeat, volume, startTime);
     }
   },
+
+  stopSound:function (sound) {
+    Crafty.audio.stop(sound);
+  },
+
+  playSound: function (soundName, repeat, volume, startTime) {
+    Crafty.audio.play(soundName, repeat, volume, startTime);
+  },
+
 
   stopAllSoundsExcept:function () {
     var excluded = Array.prototype.slice.call(arguments);
     for (var sound in Crafty.audio.sounds) {
       if (excluded.indexOf(sound) == -1) {
-        Crafty.audio.stop(sound);
+        Game.stopSound(sound);
       }
     }
   },

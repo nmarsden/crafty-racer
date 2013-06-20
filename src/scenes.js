@@ -77,9 +77,11 @@ Crafty.scene('Loading', function(){
     .attr({ x: Crafty.viewport.width/2 - Crafty.viewport.x - 160, y: Crafty.viewport.height/2 - Crafty.viewport.y + 60});
 
   Crafty.load([
-    'assets/audio/engine_idle.ogg',
-    'assets/audio/engine_rev.ogg',
-    'assets/audio/wheel_spin.ogg',
+    'assets/audio/engine_idle.mp3',
+    'assets/audio/engine_speed_up.mp3',
+    'assets/audio/engine_slow_down.mp3',
+    'assets/audio/engine_top_speed.mp3',
+    'assets/audio/wheel_spin.mp3',
     'assets/audio/woop.ogg',
     'assets/audio/car_horn.ogg',
     'assets/audio/menu_nav.mp3',
@@ -156,9 +158,11 @@ Crafty.scene('Loading', function(){
 
     // Define our sounds for later use
     Crafty.audio.add({
-      engine_idle:        ['assets/audio/engine_idle.ogg'],
-      engine_rev:         ['assets/audio/engine_rev.ogg'],
-      wheel_spin:         ['assets/audio/wheel_spin.ogg'],
+      engine_idle:        ['assets/audio/engine_idle.mp3'],
+      engine_speed_up:    ['assets/audio/engine_speed_up.mp3'],
+      engine_slow_down:   ['assets/audio/engine_slow_down.mp3'],
+      engine_top_speed:   ['assets/audio/engine_top_speed.mp3'],
+      wheel_spin:         ['assets/audio/wheel_spin.mp3'],
       woop:               ['assets/audio/woop.ogg'],
       car_horn:           ['assets/audio/car_horn.ogg'],
       low_time:           ['assets/audio/low_time_warning.mp3'],

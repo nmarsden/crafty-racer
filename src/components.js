@@ -1388,6 +1388,8 @@ Crafty.c('Car', {
     this.seekTarget = {x:0, y:0};
     this.seekMode = false;
     this.seekEnginePower = this.engineMagnitude;
+    this.playingSounds = [];
+    this.revStartTime = 0;
 
     this.RECORDABLE_METHODS =  [
       this._upArrowPressed,
@@ -1655,16 +1657,52 @@ Crafty.c('Car', {
   },
 
   _adjustEnginePowerAndChangeSoundEffect: function () {
+    this._playSoundEffect('engine_idle', -1, 1.0);
+
     if (this.engineOn) {
       this.enginePower = this.reversing ? -this.engineMagnitude : this.engineMagnitude;
-      if (this.directionIncrement == 0) {
-        Game.playSoundEffect('engine_rev', -1, 1.0);
-      } else {
-        Game.playSoundEffect('wheel_spin', -1, 1.0);
+      this._stopSoundEffect('engine_slow_down');
+
+      if (!this.playingSounds['engine_speed_up'].playing) {
+        this.revStartTime = Date.now();
       }
+      this._playSoundEffect('engine_speed_up', 1, 1.0);
+
+      // play top speed after 1.5 secs of revving time (aka. speed up time)
+      var revvingTime = Date.now() - this.revStartTime;
+      if (revvingTime > 1500) {
+        this._playSoundEffect('engine_top_speed', -1, 0.7);
+      }
+
+      if (this.directionIncrement == 0) {
+        this._stopSoundEffect('wheel_spin');
+      } else {
+        this._playSoundEffect('wheel_spin', -1, 0.6);
+      }
+
     } else {
       this.enginePower = 0.0;
-      Game.playSoundEffect('engine_idle', -1, 0.3);
+      this._stopSoundEffect('wheel_spin');
+
+      if (this.playingSounds['engine_speed_up'].playing) {
+        this._playSoundEffect('engine_slow_down', 1, 1.0);
+      }
+      this._stopSoundEffect('engine_top_speed');
+      this._stopSoundEffect('engine_speed_up');
+    }
+  },
+
+  _playSoundEffect: function (soundName, repeat, volume, startTime) {
+    if (!this.playingSounds[soundName].playing) {
+      this.playingSounds[soundName].playing = true;
+      Game.playSoundEffect(soundName, repeat, volume, startTime);
+    }
+  },
+
+  _stopSoundEffect:function (sound) {
+    if (this.playingSounds[sound].playing) {
+      this.playingSounds[sound].playing = false;
+      Game.stopSound(sound);
     }
   },
 
@@ -1981,6 +2019,14 @@ Crafty.c('Car', {
     this.exhaust.updatePosition(this.x, this.y, this.DIRECTIONS[this.directionIndex].angle);
   },
 
+  _initSounds: function() {
+    this.playingSounds["engine_idle"] = { playing:false };
+    this.playingSounds["engine_speed_up"] = { playing:false };
+    this.playingSounds["engine_top_speed"] = { playing:false };
+    this.playingSounds["engine_slow_down"] = { playing:false };
+    this.playingSounds["wheel_spin"] = { playing:false };
+  },
+
   setPosition: function(x, y) {
     this.falling = false;
     this.spinning = false;
@@ -1996,6 +2042,7 @@ Crafty.c('Car', {
     this.x = x;
     this.y = y;
     this.z = Math.floor(y);
+    this._initSounds();
     this._updateViewportWithPlayerInCenter();
     this._triggerPlayerMoved();
     // set exhaust
@@ -2063,6 +2110,10 @@ Crafty.c('Car', {
       totalOverlap += Math.abs(hd.overlap);
     });
     if (totalOverlap > 25) {
+      // stop all car sounds except slow down & idle
+      this._stopSoundEffect('wheel_spin');
+      this._stopSoundEffect('engine_speed_up');
+      this._stopSoundEffect('engine_top_speed');
       // play car horn sound
       Game.playSoundEffect('car_horn', 1, 1.0);
       // show falling text

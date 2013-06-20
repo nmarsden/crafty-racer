@@ -36,8 +36,6 @@ isometric cubes - http://opengameart.org/content/isometric-cubes-set-01
 keyboard keys - http://www.wpclipart.com/computer/keyboard_keys/
 
 Sound FX
-engine_idle:        vwbuggy.wav - http://autospeak.com/grpsnda/vwbuggy.wav
-engine_rev:         auto_car_rev_up_squeal_away.mp3 - http://www.freesfx.co.uk/download/?type=mp3&id=804
 wheel_spin:         car_skidding.mp3 - http://www.freesfx.co.uk/download/?type=mp3&id=810
 woop:               woopwoop.mp3 - http://soundbible.com/1377-Woop-Woop.html
 car_horn:           179867__toiletrolltube__car-horn-1-3-11.wav - http://www.freesound.org/people/toiletrolltube/sounds/179867/
