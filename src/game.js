@@ -324,7 +324,15 @@ Game = {
           if (e.button != 0) {
             return;
           }
-          //console.log(e.button);
+          console.log("destroyed entity: ",
+            "x=", this.x, "y=", this.y,
+            "clientX=", e.clientX, "clientY=", e.clientY,
+            "realX=", e.realX, "realY=", e.realY,
+            "viewportX=", Crafty.viewport.x,
+            "viewportY=", Crafty.viewport.y,
+            "viewportWidth=", Crafty.viewport.width,
+            "viewportHeight=", Crafty.viewport.height
+          );
           this.destroy();
         })
     };
