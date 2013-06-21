@@ -324,7 +324,7 @@ Game = {
           if (e.button != 0) {
             return;
           }
-          console.log(e.button);
+          //console.log(e.button);
           this.destroy();
         })
     };
@@ -487,6 +487,7 @@ Game = {
     this.editMode = true;
     Game.initMouseScrolling();
     Game.selectLevel(1); // Level 2
+    Game.editModeControl = Crafty.e('EditModeControl');
   },
 
   initMouseScrolling: function() {

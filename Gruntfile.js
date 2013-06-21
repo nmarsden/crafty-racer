@@ -17,6 +17,7 @@ module.exports = function(grunt) {
           'src/levels.js',
           'src/game.js',
           'src/components.js',
+          'src/editor.js',
           'src/scenes.js'
         ],
         dest: 'build/<%= pkg.name %>.js'
