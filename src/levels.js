@@ -76,7 +76,7 @@ var LEVELS = [
 
         },
         "spacing":0,
-        "tileheight":64,
+        "tileheight":128,
         "tilewidth":128
       },
       {
@@ -91,7 +91,7 @@ var LEVELS = [
 
         },
         "spacing":0,
-        "tileheight":64,
+        "tileheight":128,
         "tilewidth":128
       },
       {
@@ -264,7 +264,7 @@ var LEVELS = [
 
         },
         "spacing":0,
-        "tileheight":64,
+        "tileheight":128,
         "tilewidth":128
       },
       {
@@ -279,7 +279,7 @@ var LEVELS = [
 
         },
         "spacing":0,
-        "tileheight":64,
+        "tileheight":128,
         "tilewidth":128
       },
       {
@@ -452,7 +452,7 @@ var LEVELS = [
 
         },
         "spacing":0,
-        "tileheight":64,
+        "tileheight":128,
         "tilewidth":128
       },
       {
@@ -467,7 +467,7 @@ var LEVELS = [
 
         },
         "spacing":0,
-        "tileheight":64,
+        "tileheight":128,
         "tilewidth":128
       },
       {
@@ -639,7 +639,7 @@ var LEVELS = [
 
         },
         "spacing":0,
-        "tileheight":64,
+        "tileheight":128,
         "tilewidth":128
       },
       {
@@ -654,7 +654,7 @@ var LEVELS = [
 
         },
         "spacing":0,
-        "tileheight":64,
+        "tileheight":128,
         "tilewidth":128
       },
       {
@@ -757,7 +757,7 @@ var LEVELS = [
 
         },
         "spacing":0,
-        "tileheight":64,
+        "tileheight":128,
         "tilewidth":128
       },
       {
@@ -787,7 +787,7 @@ var LEVELS = [
 
         },
         "spacing":0,
-        "tileheight":64,
+        "tileheight":128,
         "tilewidth":128
       },
       {
@@ -802,7 +802,7 @@ var LEVELS = [
 
         },
         "spacing":0,
-        "tileheight":64,
+        "tileheight":128,
         "tilewidth":128
       },
       {

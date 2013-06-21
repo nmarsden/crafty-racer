@@ -28,6 +28,7 @@ Game = {
   waypoints:{},
   initialPlayerPosition:null,
   attractMode:false,
+  editMode:false,
   musicPlaying:'',
 
   // TODO tweek seek constants
@@ -69,6 +70,11 @@ Game = {
       Game.musicPlaying = music;
       Game.playSound(music, -1, 0.5);
     }
+  },
+
+  stopAllMusic:function () {
+    Game.stopSound(Game.musicPlaying);
+    Game.musicPlaying = '';
   },
 
   unpauseMusic:function () {
@@ -308,6 +314,21 @@ Game = {
       }
     };
 
+    var setupEditing = function(entity) {
+      if (!Game.isEditMode()) {
+        return;
+      }
+      entity.addComponent('Mouse');
+      entity.areaMap([64,0],[128,32],[128,96],[64,128],[0,96],[0,32])
+        .bind("Click", function(e) {
+          if (e.button != 0) {
+            return;
+          }
+          console.log(e.button);
+          this.destroy();
+        })
+    };
+
     Crafty.e("2D, Canvas, TiledMapBuilder")
       .setName("TiledMapBuilder")
       .setMapDataSource( LEVELS[Game.levelIndex] )
@@ -319,8 +340,7 @@ Game = {
         for (obstacle = 0; obstacle < entities.length; obstacle++){
           entity = entities[obstacle];
 
-          //Set z-index for correct view: front, back
-          entity.z = Math.floor(entity._y - (entity._h*2));
+          entity.destroy();
         }
 
         // Set properties of entities on the 'Ground_Tops' layer
@@ -329,7 +349,7 @@ Game = {
           entity = entities[obstacle];
 
           //Set z-index for correct view: front, back
-          entity.z = Math.floor(entity._y - entity._h - 10);
+          entity.z = Math.floor(entity._y - 64 - 10);
 
           if (entity.__image === "assets/images/ice_block.png") {
             // Ice Top
@@ -349,7 +369,9 @@ Game = {
             entity.addComponent("NormalGround");
           }
           entity.addComponent("Collision")
-          entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
+          entity.collision(new Crafty.polygon([0, 32], [64, 0], [128, 32], [64, 64]));
+
+          setupEditing(entity);
         }
 
         // Set properties of entities on the 'Solid_Sides' layer
@@ -360,17 +382,19 @@ Game = {
           //Set z-index for correct view: front, back
           entity.z = Math.floor(entity._y );
 
-          // Set collision settings
-          entity.addComponent("Collision")
-          entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
-
           // Hide collision marker
           if (entity.__image === "assets/images/Collision_Marker.png") {
+            // Set collision settings
+            entity.addComponent("Collision");
+            entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
+
             entity.addComponent("Hole");
             entity._visible = false;
           } else {
-            entity.addComponent("Solid");
+            entity.destroy();
           }
+
+          setupEditing(entity);
         }
 
         // Set properties of entities on the 'Solid_Tops' layer
@@ -379,7 +403,17 @@ Game = {
           var entity = entities[obstacle];
 
           //Set z-index for correct view: front, back
-          entity.z = Math.floor(entity._y + entity._h);
+          entity.z = Math.floor(entity._y + 64);
+
+          entity.addComponent("Solid");
+
+          // Set collision settings
+          entity.addComponent("Collision");
+          var polygon = new Crafty.polygon([0, 32], [64, 0], [128, 32], [64, 64]);
+          polygon.shift(0,64);
+          entity.collision(polygon);
+
+          setupEditing(entity);
         }
 
         // Set properties of entities on the 'Objects' layer
@@ -402,7 +436,7 @@ Game = {
 
           // Setup one way entities
           if (entity.__image === "assets/images/one_way_marker.png") {
-            entity.z = Math.floor(entity._y - entity._h - 10);
+            entity.z = Math.floor(entity._y - 64 - 10);
             entity.addComponent('OneWay');
             entity.setOneWayType(getOneWayType(entity));
             entity.addComponent("Collision")
@@ -411,7 +445,7 @@ Game = {
 
           // Setup Oil entities
           if (entity.__image === "assets/images/oil_spill.png") {
-            entity.z = Math.floor(entity._y - entity._h - 10);
+            entity.z = Math.floor(entity._y - 64 - 10);
             entity.addComponent('Oil');
             entity.addComponent("Collision")
             entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
@@ -443,6 +477,39 @@ Game = {
     Game.retryLevel();
     Game.disablePauseControl();
     Game.startPlayerPlayback();
+  },
+
+  isEditMode: function() {
+    return this.editMode;
+  },
+
+  startEditMode: function() {
+    this.editMode = true;
+    Game.initMouseScrolling();
+    Game.selectLevel(1); // Level 2
+  },
+
+  initMouseScrolling: function() {
+    // Configure holding middle-mouse button to pan around
+    Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function(e) {
+      if(e.button != 1) {
+        return;
+      }
+      var base = {x: e.clientX, y: e.clientY};
+
+      function scroll(e) {
+        var dx = base.x - e.clientX,
+          dy = base.y - e.clientY;
+        base = {x: e.clientX, y: e.clientY};
+        Crafty.viewport.x -= dx;
+        Crafty.viewport.y -= dy;
+      };
+
+      Crafty.addEvent(this, Crafty.stage.elem, "mousemove", scroll);
+      Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function() {
+        Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", scroll);
+      });
+    });
   },
 
   initPlayerPlaybackControl: function() {
@@ -484,7 +551,9 @@ Game = {
 
       Game.loadLevel();
 
-      Game.initLevel();
+      if (!Game.isEditMode()) {
+        Game.initLevel();
+      }
 
       if (Game.isAttractMode()) {
         if (Game.SEEK_DEBUG_MODE_ON) {
@@ -502,7 +571,11 @@ Game = {
       //this.showFps = Crafty.e('ShowFPS');
       //this.showFps.setName("ShowFPS");
 
-      Game.playMusic('level_music');
+      if (Game.isEditMode()) {
+        Game.stopAllMusic();
+      } else {
+        Game.playMusic('level_music');
+      }
       Debug.logEntitiesAndHandlers("startLevel: after loadLevel");
     }
 

@@ -870,6 +870,10 @@ Crafty.c('Menu', {
         Game.startAttractMode();
       }
     }
+    else if (this.isDown('F4')) {
+      this.hideMenu();
+      Game.startEditMode();
+    }
 
   }
 
