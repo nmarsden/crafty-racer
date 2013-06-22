@@ -9,6 +9,59 @@ Editor = {
 
   isScaleZoomLevelPrevented: function(scale) {
     return (scale > 1 && Editor.zoomLevel >= 1) || (scale < 1 && Editor.zoomLevel <= 0.0625);
+  },
+
+  initEditor: function() {
+    Editor.setupMouseEvents();
+    Crafty.e('ScaleIndicator');
+    Crafty.e('EditModeControl');
+  },
+
+  setupMouseEvents: function() {
+    Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function(e) {
+      if(e.button == 1) {
+        // Middle-mouse button down begins scrolling on mouse move
+        Editor.scrollOnMouseMove(e);
+      }
+    });
+  },
+
+  scrollOnMouseMove: function(e) {
+    var base = {x: e.clientX, y: e.clientY};
+
+    function scroll(e) {
+      var dx = base.x - e.clientX,
+        dy = base.y - e.clientY;
+      base = {x: e.clientX, y: e.clientY};
+      Crafty.viewport.x -= dx;
+      Crafty.viewport.y -= dy;
+      Crafty.trigger("ViewportChanged");
+    };
+
+    Crafty.addEvent(this, Crafty.stage.elem, "mousemove", scroll);
+    Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function() {
+      Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", scroll);
+    });
+  },
+
+  setupEditing: function(entity) {
+    entity.addComponent('Mouse');
+    entity.areaMap([64,0],[128,32],[128,96],[64,128],[0,96],[0,32])
+      .bind("Click", function(e) {
+        if (e.button != 0) {
+          return;
+        }
+        console.log("destroyed entity: ",
+          "x=", this.x, "y=", this.y,
+          "clientX=", e.clientX, "clientY=", e.clientY,
+          "realX=", e.realX, "realY=", e.realY,
+          "viewportX=", Crafty.viewport.x,
+          "viewportY=", Crafty.viewport.y,
+          "viewportWidth=", Crafty.viewport.width,
+          "viewportHeight=", Crafty.viewport.height
+        );
+        this.destroy();
+      })
   }
 };
 
@@ -16,15 +69,7 @@ Crafty.c('EditModeControl', {
   init: function() {
     this.requires('2D, Keyboard');
 
-    this._createScaleIndicator();
-
     this.bind('KeyDown', this._handleKeyDown);
-  },
-
-  _createScaleIndicator: function() {
-    var scaleIndicator = Crafty.e('ScaleIndicator');
-    scaleIndicator.setName('ScaleIndicator');
-    return scaleIndicator;
   },
 
   _handleKeyDown: function(e) {
@@ -42,19 +87,19 @@ Crafty.c('EditModeControl', {
       Crafty.trigger("ViewportChanged");
 
     } else if (this.isDown('UP_ARROW')) {
-      Crafty.viewport.y = Crafty.viewport.y - 64;
-      Crafty.trigger("ViewportChanged");
-
-    } else if (this.isDown('DOWN_ARROW')) {
       Crafty.viewport.y = Crafty.viewport.y + 64;
       Crafty.trigger("ViewportChanged");
 
+    } else if (this.isDown('DOWN_ARROW')) {
+      Crafty.viewport.y = Crafty.viewport.y - 64;
+      Crafty.trigger("ViewportChanged");
+
     } else if (this.isDown('LEFT_ARROW')) {
-      Crafty.viewport.x = Crafty.viewport.x - 64;
+      Crafty.viewport.x = Crafty.viewport.x + 64;
       Crafty.trigger("ViewportChanged");
 
     } else if (this.isDown('RIGHT_ARROW')) {
-      Crafty.viewport.x = Crafty.viewport.x + 64;
+      Crafty.viewport.x = Crafty.viewport.x - 64;
       Crafty.trigger("ViewportChanged");
     }
   },

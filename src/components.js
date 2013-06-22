@@ -21,6 +21,17 @@ Crafty.c('FlashingText', {
   }
 });
 
+Crafty.c('LoadingText', {
+  init: function() {
+    this.requires('FlashingText');
+    this.text('LOADING')
+      .textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
+      .textColor('#0061FF')
+      .attr({ w: 320 })
+      .attr({ x: Crafty.viewport.width/2 - Crafty.viewport.x - 160, y: Crafty.viewport.height/2 - Crafty.viewport.y + 60});
+  }
+});
+
 Crafty.c('TipText', {
   init: function() {
     this.requires('OutlineText');

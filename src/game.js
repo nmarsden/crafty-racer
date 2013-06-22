@@ -314,29 +314,6 @@ Game = {
       }
     };
 
-    var setupEditing = function(entity) {
-      if (!Game.isEditMode()) {
-        return;
-      }
-      entity.addComponent('Mouse');
-      entity.areaMap([64,0],[128,32],[128,96],[64,128],[0,96],[0,32])
-        .bind("Click", function(e) {
-          if (e.button != 0) {
-            return;
-          }
-          console.log("destroyed entity: ",
-            "x=", this.x, "y=", this.y,
-            "clientX=", e.clientX, "clientY=", e.clientY,
-            "realX=", e.realX, "realY=", e.realY,
-            "viewportX=", Crafty.viewport.x,
-            "viewportY=", Crafty.viewport.y,
-            "viewportWidth=", Crafty.viewport.width,
-            "viewportHeight=", Crafty.viewport.height
-          );
-          this.destroy();
-        })
-    };
-
     Crafty.e("2D, Canvas, TiledMapBuilder")
       .setName("TiledMapBuilder")
       .setMapDataSource( LEVELS[Game.levelIndex] )
@@ -378,8 +355,6 @@ Game = {
           }
           entity.addComponent("Collision")
           entity.collision(new Crafty.polygon([0, 32], [64, 0], [128, 32], [64, 64]));
-
-          setupEditing(entity);
         }
 
         // Set properties of entities on the 'Solid_Sides' layer
@@ -401,8 +376,6 @@ Game = {
           } else {
             entity.destroy();
           }
-
-          setupEditing(entity);
         }
 
         // Set properties of entities on the 'Solid_Tops' layer
@@ -420,8 +393,6 @@ Game = {
           var polygon = new Crafty.polygon([0, 32], [64, 0], [128, 32], [64, 64]);
           polygon.shift(0,64);
           entity.collision(polygon);
-
-          setupEditing(entity);
         }
 
         // Set properties of entities on the 'Objects' layer
@@ -487,42 +458,23 @@ Game = {
     Game.startPlayerPlayback();
   },
 
-  isEditMode: function() {
-    return this.editMode;
-  },
-
   startEditMode: function() {
     this.editMode = true;
-    Game.initMouseScrolling();
-    Game.selectLevel(1); // Level 2
-  },
+    this.levelIndex = 1; // Level 2
 
-  initEditModeControl: function() {
-    Game.editModeControl = Crafty.e('EditModeControl');
-  },
+    Game.destroyAll2DEntities();
+    Crafty.viewport.scrollXY(0, 0);
+    var loadingText = Crafty.e('LoadingText');
 
-  initMouseScrolling: function() {
-    // Configure holding middle-mouse button to pan around
-    Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function(e) {
-      if(e.button != 1) {
-        return;
-      }
-      var base = {x: e.clientX, y: e.clientY};
+    var startLevelLoading = function() {
+      Game.loadLevel();
+      loadingText.destroy();
+      Game.stopAllMusic();
+      Editor.initEditor();
+    }
 
-      function scroll(e) {
-        var dx = base.x - e.clientX,
-          dy = base.y - e.clientY;
-        base = {x: e.clientX, y: e.clientY};
-        Crafty.viewport.x -= dx;
-        Crafty.viewport.y -= dy;
-        Crafty.trigger("ViewportChanged");
-      };
-
-      Crafty.addEvent(this, Crafty.stage.elem, "mousemove", scroll);
-      Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function() {
-        Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", scroll);
-      });
-    });
+    // Introduce delay to ensure LOADING text is rendered before startLevelLoading
+    setTimeout(startLevelLoading, 100);
   },
 
   initPlayerPlaybackControl: function() {
@@ -539,34 +491,14 @@ Game = {
 
     Debug.logEntitiesAndHandlers("startLevel: after destroyAll2DEntities");
 
-    Crafty.viewport.scroll('_x', 0);
-    Crafty.viewport.scroll('_y', 0);
+    Crafty.viewport.scrollXY(0, 0);
 
-    var loadingText = Crafty.e('FlashingText')
-      .setName("LoadingText")
-      .text('LOADING')
-      .textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
-      .textColor('#0061FF')
-      .attr({ w: 320 })
-      .attr({ x: Crafty.viewport.width/2 - Crafty.viewport.x - 160, y: Crafty.viewport.height/2 - Crafty.viewport.y + 60});
+    var loadingText = Crafty.e('LoadingText');
 
-    var startLevelLoading = false;
-
-    var enableStartLevelLoading = function() {
-      startLevelLoading = true;
-    };
-
-    var handleEnterFrame = function() {
-      if (!startLevelLoading) {
-        return;
-      }
-      startLevelLoading = false;
+    var startLevelLoading = function() {
 
       Game.loadLevel();
-
-      if (!Game.isEditMode()) {
-        Game.initLevel();
-      }
+      Game.initLevel();
 
       if (Game.isAttractMode()) {
         if (Game.SEEK_DEBUG_MODE_ON) {
@@ -584,19 +516,13 @@ Game = {
       //this.showFps = Crafty.e('ShowFPS');
       //this.showFps.setName("ShowFPS");
 
-      if (Game.isEditMode()) {
-        Game.stopAllMusic();
-        Game.initEditModeControl();
-      } else {
-        Game.playMusic('level_music');
-      }
+      Game.playMusic('level_music');
+
       Debug.logEntitiesAndHandlers("startLevel: after loadLevel");
     }
 
-    Crafty.bind("EnterFrame", handleEnterFrame);
-
     // Introduce delay to ensure LOADING text is rendered before startLevelLoading
-    setTimeout(enableStartLevelLoading, 100);
+    setTimeout(startLevelLoading, 100);
   },
 
   pauseGame: function() {

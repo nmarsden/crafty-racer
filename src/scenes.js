@@ -68,13 +68,7 @@ Crafty.scene('Loading', function(){
   Crafty.viewport.scroll('_x', 0);
   Crafty.viewport.scroll('_y', 0);
 
-  Crafty.e('FlashingText')
-    .setName("LoadingText")
-    .text('LOADING')
-    .textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
-    .textColor('#0061FF')
-    .attr({ w: 320 })
-    .attr({ x: Crafty.viewport.width/2 - Crafty.viewport.x - 160, y: Crafty.viewport.height/2 - Crafty.viewport.y + 60});
+  Crafty.e('LoadingText');
 
   Crafty.load([
     'assets/audio/engine_idle.mp3',
