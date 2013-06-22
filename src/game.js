@@ -495,6 +495,9 @@ Game = {
     this.editMode = true;
     Game.initMouseScrolling();
     Game.selectLevel(1); // Level 2
+  },
+
+  initEditModeControl: function() {
     Game.editModeControl = Crafty.e('EditModeControl');
   },
 
@@ -512,6 +515,7 @@ Game = {
         base = {x: e.clientX, y: e.clientY};
         Crafty.viewport.x -= dx;
         Crafty.viewport.y -= dy;
+        Crafty.trigger("ViewportChanged");
       };
 
       Crafty.addEvent(this, Crafty.stage.elem, "mousemove", scroll);
@@ -582,6 +586,7 @@ Game = {
 
       if (Game.isEditMode()) {
         Game.stopAllMusic();
+        Game.initEditModeControl();
       } else {
         Game.playMusic('level_music');
       }
