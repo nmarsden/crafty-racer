@@ -1,7 +1,9 @@
 Editor = {
   zoomLevel: 1.0,
+  // TODO Remove testCol
+  testCol: 2,
 
-  scaleZoomLevel: function(scale) {
+    scaleZoomLevel: function(scale) {
     Editor.zoomLevel *= scale;
     Crafty.trigger("ZoomLevelChanged", Editor.zoomLevel);
     Crafty.trigger("ViewportChanged");
@@ -11,19 +13,56 @@ Editor = {
     return (scale > 1 && Editor.zoomLevel >= 1) || (scale < 1 && Editor.zoomLevel <= 0.0625);
   },
 
+  addSolidTile: function(row, col) {
+    var solidEntity = Game.tiledMapBuilder.addTileToLayer(row, col, 'Tile3', 'Solid_Tops');
+    // Set correct z-index for a solid entity
+    solidEntity.z = Math.floor(solidEntity._y + 64);
+    // place() adds viewport x & y which is not wanted, so undoing here
+    solidEntity.x -= Crafty.viewport.x;
+    solidEntity.y -= Crafty.viewport.y;
+  },
+
+  saveChanges: function() {
+    // TODO Currently just logs to console. Could this be saved to file?
+    console.log(JSON.stringify(Game.tiledMapBuilder.getSource()));
+  },
+
   initEditor: function() {
+
+//    // Remove all ground tiles
+//    var row, col, y, c;
+//    for (row=0; row<100; row++) {
+//      for (col=0; col<100; col++) {
+//        Game.tiledMapBuilder.removeTileFromLayer(row, col,'Ground_Tops');
+//      }
+//    }
+
+    // TODO Remove!: Add 3 solid tiles
+    Editor.addSolidTile(0, 0);
+    Editor.addSolidTile(4, 0);
+    Editor.addSolidTile(0, 4);
+
     Editor.setupMouseEvents();
     Crafty.e('ScaleIndicator');
     Crafty.e('EditModeControl');
   },
 
   setupMouseEvents: function() {
+    // mousedown event
     Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function(e) {
       if(e.button == 1) {
         // Middle-mouse button down begins scrolling on mouse move
         Editor.scrollOnMouseMove(e);
       }
     });
+    // click event
+    Crafty.addEvent(this, Crafty.stage.elem, "click", function(e) {
+      if(e.button == 0) {
+        // Left-mouse button click
+        Editor.deleteSelectedEntity(e);
+      }
+    });
+
   },
 
   scrollOnMouseMove: function(e) {
@@ -44,24 +83,21 @@ Editor = {
     });
   },
 
-  setupEditing: function(entity) {
-    entity.addComponent('Mouse');
-    entity.areaMap([64,0],[128,32],[128,96],[64,128],[0,96],[0,32])
-      .bind("Click", function(e) {
-        if (e.button != 0) {
-          return;
-        }
-        console.log("destroyed entity: ",
-          "x=", this.x, "y=", this.y,
-          "clientX=", e.clientX, "clientY=", e.clientY,
-          "realX=", e.realX, "realY=", e.realY,
-          "viewportX=", Crafty.viewport.x,
-          "viewportY=", Crafty.viewport.y,
-          "viewportWidth=", Crafty.viewport.width,
-          "viewportHeight=", Crafty.viewport.height
-        );
-        this.destroy();
-      })
+  deleteSelectedEntity: function(e) {
+    var px = Crafty.DOM.translate(e.clientX, e.clientY);
+//    console.log("px: x=", px.x, "y=", px.y);
+
+    // TODO workout how to convert e.clientX and e.clientY to row and column for tile
+//    console.log("remove tile: ",
+//      "clientX=", e.clientX, "clientY=", e.clientY,
+//      "viewportX=", Crafty.viewport.x,
+//      "viewportY=", Crafty.viewport.y,
+//      "viewportWidth=", Crafty.viewport.width,
+//      "viewportHeight=", Crafty.viewport.height
+//    );
+
+    // remove tile from 'Ground Tops' layer
+    Game.tiledMapBuilder.removeTileFromLayer(1, Editor.testCol++,'Ground_Tops');
   }
 };
 
@@ -76,31 +112,39 @@ Crafty.c('EditModeControl', {
     if (this.isDown('PLUS')) {
       // Zoom In
       this._zoom(2);
-
-    } else if (this.isDown('MINUS')) {
+    }
+    else if (this.isDown('MINUS')) {
       // Zoom Out
       this._zoom(0.5);
-
-    } else if (this.isDown('0')) {
+    }
+    else if (this.isDown('0')) {
       // Scroll (0,0)
       Crafty.viewport.scrollXY(0,0);
       Crafty.trigger("ViewportChanged");
-
-    } else if (this.isDown('UP_ARROW')) {
+    }
+    else if (this.isDown('UP_ARROW')) {
+      // Pan Up one tile
       Crafty.viewport.y = Crafty.viewport.y + 64;
       Crafty.trigger("ViewportChanged");
-
-    } else if (this.isDown('DOWN_ARROW')) {
+    }
+    else if (this.isDown('DOWN_ARROW')) {
+      // Pan Down one tile
       Crafty.viewport.y = Crafty.viewport.y - 64;
       Crafty.trigger("ViewportChanged");
-
-    } else if (this.isDown('LEFT_ARROW')) {
-      Crafty.viewport.x = Crafty.viewport.x + 64;
+    }
+    else if (this.isDown('LEFT_ARROW')) {
+      // Pan Left one tile
+      Crafty.viewport.x = Crafty.viewport.x + 128;
       Crafty.trigger("ViewportChanged");
-
-    } else if (this.isDown('RIGHT_ARROW')) {
-      Crafty.viewport.x = Crafty.viewport.x - 64;
+    }
+    else if (this.isDown('RIGHT_ARROW')) {
+      // Pan Right one tile
+      Crafty.viewport.x = Crafty.viewport.x - 128;
       Crafty.trigger("ViewportChanged");
+    }
+    else if (this.isDown('S')) {
+      // Save
+      Editor.saveChanges();
     }
   },
 

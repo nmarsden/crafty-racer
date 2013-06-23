@@ -314,7 +314,7 @@ Game = {
       }
     };
 
-    Crafty.e("2D, Canvas, TiledMapBuilder")
+    Game.tiledMapBuilder = Crafty.e("2D, Canvas, TiledMapBuilder")
       .setName("TiledMapBuilder")
       .setMapDataSource( LEVELS[Game.levelIndex] )
       .createWorld( function( tiledmap ){
