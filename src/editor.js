@@ -1,9 +1,7 @@
 Editor = {
   zoomLevel: 1.0,
-  // TODO Remove testCol
-  testCol: 2,
 
-    scaleZoomLevel: function(scale) {
+  scaleZoomLevel: function(scale) {
     Editor.zoomLevel *= scale;
     Crafty.trigger("ZoomLevelChanged", Editor.zoomLevel);
     Crafty.trigger("ViewportChanged");
@@ -15,11 +13,12 @@ Editor = {
 
   addSolidTile: function(row, col) {
     var solidEntity = Game.tiledMapBuilder.addTileToLayer(row, col, 'Tile3', 'Solid_Tops');
-    // Set correct z-index for a solid entity
-    solidEntity.z = Math.floor(solidEntity._y + 64);
     // place() adds viewport x & y which is not wanted, so undoing here
     solidEntity.x -= Crafty.viewport.x;
     solidEntity.y -= Crafty.viewport.y;
+    // Set correct z-index for a solid entity
+    solidEntity.z = Math.floor(solidEntity._y + 64);
+    return solidEntity;
   },
 
   saveChanges: function() {
@@ -28,20 +27,6 @@ Editor = {
   },
 
   initEditor: function() {
-
-//    // Remove all ground tiles
-//    var row, col, y, c;
-//    for (row=0; row<100; row++) {
-//      for (col=0; col<100; col++) {
-//        Game.tiledMapBuilder.removeTileFromLayer(row, col,'Ground_Tops');
-//      }
-//    }
-
-    // TODO Remove!: Add 3 solid tiles
-    Editor.addSolidTile(0, 0);
-    Editor.addSolidTile(4, 0);
-    Editor.addSolidTile(0, 4);
-
     Editor.setupMouseEvents();
     Crafty.e('ScaleIndicator');
     Crafty.e('EditModeControl');
@@ -83,21 +68,39 @@ Editor = {
     });
   },
 
-  deleteSelectedEntity: function(e) {
-    var px = Crafty.DOM.translate(e.clientX, e.clientY);
-//    console.log("px: x=", px.x, "y=", px.y);
+  // Note: this is a copy of Crafty.DOM.translate, the only difference is that viewport x and y are multiplied by the zoom factor (might be a bug in Crafty that it doesn't do that?)
+  mouseToWorld: function (x, y) {
+    return {
+      x: (x - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft - (Crafty.viewport._x*Crafty.viewport._zoom))/Crafty.viewport._zoom,
+      y: (y - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop - (Crafty.viewport._y*Crafty.viewport._zoom))/Crafty.viewport._zoom
+    }
+  },
 
-    // TODO workout how to convert e.clientX and e.clientY to row and column for tile
-//    console.log("remove tile: ",
-//      "clientX=", e.clientX, "clientY=", e.clientY,
-//      "viewportX=", Crafty.viewport.x,
-//      "viewportY=", Crafty.viewport.y,
-//      "viewportWidth=", Crafty.viewport.width,
-//      "viewportHeight=", Crafty.viewport.height
-//    );
+  worldToIso: function(x, y) {
+    var source = Game.tiledMapBuilder.getSource();
+    var tileWidth = source.tilewidth;
+    var tileHeight = source.tileheight;
+    var x0 = tileWidth/2;
+    var y0 = 0;
+    return {
+      row: Math.floor((y - y0)/tileHeight - (x - x0)/tileWidth),
+      col: Math.floor((y - y0)/tileHeight + (x - x0)/tileWidth)
+    }
+  },
+
+  mouseToIso: function(x, y) {
+    var world = Editor.mouseToWorld(x, y);
+    return Editor.worldToIso(world.x, world.y);
+  },
+
+  deleteSelectedEntity: function(e) {
+    var iso = Editor.mouseToIso(e.clientX, e.clientY);
+
+    // TODO Remove! - used for testing add solid tile
+    //Editor.addSolidTile(iso.row, iso.col);
 
     // remove tile from 'Ground Tops' layer
-    Game.tiledMapBuilder.removeTileFromLayer(1, Editor.testCol++,'Ground_Tops');
+    Game.tiledMapBuilder.removeTileFromLayer(iso.row, iso.col, 'Ground_Tops');
   }
 };
 
