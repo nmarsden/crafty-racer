@@ -149,6 +149,9 @@ Crafty.scene('Loading', function(){
     Crafty.sprite(700, 450, 'assets/images/glass_overlay.png', {
       spr_glass_overlay:  [0, 0]
     }, 0, 0);
+    Crafty.sprite(128, 64, 'assets/images/delete.png', {
+      spr_delete:  [0, 0]
+    }, 0, 0);
 
     // Define our sounds for later use
     Crafty.audio.add({

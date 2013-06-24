@@ -1,5 +1,8 @@
 Editor = {
+  TILE_WIDTH: 128,
+  TILE_HEIGHT: 64,
   zoomLevel: 1.0,
+  tileCursor: null,
 
   scaleZoomLevel: function(scale) {
     Editor.zoomLevel *= scale;
@@ -28,11 +31,21 @@ Editor = {
 
   initEditor: function() {
     Editor.setupMouseEvents();
+    Editor.tileCursor = Crafty.e('TileCursor');
     Crafty.e('ScaleIndicator');
     Crafty.e('EditModeControl');
   },
 
   setupMouseEvents: function() {
+    // mousemove event
+    Crafty.addEvent(this, Crafty.stage.elem, "mousemove", function(e) {
+      // Move Tile Cursor
+      var iso = Editor.mouseToIso(e.clientX, e.clientY);
+      var tileWorldPos = Editor.isoToWorld(iso.row, iso.col);
+      Editor.tileCursor.x = tileWorldPos.x;
+      Editor.tileCursor.y = tileWorldPos.y;
+    });
+
     // mousedown event
     Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function(e) {
       if(e.button == 1) {
@@ -40,6 +53,7 @@ Editor = {
         Editor.scrollOnMouseMove(e);
       }
     });
+
     // click event
     Crafty.addEvent(this, Crafty.stage.elem, "click", function(e) {
       if(e.button == 0) {
@@ -77,15 +91,19 @@ Editor = {
   },
 
   worldToIso: function(x, y) {
-    var source = Game.tiledMapBuilder.getSource();
-    var tileWidth = source.tilewidth;
-    var tileHeight = source.tileheight;
-    var x0 = tileWidth/2;
+    var x0 = Editor.TILE_WIDTH/2;
     var y0 = 0;
     return {
-      row: Math.floor((y - y0)/tileHeight - (x - x0)/tileWidth),
-      col: Math.floor((y - y0)/tileHeight + (x - x0)/tileWidth)
+      row: Crafty.math.clamp(Math.floor((y - y0)/Editor.TILE_HEIGHT - (x - x0)/Editor.TILE_WIDTH), 0, 99),
+      col: Crafty.math.clamp(Math.floor((y - y0)/Editor.TILE_HEIGHT + (x - x0)/Editor.TILE_WIDTH), 0, 99)
     }
+  },
+
+  isoToWorld: function(row, column) {
+    return {
+      x: (column - row) * (Editor.TILE_WIDTH/2),
+      y: (column + row) * (Editor.TILE_HEIGHT/2)
+    };
   },
 
   mouseToIso: function(x, y) {
@@ -200,5 +218,21 @@ Crafty.c('ScaleIndicator', {
     // Note: Adjusting fontSize to undo the effects of Crafty applying a scale transform to the stage when the viewport is scaled
     this.textFont({ size: (this.fontSize / zoomLevel) + 'px'});
   }
+});
 
+Crafty.c('TileCursor', {
+  init: function() {
+    this.requires('2D, Canvas, spr_delete, Tween');
+    this.z = 8000;
+
+    this._tweenAlphaTo(0.0);
+
+    this.bind("TweenEnd", function() {
+      this._tweenAlphaTo((this.alpha == 0) ? 1.0:0.0);
+    });
+  },
+
+  _tweenAlphaTo: function(targetAlpha) {
+    this.tween({alpha: targetAlpha}, 30);
+  }
 });
