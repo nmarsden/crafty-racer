@@ -2174,7 +2174,7 @@ Crafty.c('Car', {
     if (this.falling) {
       return;
     }
-    this.frictionMagnitude = 0.8;
+    this.frictionMagnitude = 0.3;
     this.engineMagnitude = 1.1;
   },
 
@@ -2198,7 +2198,7 @@ Crafty.c('Car', {
     if (this.falling) {
       return;
     }
-    this.frictionMagnitude = 0.8;
+    this.frictionMagnitude = 0.3;
     this.engineMagnitude = 1.1;
     hitData.forEach(function(hd) {
       var breakingGround = hd.obj;
