@@ -3,6 +3,7 @@ Editor = {
   TILE_HEIGHT: 64,
   zoomLevel: 1.0,
   tileCursor: null,
+  leftMouseButtonDown: false,
 
   scaleZoomLevel: function(scale) {
     Editor.zoomLevel *= scale;
@@ -44,24 +45,27 @@ Editor = {
       var tileWorldPos = Editor.isoToWorld(iso.row, iso.col);
       Editor.tileCursor.x = tileWorldPos.x;
       Editor.tileCursor.y = tileWorldPos.y;
-    });
 
-    // mousedown event
-    Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function(e) {
-      if(e.button == 1) {
-        // Middle-mouse button down begins scrolling on mouse move
-        Editor.scrollOnMouseMove(e);
-      }
-    });
-
-    // click event
-    Crafty.addEvent(this, Crafty.stage.elem, "click", function(e) {
-      if(e.button == 0) {
-        // Left-mouse button click
+      if (Editor.leftMouseButtonDown) {
         Editor.deleteSelectedEntity(e);
       }
     });
 
+    // mousedown event
+    Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function(e) {
+      if(e.button == Crafty.mouseButtons.LEFT) {
+        Editor.leftMouseButtonDown = true;
+        Editor.deleteSelectedEntity(e);
+
+      } else if(e.button == Crafty.mouseButtons.MIDDLE) {
+        Editor.scrollOnMouseMove(e);
+      }
+    });
+
+    // mouseup event
+    Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function(e) {
+      Editor.leftMouseButtonDown = false;
+    });
   },
 
   scrollOnMouseMove: function(e) {
@@ -71,6 +75,13 @@ Editor = {
       var dx = base.x - e.clientX,
         dy = base.y - e.clientY;
       base = {x: e.clientX, y: e.clientY};
+
+      // magnify scroll amount
+      // Note: This also happens to makes dy an even number which fixes an image artifact issue occurring
+      // when viewport.y was an odd number and the tile cursor was moved across the stage
+      dx *= 4;
+      dy *= 4;
+
       Crafty.viewport.x -= dx;
       Crafty.viewport.y -= dy;
       Crafty.trigger("ViewportChanged");
