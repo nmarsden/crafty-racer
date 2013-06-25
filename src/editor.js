@@ -324,6 +324,8 @@ Crafty.c('TileCursor', {
     });
 
     this.bind("EditModeChanged", this._handleEditModeChanged.bind(this));
+
+    this.tileOutline = Crafty.e("IsoTileOutline");
   },
 
   updatePosition: function(mouseX, mouseY) {
@@ -337,6 +339,9 @@ Crafty.c('TileCursor', {
     // Note: Z position for tile cursor is z tile position plus one, so it always appears on top
     this.z = Editor.tilePositionZFor(this.currentEditMode, this.y) + 1;
     this.currentIso = iso;
+    // update tile outline position
+    this.tileOutline.x = this.x;
+    this.tileOutline.y = this.y;
   },
 
   _handleEditModeChanged: function(editMode) {
@@ -351,4 +356,37 @@ Crafty.c('TileCursor', {
   _tweenAlphaTo: function(targetAlpha) {
     this.tween({alpha: targetAlpha}, 30);
   }
+});
+
+Crafty.c('IsoTileOutline', {
+  init: function() {
+    this.requires('2D, Canvas');
+    this.z = 7000;
+    this.w = 128;
+    this.h = 64;
+
+    this.bind("Draw", function(e) {
+      this.drawHandler(e);
+    }.bind(this));
+
+    this.ready = true;
+  },
+
+  drawHandler : function (e) {
+    this.drawIsoTileOutline(e.ctx, this.x, this.y);
+  },
+
+  drawIsoTileOutline : function(ctx, offsetX, offsetY) {
+    ctx.save();
+    ctx.strokeStyle = "rgba(0,0,0,1.0)";
+    ctx.beginPath();
+    ctx.moveTo(offsetX + this.w/2 - 0,  offsetY - 0);
+    ctx.lineTo(offsetX + this.w,        offsetY + this.h/2 - 0);
+    ctx.lineTo(offsetX + this.w/2 - 0,  offsetY + this.h);
+    ctx.lineTo(offsetX - 0,             offsetY + this.h/2 - 0);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+  }
+
 });
