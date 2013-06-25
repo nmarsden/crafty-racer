@@ -79,6 +79,8 @@ Editor = {
     Editor.fillGridStartTileIso = iso;
     // set most recent delete layer
     Editor.mostRecentDeleteLayer = layerName;
+    // set mouse down delete layer
+    Editor.mouseDownDeleteLayer = layerName;
     return isDeleteSuccess;
   },
 
