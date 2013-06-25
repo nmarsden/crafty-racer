@@ -460,7 +460,7 @@ Game = {
 
   startEditMode: function() {
     this.editMode = true;
-    this.levelIndex = 1; // Level 2
+    this.levelIndex = 3; // Level 4
 
     Game.destroyAll2DEntities();
     Crafty.viewport.scrollXY(0, 0);

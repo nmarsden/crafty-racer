@@ -1,9 +1,11 @@
 Editor = {
   TILE_WIDTH: 128,
   TILE_HEIGHT: 64,
+  EDIT_MODES: ['DELETE', 'GROUND', 'MUD', 'ICE', 'BREAKING', 'SOLID'],
   zoomLevel: 1.0,
   tileCursor: null,
   leftMouseButtonDown: false,
+  currentEditMode: 'DELETE',
 
   scaleZoomLevel: function(scale) {
     Editor.zoomLevel *= scale;
@@ -15,14 +17,31 @@ Editor = {
     return (scale > 1 && Editor.zoomLevel >= 1) || (scale < 1 && Editor.zoomLevel <= 0.0625);
   },
 
-  addSolidTile: function(row, col) {
-    var solidEntity = Game.tiledMapBuilder.addTileToLayer(row, col, 'Tile3', 'Solid_Tops');
-    // place() adds viewport x & y which is not wanted, so undoing here
-    solidEntity.x -= Crafty.viewport.x;
-    solidEntity.y -= Crafty.viewport.y;
-    // Set correct z-index for a solid entity
-    solidEntity.z = Math.floor(solidEntity._y + 64);
-    return solidEntity;
+  addTile: function(row, col, tileName, layerName) {
+    var entity = Game.tiledMapBuilder.addTileToLayer(row, col, tileName, layerName);
+    if (entity) {
+      // place() adds viewport x & y which is not wanted, so undoing here
+      entity.x -= Crafty.viewport.x;
+      entity.y -= Crafty.viewport.y;
+    }
+    return entity;
+  },
+
+  addTileToGroundLayer: function(row, col, tileName) {
+    var ground = Editor.addTile(row, col, tileName, 'Ground_Tops');
+    if (ground) {
+      //Set z-index for correct view: front, back
+      ground.z = Math.floor(ground._y - 64 - 10);
+    }
+    return ground;
+  },
+
+  addTileToSolidLayer: function(row, col, tileName) {
+    var solid = Editor.addTile(row, col, tileName, 'Solid_Tops');
+    if (solid) {
+      // Set correct z-index for a solid entity
+      solid.z = Math.floor(solid._y + 64);
+    }
   },
 
   saveChanges: function() {
@@ -41,13 +60,10 @@ Editor = {
     // mousemove event
     Crafty.addEvent(this, Crafty.stage.elem, "mousemove", function(e) {
       // Move Tile Cursor
-      var iso = Editor.mouseToIso(e.clientX, e.clientY);
-      var tileWorldPos = Editor.isoToWorld(iso.row, iso.col);
-      Editor.tileCursor.x = tileWorldPos.x;
-      Editor.tileCursor.y = tileWorldPos.y;
+      Editor.tileCursor.updatePosition(e.clientX, e.clientY);
 
       if (Editor.leftMouseButtonDown) {
-        Editor.deleteSelectedEntity(e);
+        Editor.performEditOperation(e);
       }
     });
 
@@ -55,7 +71,7 @@ Editor = {
     Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function(e) {
       if(e.button == Crafty.mouseButtons.LEFT) {
         Editor.leftMouseButtonDown = true;
-        Editor.deleteSelectedEntity(e);
+        Editor.performEditOperation(e);
 
       } else if(e.button == Crafty.mouseButtons.MIDDLE) {
         Editor.scrollOnMouseMove(e);
@@ -77,7 +93,7 @@ Editor = {
       base = {x: e.clientX, y: e.clientY};
 
       // magnify scroll amount
-      // Note: This also happens to makes dy an even number which fixes an image artifact issue occurring
+      // Note: This also happens to make dy an even number which fixes an image artifact issue occurring
       // when viewport.y was an odd number and the tile cursor was moved across the stage
       dx *= 4;
       dy *= 4;
@@ -122,14 +138,35 @@ Editor = {
     return Editor.worldToIso(world.x, world.y);
   },
 
-  deleteSelectedEntity: function(e) {
+  performEditOperation: function(e) {
     var iso = Editor.mouseToIso(e.clientX, e.clientY);
 
-    // TODO Remove! - used for testing add solid tile
-    //Editor.addSolidTile(iso.row, iso.col);
+    if (Editor.currentEditMode === 'DELETE') {
+      // TODO should not delete ground tiles if mouse still down after deleting a solid tile and vice-versa
+      if (!Game.tiledMapBuilder.removeTileFromLayer(iso.row, iso.col, 'Solid_Tops')) {
+        Game.tiledMapBuilder.removeTileFromLayer(iso.row, iso.col, 'Ground_Tops')
+      }
+    }
+    else if (Editor.currentEditMode === 'GROUND') {
+      Editor.addTileToGroundLayer(iso.row, iso.col, 'Tile1');
+    }
+    else if (Editor.currentEditMode === 'ICE') {
+      Editor.addTileToGroundLayer(iso.row, iso.col, 'Tile23');
+    }
+    else if (Editor.currentEditMode === 'BREAKING') {
+      Editor.addTileToGroundLayer(iso.row, iso.col, 'Tile17');
+    }
+    else if (Editor.currentEditMode === 'MUD') {
+      Editor.addTileToGroundLayer(iso.row, iso.col, 'Tile25');
+    }
+    else if (Editor.currentEditMode === 'SOLID') {
+      Editor.addTileToSolidLayer(iso.row, iso.col, 'Tile3');
+    }
+  },
 
-    // remove tile from 'Ground Tops' layer
-    Game.tiledMapBuilder.removeTileFromLayer(iso.row, iso.col, 'Ground_Tops');
+  changeEditMode: function(editMode) {
+    Editor.currentEditMode = editMode;
+    Crafty.trigger("EditModeChanged", editMode);
   }
 };
 
@@ -177,6 +214,24 @@ Crafty.c('EditModeControl', {
     else if (this.isDown('S')) {
       // Save
       Editor.saveChanges();
+    }
+    else if (this.isDown('DELETE')) {
+      Editor.changeEditMode('DELETE');
+    }
+    else if (this.isDown('1')) {
+      Editor.changeEditMode('GROUND');
+    }
+    else if (this.isDown('2')) {
+      Editor.changeEditMode('ICE');
+    }
+    else if (this.isDown('3')) {
+      Editor.changeEditMode('BREAKING');
+    }
+    else if (this.isDown('4')) {
+      Editor.changeEditMode('MUD');
+    }
+    else if (this.isDown('5')) {
+      Editor.changeEditMode('SOLID');
     }
   },
 
@@ -233,14 +288,56 @@ Crafty.c('ScaleIndicator', {
 
 Crafty.c('TileCursor', {
   init: function() {
-    this.requires('2D, Canvas, spr_delete, Tween');
+    this.requires('2D, Canvas, Tween');
+    this.currentIso = {row:0, col:0};
     this.z = 8000;
+    this.SPRITES = {
+      'DELETE': 'spr_delete',
+      'GROUND': 'Tile1',
+      'SOLID': 'Tile3',
+      'ICE': 'Tile23',
+      'BREAKING': 'Tile17',
+      'MUD': 'Tile25'
+    };
+    this.currentEditMode = 'DELETE';
+    this.addComponent(this.SPRITES[this.currentEditMode]);
 
     this._tweenAlphaTo(0.0);
 
     this.bind("TweenEnd", function() {
       this._tweenAlphaTo((this.alpha == 0) ? 1.0:0.0);
     });
+
+    this.bind("EditModeChanged", this._handleEditModeChanged.bind(this));
+  },
+
+  updatePosition: function(mouseX, mouseY) {
+    this._updateTilePosition(Editor.mouseToIso(mouseX, mouseY));
+  },
+
+  _updateTilePosition: function(iso) {
+    var tileWorldPos = Editor.isoToWorld(iso.row, iso.col);
+    this.x = tileWorldPos.x;
+    this.y = tileWorldPos.y;
+    this.z = this._isDelete() ? 8000 : (this._isSolid() ? Math.floor(tileWorldPos.y + 64 + 1) : Math.floor(tileWorldPos.y - 64 - 10 + 1));
+    this.currentIso = iso;
+  },
+
+  _isSolid: function() {
+    return this.currentEditMode === 'SOLID';
+  },
+
+  _isDelete: function() {
+    return this.currentEditMode === 'DELETE';
+  },
+
+  _handleEditModeChanged: function(editMode) {
+    // change sprite
+    this.toggleComponent(this.SPRITES[this.currentEditMode], this.SPRITES[editMode]);
+    // store new current edit mode
+    this.currentEditMode = editMode;
+    // update position as edit mode may affect z position
+    this._updateTilePosition(this.currentIso);
   },
 
   _tweenAlphaTo: function(targetAlpha) {
