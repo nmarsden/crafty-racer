@@ -81,8 +81,6 @@ Editor = {
       entity.y -= Crafty.viewport.y;
       // adjust z position
       entity.z = Editor.tilePositionZFor(editMode, entity.y);
-      // save added tile iso
-      Editor.fillGridStartTileIso = iso;
     }
     return entity;
 
@@ -230,19 +228,46 @@ Editor = {
     var iso = Editor.mouseToIso(e.clientX, e.clientY);
 
     if (Editor.currentEditMode === 'DELETE') {
+      // TODO Implement delete area (similar to fill area)
+
       // TODO should not delete ground tiles if mouse still down after deleting a solid tile and vice-versa
       if (!Game.tiledMapBuilder.removeTileFromLayer(iso.row, iso.col, 'Solid_Tops')) {
         Game.tiledMapBuilder.removeTileFromLayer(iso.row, iso.col, 'Ground_Tops')
       }
     } else {
-      Editor.addTile(iso, Editor.currentEditMode);
+      // Perform fill or add
+      if (Editor.shiftKeyDown) {
+        Editor.performFillOperation(iso);
+      } else {
+        Editor.performAddOperation(iso);
+      }
     }
+  },
+
+  performFillOperation: function(currentIso) {
+    // Fill area covered by fill grid
+    Editor.fillGridTiles.forEach(function(fillGridTile) {
+      var tileCenterX = fillGridTile.x + Editor.TILE_WIDTH/2;
+      var tileCenterY = fillGridTile.y + Editor.TILE_HEIGHT/2;
+      var tileIso = Editor.worldToIso(tileCenterX, tileCenterY);
+      Editor.addTile(tileIso, Editor.currentEditMode);
+    });
+    // Cleanup previously drawn fill grid
+    Editor.cleanupFillGrid();
+    // set start position of fill grid
+    Editor.fillGridStartTileIso = currentIso;
+  },
+
+  performAddOperation: function(iso) {
+    Editor.addTile(iso, Editor.currentEditMode);
+    // set start position of fill grid
+    Editor.fillGridStartTileIso = iso;
   },
 
   changeEditMode: function(editMode) {
     // save new edit mode
     Editor.currentEditMode = editMode;
-    // clear last added tile isometric position
+    // clear fill grid start position
     Editor.fillGridStartTileIso = null;
     // trigger edit mode changed
     Crafty.trigger("EditModeChanged", editMode);
