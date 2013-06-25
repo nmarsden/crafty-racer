@@ -34,6 +34,8 @@ Editor = {
   leftMouseButtonDown: false,
   shiftKeyDown: false,
   currentEditMode: 'DELETE',
+  mouseDownDeleteLayer: null,
+  mostRecentDeleteLayer: null,
 
   drawingFillGrid: false,
   fillGridStartTileIso: null,
@@ -69,6 +71,15 @@ Editor = {
 
   isScaleZoomLevelPrevented: function(scale) {
     return (scale > 1 && Editor.zoomLevel >= 1) || (scale < 1 && Editor.zoomLevel <= 0.0625);
+  },
+
+  deleteTile: function(iso, layerName) {
+    var isDeleteSuccess = Game.tiledMapBuilder.removeTileFromLayer(iso.row, iso.col, layerName);
+    // set start position of fill grid
+    Editor.fillGridStartTileIso = iso;
+    // set most recent delete layer
+    Editor.mostRecentDeleteLayer = layerName;
+    return isDeleteSuccess;
   },
 
   addTile: function(iso, editMode) {
@@ -126,6 +137,8 @@ Editor = {
     // mouseup event
     Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function(e) {
       Editor.leftMouseButtonDown = false;
+      // reset mouse down delete layer
+      Editor.mouseDownDeleteLayer = null;
     });
   },
 
@@ -228,11 +241,11 @@ Editor = {
     var iso = Editor.mouseToIso(e.clientX, e.clientY);
 
     if (Editor.currentEditMode === 'DELETE') {
-      // TODO Implement delete area (similar to fill area)
-
-      // TODO should not delete ground tiles if mouse still down after deleting a solid tile and vice-versa
-      if (!Game.tiledMapBuilder.removeTileFromLayer(iso.row, iso.col, 'Solid_Tops')) {
-        Game.tiledMapBuilder.removeTileFromLayer(iso.row, iso.col, 'Ground_Tops')
+      // Perform delete area or delete single tile
+      if (Editor.shiftKeyDown) {
+        Editor.performDeleteAreaOperation(iso);
+      } else {
+        Editor.performDeleteOperation(iso);
       }
     } else {
       // Perform fill or add
@@ -240,6 +253,32 @@ Editor = {
         Editor.performFillOperation(iso);
       } else {
         Editor.performAddOperation(iso);
+      }
+    }
+  },
+
+  performDeleteAreaOperation: function(currentIso) {
+    // Delete area covered by fill grid
+    Editor.fillGridTiles.forEach(function(fillGridTile) {
+      var tileCenterX = fillGridTile.x + Editor.TILE_WIDTH/2;
+      var tileCenterY = fillGridTile.y + Editor.TILE_HEIGHT/2;
+      var tileIso = Editor.worldToIso(tileCenterX, tileCenterY);
+      Editor.deleteTile(tileIso, Editor.mostRecentDeleteLayer);
+    });
+    // Cleanup previously drawn fill grid
+    Editor.cleanupFillGrid();
+    // set start position of fill grid
+    Editor.fillGridStartTileIso = currentIso;
+  },
+
+  performDeleteOperation: function(iso) {
+    if (Editor.mouseDownDeleteLayer) {
+      // Restrict deletion to most recent delete layer
+      Editor.deleteTile(iso, Editor.mouseDownDeleteLayer);
+    } else {
+      // Attempt to delete from Solid layer first, then from Ground layer if nothing deleted on Solid layer
+      if (!Editor.deleteTile(iso, 'Solid_Tops')) {
+        Editor.deleteTile(iso, 'Ground_Tops');
       }
     }
   },
@@ -269,6 +308,8 @@ Editor = {
     Editor.currentEditMode = editMode;
     // clear fill grid start position
     Editor.fillGridStartTileIso = null;
+    // clear most recent delete layer
+    Editor.mostRecentDeleteLayer = null;
     // trigger edit mode changed
     Crafty.trigger("EditModeChanged", editMode);
   }
