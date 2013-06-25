@@ -32,7 +32,13 @@ Editor = {
   zoomLevel: 1.0,
   tileCursor: null,
   leftMouseButtonDown: false,
+  shiftKeyDown: false,
   currentEditMode: 'DELETE',
+
+  drawingFillGrid: false,
+  fillGridStartTileIso: null,
+  fillGridEndTileIso: null,
+  fillGridTiles: [],
 
   layerNameFor: function(editMode) {
     return Editor.EDIT_MODES[editMode].layerName;
@@ -65,16 +71,18 @@ Editor = {
     return (scale > 1 && Editor.zoomLevel >= 1) || (scale < 1 && Editor.zoomLevel <= 0.0625);
   },
 
-  addTile: function(row, col, editMode) {
+  addTile: function(iso, editMode) {
     var layerName = Editor.layerNameFor(editMode);
     var tileName = Editor.tileNameFor(editMode);
-    var entity = Game.tiledMapBuilder.addTileToLayer(row, col, tileName, layerName);
+    var entity = Game.tiledMapBuilder.addTileToLayer(iso.row, iso.col, tileName, layerName);
     if (entity) {
       // place() adds viewport x & y which is not wanted, so undoing here
       entity.x -= Crafty.viewport.x;
       entity.y -= Crafty.viewport.y;
       // adjust z position
       entity.z = Editor.tilePositionZFor(editMode, entity.y);
+      // save added tile iso
+      Editor.fillGridStartTileIso = iso;
     }
     return entity;
 
@@ -97,6 +105,9 @@ Editor = {
     Crafty.addEvent(this, Crafty.stage.elem, "mousemove", function(e) {
       // Move Tile Cursor
       Editor.tileCursor.updatePosition(e.clientX, e.clientY);
+      // Draw fill grid if shift key is down
+      var iso = Editor.mouseToIso(e.clientX, e.clientY);
+      Editor.drawFillGrid(iso);
 
       if (Editor.leftMouseButtonDown) {
         Editor.performEditOperation(e);
@@ -174,6 +185,47 @@ Editor = {
     return Editor.worldToIso(world.x, world.y);
   },
 
+  drawFillGrid: function(iso) {
+    if (Editor.shiftKeyDown && Editor.fillGridStartTileIso && !Editor.drawingFillGrid) {
+      Editor.drawingFillGrid = true;
+
+      // Optimization: don't redraw grid if current position is the same tile pos as when grid was previously drawn
+      if (!Editor.fillGridEndTileIso || iso.row !== Editor.fillGridEndTileIso.row || iso.col !== Editor.fillGridEndTileIso.col) {
+
+        // Cleanup previously drawn fill grid
+        Editor.cleanupFillGrid();
+
+        // Draw grid covering area from last added tile position to current tile position
+        //console.log("last pos=(", Editor.fillGridStartTileIso.row, ",", Editor.fillGridStartTileIso.col, ")", ", curr pos=(", iso.row, ",", iso.col, ")");
+        var row, col;
+        var minRow = Math.min(Editor.fillGridStartTileIso.row, iso.row);
+        var maxRow = Math.max(Editor.fillGridStartTileIso.row, iso.row);
+        var minCol = Math.min(Editor.fillGridStartTileIso.col, iso.col);
+        var maxCol = Math.max(Editor.fillGridStartTileIso.col, iso.col);
+        for (row=minRow; row<=maxRow; row++) {
+          for (col=minCol; col<=maxCol; col++) {
+            var pos = Editor.isoToWorld(row, col);
+            var gridTile = Crafty.e("IsoTileOutline");
+            gridTile.x = pos.x;
+            gridTile.y = pos.y;
+
+            Editor.fillGridTiles.push(gridTile);
+          }
+        }
+        Editor.fillGridEndTileIso = iso;
+      }
+      Editor.drawingFillGrid = false;
+    }
+  },
+
+  cleanupFillGrid: function() {
+    Editor.fillGridTiles.forEach(function(fillGridTile) {
+      fillGridTile.clearAndDestroy();
+    });
+    Editor.fillGridTiles = [];
+    Editor.fillGridEndTileIso = null;
+  },
+
   performEditOperation: function(e) {
     var iso = Editor.mouseToIso(e.clientX, e.clientY);
 
@@ -183,12 +235,16 @@ Editor = {
         Game.tiledMapBuilder.removeTileFromLayer(iso.row, iso.col, 'Ground_Tops')
       }
     } else {
-      Editor.addTile(iso.row, iso.col, Editor.currentEditMode);
+      Editor.addTile(iso, Editor.currentEditMode);
     }
   },
 
   changeEditMode: function(editMode) {
+    // save new edit mode
     Editor.currentEditMode = editMode;
+    // clear last added tile isometric position
+    Editor.fillGridStartTileIso = null;
+    // trigger edit mode changed
     Crafty.trigger("EditModeChanged", editMode);
   }
 };
@@ -198,6 +254,7 @@ Crafty.c('EditModeControl', {
     this.requires('2D, Keyboard');
 
     this.bind('KeyDown', this._handleKeyDown);
+    this.bind('KeyUp', this._handleKeyUp);
   },
 
   _handleKeyDown: function(e) {
@@ -238,6 +295,11 @@ Crafty.c('EditModeControl', {
       // Save
       Editor.saveChanges();
     }
+    else if (this.isDown('SHIFT')) {
+      Editor.shiftKeyDown = true;
+      var iso = Editor.tileCursor.getIsoPosition();
+      Editor.drawFillGrid(iso);
+    }
     else if (this.isDown('DELETE')) {
       Editor.changeEditMode('DELETE');
     }
@@ -255,6 +317,14 @@ Crafty.c('EditModeControl', {
     }
     else if (this.isDown('5')) {
       Editor.changeEditMode('SOLID');
+    }
+  },
+
+  _handleKeyUp: function(e) {
+    if(e.key == Crafty.keys['SHIFT']) {
+      Editor.shiftKeyDown = false;
+      // Cleanup previously drawn fill grid
+      Editor.cleanupFillGrid();
     }
   },
 
@@ -332,6 +402,10 @@ Crafty.c('TileCursor', {
     this._updateTilePosition(Editor.mouseToIso(mouseX, mouseY));
   },
 
+  getIsoPosition: function() {
+    return this.currentIso;
+  },
+
   _updateTilePosition: function(iso) {
     var tileWorldPos = Editor.isoToWorld(iso.row, iso.col);
     this.x = tileWorldPos.x;
@@ -364,26 +438,38 @@ Crafty.c('IsoTileOutline', {
     this.z = 7000;
     this.w = 128;
     this.h = 64;
+    this.destroyAfterDraw = false;
 
     this.bind("Draw", function(e) {
-      this.drawHandler(e);
+      this._drawHandler(e);
     }.bind(this));
 
     this.ready = true;
   },
 
-  drawHandler : function (e) {
-    this.drawIsoTileOutline(e.ctx, this.x, this.y);
+  clearAndDestroy: function() {
+    // Move out of view (hopefully)
+    this.x = -5000;
+    this.y = -5000;
+    // Next draw should destroy
+    this.destroyAfterDraw = true;
   },
 
-  drawIsoTileOutline : function(ctx, offsetX, offsetY) {
+  _drawHandler : function (e) {
+    this._drawIsoTileOutline(e.ctx, this.x, this.y);
+    if (this.destroyAfterDraw) {
+      this.destroy();
+    }
+  },
+
+  _drawIsoTileOutline : function(ctx, offsetX, offsetY) {
     ctx.save();
     ctx.strokeStyle = "rgba(0,0,0,1.0)";
     ctx.beginPath();
-    ctx.moveTo(offsetX + this.w/2 - 0,  offsetY - 0);
-    ctx.lineTo(offsetX + this.w,        offsetY + this.h/2 - 0);
-    ctx.lineTo(offsetX + this.w/2 - 0,  offsetY + this.h);
-    ctx.lineTo(offsetX - 0,             offsetY + this.h/2 - 0);
+    ctx.moveTo(offsetX + this.w/2,      offsetY + 1);
+    ctx.lineTo(offsetX + this.w - 2,    offsetY + this.h/2);
+    ctx.lineTo(offsetX + this.w/2,      offsetY + this.h - 1);
+    ctx.lineTo(offsetX + 2,             offsetY + this.h/2);
     ctx.closePath();
     ctx.stroke();
     ctx.restore();
