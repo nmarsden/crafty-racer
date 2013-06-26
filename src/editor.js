@@ -12,18 +12,8 @@ Editor = {
       layerName: 'Ground_Tops',
       component: 'NormalGround'
     },
-    'MUD': {
-      tileName: 'Tile25',
-      layerName: 'Ground_Tops',
-      component: 'MudGround'
-    },
-    'ICE': {
-      tileName: 'Tile23',
-      layerName: 'Ground_Tops',
-      component: 'IceGround'
-    },
     'BREAKING': {
-      tileName: 'Tile17',
+      tileName: 'Tile2',
       layerName: 'Ground_Tops',
       component: 'BreakingGround'
     },
@@ -31,6 +21,16 @@ Editor = {
       tileName: 'Tile3',
       layerName: 'Solid_Tops',
       component: 'Solid'
+    },
+    'MUD': {
+      tileName: 'Tile4',
+      layerName: 'Ground_Tops',
+      component: 'MudGround'
+    },
+    'ICE': {
+      tileName: 'Tile5',
+      layerName: 'Ground_Tops',
+      component: 'IceGround'
     }
   },
 

@@ -108,7 +108,8 @@ Crafty.scene('Loading', function(){
     "assets/images/escape_key_51x48.png",
     "assets/images/enter_key_100x48.png",
     "assets/images/glass_overlay.png",
-    "assets/images/menu_background.png"
+    "assets/images/menu_background.png",
+    "assets/images/tiles.png"
   ], function(){
     Crafty.sprite(98, 'assets/images/car.png', {
       spr_car:  [6, 1]

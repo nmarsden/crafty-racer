@@ -297,6 +297,12 @@ Game = {
     var WAYPOINT_TILE_FIRST_GID = 7;
     var ONE_WAY_TILE_FIRST_GID = 19;
     var ONE_WAY_TYPES = ['NE','SE','SW','NW'];
+    var GROUND_TILES = [
+      { tileName: 'Tile1', component: 'NormalGround' },
+      { tileName: 'Tile2', component: 'BreakingGround' },
+      { tileName: 'Tile4', component: 'MudGround' },
+      { tileName: 'Tile5', component: 'IceGround' }
+    ];
 
     var getWaypointIndex = function(entity) {
       for (var index=0; index<10; index++) {
@@ -314,6 +320,16 @@ Game = {
       }
     };
 
+    var addGroundComponentTo = function(entity) {
+      var len = GROUND_TILES.length;
+      for (var i=0; i<len; i++) {
+        if (entity.has(GROUND_TILES[i].tileName)) {
+          entity.addComponent(GROUND_TILES[i].component);
+          return;
+        }
+      }
+    };
+
     Game.tiledMapBuilder = Crafty.e("2D, Canvas, TiledMapBuilder")
       .setName("TiledMapBuilder")
       .setMapDataSource( LEVELS[Game.levelIndex] )
@@ -324,23 +340,10 @@ Game = {
         entities = tiledmap.getEntitiesInLayer('Ground_Tops');
         for (obstacle = 0; obstacle < entities.length; obstacle++){
           entity = entities[obstacle];
-
           //Set z-index for correct view: front, back
           entity.z = Math.floor(entity._y - 64 - 10);
-
-          if (entity.__image === "assets/images/ice_block.png") {
-            // Ice Top
-            entity.addComponent("IceGround");
-          } else if (entity.__image === "assets/images/mud_block.png") {
-            // Mud Top
-            entity.addComponent("MudGround");
-          } else if (entity.__image === "assets/images/Iso_Cubes_01_128x128_Alt_00_007.png") {
-            // Breaking Top
-            entity.addComponent("BreakingGround");
-          } else {
-            // Ground Top
-            entity.addComponent("NormalGround");
-          }
+          // Add component for ground
+          addGroundComponentTo(entity);
         }
 
         // Set properties of entities on the 'Solid_Tops' layer
