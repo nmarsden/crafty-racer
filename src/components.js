@@ -1118,18 +1118,49 @@ Crafty.c('PauseControl', {
 
 });
 
+Crafty.c('Solid', {
+  init: function() {
+    this.requires('Collision');
+    var polygon = new Crafty.polygon([0, 32], [64, 0], [128, 32], [64, 64]);
+    polygon.shift(0,64);
+    this.collision(polygon);
+  }
+});
+
+Crafty.c('Ground', {
+  init: function() {
+    this.requires('Collision');
+    this.collision(new Crafty.polygon([0, 32], [64, 0], [128, 32], [64, 64]));
+  }
+});
+
+Crafty.c('NormalGround', {
+  init: function() {
+    this.requires('Ground');
+  }
+});
+
+Crafty.c('IceGround', {
+  init: function() {
+    this.requires('Ground');
+  }
+});
+
+Crafty.c('MudGround', {
+  init: function() {
+    this.requires('Ground');
+  }
+});
+
 Crafty.c('BreakingGround', {
   init: function() {
+    this.requires('Ground');
+
     this.TOTAL_BREAKING_FRAMES = 40;
-    this.breakingSide = null;
     this.breaking = false;
     this.breakingStartFrame = null;
 
     this.bind("EnterFrame", this._enterFrame);
-  },
-
-  setBreakingSide: function(entity) {
-    this.breakingSide = entity;
   },
 
   startBreaking: function() {
@@ -1141,16 +1172,12 @@ Crafty.c('BreakingGround', {
   },
 
   restoreAsUnbroken: function() {
+    this.addComponent("Ground");
     this.removeComponent("WasBreaking");
-    this.removeComponent("Hole");
     this.breaking = false;
     this.breakingStartFrame = null;
     this.visible = true;
     this.alpha = 1.0;
-    if (this.breakingSide) {
-      this.breakingSide.visible = true;
-      this.breakingSide.alpha = 1.0;
-    }
     this.bind("EnterFrame", this._enterFrame);
   },
 
@@ -1176,20 +1203,14 @@ Crafty.c('BreakingGround', {
         newAlpha = 0;
       }
       this.alpha = newAlpha;
-      if (this.breakingSide) {
-        this.breakingSide.alpha = newAlpha;
-      }
     }
   },
 
   _changeToBroken: function() {
     this.unbind("EnterFrame", this._enterFrame);
     this.addComponent("WasBreaking");
-    this.addComponent("Hole");
+    this.removeComponent("Ground");
     this.visible = false;
-    if (this.breakingSide) {
-      this.breakingSide.visible = false;
-    }
   }
 });
 
@@ -1335,38 +1356,38 @@ Crafty.c('Car', {
     ];
 
     this.BOUNDING_BOXES = [
-      [[35, 15], [63, 15], [63, 68], [35, 68]],
-      [[30, 19], [57, 13], [68, 64], [41, 70]],
-      [[25, 24], [50, 12], [73, 59], [48, 71]],
-      [[22, 29], [44, 12], [76, 54], [54, 71]],
-      [[20, 36], [37, 14], [78, 47], [61, 69]],
-      [[19, 42], [32, 17], [79, 41], [66, 66]],
-      [[19, 47], [28, 20], [79, 36], [70, 63]],
-      [[21, 51], [25, 24], [77, 32], [73, 59]],
-      [[23, 56], [23, 28], [76, 28], [76, 56]],
-      [[24, 58], [21, 31], [74, 25], [77, 52]],
-      [[26, 61], [20, 34], [72, 22], [78, 49]],
-      [[29, 64], [19, 37], [69, 19], [79, 46]],
-      [[32, 66], [19, 41], [66, 17], [79, 42]],
-      [[39, 70], [20, 49], [59, 13], [78, 34]],
-      [[47, 71], [23, 57], [51, 12], [75, 26]],
-      [[55, 71], [28, 63], [43, 12], [70, 20]],
-      [[63, 68], [35, 68], [35, 15], [63, 15]],
-      [[70, 63], [43, 71], [28, 20], [55, 12]],
-      [[75, 57], [51, 71], [23, 26], [47, 12]],
-      [[78, 49], [59, 70], [20, 34], [39, 13]],
-      [[79, 41], [66, 66], [19, 42], [32, 17]],
-      [[79, 37], [69, 64], [19, 46], [29, 19]],
-      [[78, 34], [72, 61], [20, 49], [26, 22]],
-      [[77, 31], [74, 58], [21, 52], [24, 25]],
-      [[76, 28], [76, 56], [23, 55], [23, 27]],
-      [[73, 24], [77, 51], [25, 59], [21, 32]],
-      [[70, 20], [79, 47], [28, 63], [19, 36]],
-      [[66, 17], [79, 42], [32, 66], [19, 41]],
-      [[61, 14], [78, 36], [37, 69], [20, 47]],
-      [[54, 12], [76, 29], [44, 71], [22, 54]],
-      [[48, 12], [73, 24], [50, 71], [25, 59]],
-      [[41, 13], [68, 19], [57, 70], [30, 64]]
+      [[38, 18], [60, 18], [60, 65], [38, 65]],
+      [[33, 21], [55, 16], [65, 62], [43, 67]],
+      [[29, 25], [49, 16], [69, 58], [49, 67]],
+      [[26, 30], [43, 16], [72, 53], [55, 67]],
+      [[24, 35], [38, 18], [74, 48], [60, 65]],
+      [[23, 41], [33, 21], [75, 42], [65, 62]],
+      [[23, 45], [30, 24], [75, 38], [68, 59]],
+      [[24, 49], [27, 27], [74, 34], [71, 56]],
+      [[26, 53], [26, 31], [73, 31], [73, 53]],
+      [[27, 55], [24, 33], [71, 28], [74, 50]],
+      [[29, 58], [24, 36], [69, 25], [74, 47]],
+      [[31, 60], [23, 39], [67, 23], [75, 44]],
+      [[33, 62], [23, 42], [65, 21], [75, 41]],
+      [[39, 65], [24, 49], [59, 18], [74, 34]],
+      [[46, 67], [27, 56], [52, 16], [71, 27]],
+      [[53, 67], [32, 61], [45, 16], [66, 22]],
+      [[60, 65], [38, 65], [38, 18], [60, 18]],
+      [[66, 61], [45, 67], [32, 22], [53, 16]],
+      [[71, 56], [52, 67], [27, 27], [46, 16]],
+      [[74, 49], [59, 65], [24, 34], [39, 18]],
+      [[75, 42], [65, 62], [23, 41], [33, 21]],
+      [[75, 39], [67, 60], [23, 44], [31, 23]],
+      [[74, 36], [69, 58], [24, 47], [29, 25]],
+      [[74, 33], [71, 55], [24, 50], [27, 28]],
+      [[73, 31], [73, 53], [26, 52], [26, 30]],
+      [[71, 27], [74, 49], [27, 56], [24, 34]],
+      [[68, 24], [75, 45], [30, 59], [23, 38]],
+      [[65, 21], [75, 41], [33, 62], [23, 42]],
+      [[60, 18], [74, 35], [38, 65], [24, 48]],
+      [[55, 16], [72, 30], [43, 67], [26, 53]],
+      [[49, 16], [69, 25], [49, 67], [29, 58]],
+      [[43, 16], [65, 21], [55, 67], [33, 62]]
     ];
 
     this.gamePadMapping = {
@@ -1387,8 +1408,7 @@ Crafty.c('Car', {
     this.movement = {};
     this.falling = false;
     this.spinning = false;
-    this.fallingTarget = null;
-    this.fallingTargetSteps = 0;
+    this.fallDelay = 0;
     this.fallStepsDropping = 0;
     this.reversing = false;
     this.rightArrowDown = false;
@@ -1423,7 +1443,6 @@ Crafty.c('Car', {
     this.collision( new Crafty.polygon([35,15],[63,15],[63,68],[35,68]) );
 
     this.onHit('Solid', this.stopMovement);
-    this.onHit('Hole', this.holeHit);
     this.onHit('Oil', this.oilHit);
     this.onHit('NormalGround', this.normalGroundHit);
     this.onHit('IceGround', this.iceGroundHit);
@@ -1851,6 +1870,23 @@ Crafty.c('Car', {
     return (distance < Game.SEEK_TARGET_RADIUS);
   },
 
+  _startFalling: function() {
+    // stop all car sounds except slow down & idle
+    this._stopSoundEffect('wheel_spin');
+    this._stopSoundEffect('engine_speed_up');
+    this._stopSoundEffect('engine_top_speed');
+    // play car horn sound
+    Game.playSoundEffect('car_horn', 1, 1.0);
+    // show falling text
+    var fallingText = Crafty.e('TipText');
+    fallingText.setName("FallingText");
+    fallingText.text("UH OH!");
+    fallingText.show();
+    // start falling mode
+    this.fallDelay = 40;
+    this.falling = true;
+  },
+
   _handleFalling: function() {
     if (this.fallStepsDropping > 0) {
       this.fallStepsDropping--;
@@ -1866,9 +1902,9 @@ Crafty.c('Car', {
       return;
     }
 
-    // Keep moving towards falling target
-    if (this.fallingTargetSteps < 0 && Math.round(this.x) === this.fallingTarget.x && Math.round(this.y) === this.fallingTarget.y) {
-      // Arrived at falling target, so start dropping
+    // Wait until fall delay is complete before starting to drop
+    if (this.fallDelay < 0) {
+      // Start dropping
       // -play falling sound
       Game.playSoundEffect('falling', 1, 1.0);
       // -adjust z otherwise the car sometimes drops through the floor
@@ -1878,12 +1914,8 @@ Crafty.c('Car', {
       // -setup dropping movement
       this.fallStepsDropping = 40;
     } else {
-      // Move towards falling target
-      this.fallingTargetSteps--;
-      this._updateMovementToArrive(this.fallingTarget.x, this.fallingTarget.y);
-      this._updatePosition();
-      this._updateViewportWithPlayerInCenter();
-      this._triggerPlayerMoved();
+      // Reduce fall delay
+      this.fallDelay--;
     }
   },
 
@@ -1977,6 +2009,10 @@ Crafty.c('Car', {
         return;
       }
       this._adjustDirectionIncrementForSeekTarget();
+    }
+
+    if (!this.falling && !this.hit("Ground")) {
+      this._startFalling();
     }
 
     if (this.falling) {
@@ -2115,51 +2151,6 @@ Crafty.c('Car', {
     this.y += hd.normal.y;
   },
 
-  // TODO improve detection of fall by improving bounding boxes of car
-  holeHit: function(hitData) {
-    if (this.falling) {
-      return;
-    }
-    var totalOverlap = 0;
-    hitData.forEach(function(hd) {
-      totalOverlap += Math.abs(hd.overlap);
-    });
-    if (totalOverlap > 25) {
-      // stop all car sounds except slow down & idle
-      this._stopSoundEffect('wheel_spin');
-      this._stopSoundEffect('engine_speed_up');
-      this._stopSoundEffect('engine_top_speed');
-      // play car horn sound
-      Game.playSoundEffect('car_horn', 1, 1.0);
-      // show falling text
-      var fallingText = Crafty.e('TipText');
-      fallingText.setName("FallingText");
-      fallingText.text("UH OH!");
-      fallingText.show();
-      // start falling mode
-      this.fallingTarget = this._calculateFallingTarget(hitData);
-      this.fallingTargetSteps = 40;
-      this.falling = true;
-    }
-  },
-
-  _calculateFallingTarget: function(hitData) {
-    if (hitData.length == 1) {
-      // overlapping 1 hole:  fall from center of hole
-      return { x: Math.round(hitData[0].obj.x) + 15, y: Math.round(hitData[0].obj.y - 23) };
-    } else if (hitData.length == 2) {
-      // overlapping 2 holes:  fall from closest point from the car to a line drawn from one hole to the other hole
-      var holeOnePosition = new Crafty.math.Vector2D(hitData[0].obj.x + 15, hitData[0].obj.y - 23);
-      var holeTwoPosition = new Crafty.math.Vector2D(hitData[1].obj.x + 15, hitData[1].obj.y - 23);
-      var carPosition = new Crafty.math.Vector2D(this.x, this.y);
-      var target = VectorUtils.getNormalPoint(carPosition, holeOnePosition, holeTwoPosition);
-      return { x: Math.round(target.x), y: Math.round(target.y) };
-    } else {
-      // overlapping 3 or more holes:  fall in place
-      return { x: Math.round(this.x), y: Math.round(this.y) };
-    }
-  },
-
   oilHit: function(hitData) {
     if (this.falling || this.spinning) {
       return;
@@ -2225,10 +2216,10 @@ Crafty.c('Car', {
   },
 
   boundingPolygon: function(direction, w, h) {
-    var LEFT_PADDING = 35;
-    var TOP_PADDING = 15;
-    var RIGHT_PADDING = 35;
-    var BOTTOM_PADDING = 30;
+    var LEFT_PADDING = 38;
+    var TOP_PADDING = 18;
+    var RIGHT_PADDING = 38;
+    var BOTTOM_PADDING = 33;
 
     var DEG_TO_RAD = Math.PI / 180;
     var polygon = new Crafty.polygon(

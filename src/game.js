@@ -320,14 +320,6 @@ Game = {
       .createWorld( function( tiledmap ){
         var entities, obstacle, entity;
 
-        // Set properties of entities on the 'Ground_Sides' layer
-        entities = tiledmap.getEntitiesInLayer('Ground_Sides');
-        for (obstacle = 0; obstacle < entities.length; obstacle++){
-          entity = entities[obstacle];
-
-          entity.destroy();
-        }
-
         // Set properties of entities on the 'Ground_Tops' layer
         entities = tiledmap.getEntitiesInLayer('Ground_Tops');
         for (obstacle = 0; obstacle < entities.length; obstacle++){
@@ -345,36 +337,9 @@ Game = {
           } else if (entity.__image === "assets/images/Iso_Cubes_01_128x128_Alt_00_007.png") {
             // Breaking Top
             entity.addComponent("BreakingGround");
-            // Set Breaking Side
-            var tilePosition = Game.toTilePosition({x:entity._x, y:entity._y});
-            var breakingSide = tiledmap.getTile(tilePosition.row+1, tilePosition.col+1, 'Ground_Sides');
-            entity.setBreakingSide(breakingSide);
           } else {
             // Ground Top
             entity.addComponent("NormalGround");
-          }
-          entity.addComponent("Collision")
-          entity.collision(new Crafty.polygon([0, 32], [64, 0], [128, 32], [64, 64]));
-        }
-
-        // Set properties of entities on the 'Solid_Sides' layer
-        entities = tiledmap.getEntitiesInLayer('Solid_Sides');
-        for (obstacle = 0; obstacle < entities.length; obstacle++){
-          entity = entities[obstacle];
-
-          //Set z-index for correct view: front, back
-          entity.z = Math.floor(entity._y );
-
-          // Hide collision marker
-          if (entity.__image === "assets/images/Collision_Marker.png") {
-            // Set collision settings
-            entity.addComponent("Collision");
-            entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
-
-            entity.addComponent("Hole");
-            entity._visible = false;
-          } else {
-            entity.destroy();
           }
         }
 
@@ -387,12 +352,6 @@ Game = {
           entity.z = Math.floor(entity._y + 64);
 
           entity.addComponent("Solid");
-
-          // Set collision settings
-          entity.addComponent("Collision");
-          var polygon = new Crafty.polygon([0, 32], [64, 0], [128, 32], [64, 64]);
-          polygon.shift(0,64);
-          entity.collision(polygon);
         }
 
         // Set properties of entities on the 'Objects' layer
@@ -712,7 +671,7 @@ Debug = {
       if (!entities.hasOwnProperty(id) || id == "length") continue; //skip
       var entity = Crafty(parseInt(id, 10));
       if (entity.length == 0) continue; //skip
-      if (entity.has("Ground_Sides") || entity.has("Ground_Tops") || entity.has("Solid_Sides") || entity.has("Solid_Tops") || entity.has("Objects") ) {
+      if (entity.has("Ground_Tops") || entity.has("Solid_Tops") || entity.has("Objects") ) {
         // do nothing
       } else {
         if (entity._entityName) {
@@ -742,8 +701,8 @@ Debug = {
       return;
     }
     var total = Crafty("*").length;
-    var groundNum = Crafty("Ground_Sides").length + Crafty("Ground_Tops").length;
-    var solidNum = Crafty("Solid_Sides").length + Crafty("Solid_Tops").length;
+    var groundNum = Crafty("Ground_Tops").length;
+    var solidNum = Crafty("Solid_Tops").length;
     var objectNum = Crafty("Objects").length;
     var otherNum = total - (groundNum + solidNum + objectNum);
     console.log(message, " - Entities: ", total, "Total,", groundNum, "Ground,", solidNum, "Solid,", objectNum, "Objects,", otherNum, "Other");
