@@ -295,7 +295,7 @@ Game = {
 
   loadLevel: function() {
     var WAYPOINT_TILE_FIRST_GID = 7;
-    var ONE_WAY_TILE_FIRST_GID = 19;
+    var ONE_WAY_TILE_FIRST_GID = 17;
     var ONE_WAY_TYPES = ['NE','SE','SW','NW'];
     var GROUND_TILES = [
       { tileName: 'Tile1', component: 'NormalGround' },
@@ -312,12 +312,17 @@ Game = {
       }
     };
 
+    var isOneWayTile = function(entity) {
+      return getOneWayType(entity) != 'NONE';
+    };
+
     var getOneWayType = function(entity) {
       for (var index=0; index<4; index++) {
         if (entity.has("Tile" + (ONE_WAY_TILE_FIRST_GID + index))) {
           return ONE_WAY_TYPES[index];
         }
       }
+      return 'NONE';
     };
 
     var addGroundComponentTo = function(entity) {
@@ -362,35 +367,33 @@ Game = {
         for (obstacle = 0; obstacle < entities.length; obstacle++){
           var entity = entities[obstacle];
 
-          // Setup player and hide player marker
-          if (entity.__image === "assets/images/Player_Marker.png") {
+          if (entity.has('Tile6')) {
+            // Setup player and hide player marker
             Game.setInitialPlayerPosition(entity._x + 15, entity._y - 17);
             entity._visible = false;
           }
-
-          // Setup waypoints and hide waypoint markers
-          if (entity.__image === "assets/images/Waypoints_Marker.png") {
-            var waypointIndex = getWaypointIndex(entity);
-            Game.addWaypoint(waypointIndex, entity._x + 32, entity._y - 16);
-            entity._visible = false;
+          else if (entity.has('Tile21')) {
+            // Setup Oil entity
+            entity.z = Math.floor(entity._y - 64 - 10);
+            entity.addComponent('Oil');
+            entity.addComponent("Collision")
+            entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
           }
-
-          // Setup one way entities
-          if (entity.__image === "assets/images/one_way_marker.png") {
+          else if (isOneWayTile(entity)) {
+            // Setup one way entities
             entity.z = Math.floor(entity._y - 64 - 10);
             entity.addComponent('OneWay');
             entity.setOneWayType(getOneWayType(entity));
             entity.addComponent("Collision")
             entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
           }
-
-          // Setup Oil entities
-          if (entity.__image === "assets/images/oil_spill.png") {
-            entity.z = Math.floor(entity._y - 64 - 10);
-            entity.addComponent('Oil');
-            entity.addComponent("Collision")
-            entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
+          else {
+            // Setup waypoints and hide waypoint markers (Tile7 - Tile16)
+            var waypointIndex = getWaypointIndex(entity);
+            Game.addWaypoint(waypointIndex, entity._x + 32, entity._y - 16);
+            entity._visible = false;
           }
+
         }
 
       });

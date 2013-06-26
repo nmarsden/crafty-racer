@@ -90,17 +90,7 @@ Crafty.scene('Loading', function(){
     'assets/images/car.png',
     'assets/images/waypoint_animation.png',
     'assets/images/navigator.png',
-    "assets/images/Iso_Cubes_01_128x128_Alt_00_003.png",
-    "assets/images/Iso_Cubes_01_128x128_Alt_00_004.png",
-    "assets/images/Iso_Cubes_01_128x128_Alt_00_007.png",
-    "assets/images/ice_block.png",
-    "assets/images/mud_block.png",
-    "assets/images/oil_spill.png",
     "assets/images/waypoint_indicator.png",
-    "assets/images/Collision_Marker.png",
-    "assets/images/Player_Marker.png",
-    "assets/images/Waypoints_Marker.png",
-    "assets/images/one_way_marker.png",
     "assets/images/up_arrow_51x48.png",
     "assets/images/right_arrow_51x48.png",
     "assets/images/down_arrow_51x48.png",
@@ -109,7 +99,8 @@ Crafty.scene('Loading', function(){
     "assets/images/enter_key_100x48.png",
     "assets/images/glass_overlay.png",
     "assets/images/menu_background.png",
-    "assets/images/tiles.png"
+    "assets/images/tiles.png",
+    "assets/images/tiles2.png"
   ], function(){
     Crafty.sprite(98, 'assets/images/car.png', {
       spr_car:  [6, 1]
@@ -119,9 +110,6 @@ Crafty.scene('Loading', function(){
     }, 0, 0);
     Crafty.sprite(21, 'assets/images/waypoint_indicator.png', {
       spr_waypoint_indicator:  [0, 0]
-    }, 0, 0);
-    Crafty.sprite(128, 64, 'assets/images/one_way_marker.png', {
-      spr_one_way:  [0, 0]
     }, 0, 0);
     Crafty.sprite(96, 'assets/images/navigator.png', {
       spr_navigator:  [0, 0]

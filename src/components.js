@@ -2117,6 +2117,9 @@ Crafty.c('Car', {
   },
 
   waypointReached: function(data) {
+    if (this.falling) {
+      return;
+    }
     //console.log("Waypoint reached");
     var waypoint = data[0].obj;
     waypoint.reached();
