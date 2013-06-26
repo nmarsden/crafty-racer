@@ -9,23 +9,28 @@ Editor = {
     },
     'GROUND': {
       tileName: 'Tile1',
-      layerName: 'Ground_Tops'
+      layerName: 'Ground_Tops',
+      component: 'NormalGround'
     },
     'MUD': {
       tileName: 'Tile25',
-      layerName: 'Ground_Tops'
+      layerName: 'Ground_Tops',
+      component: 'MudGround'
     },
     'ICE': {
       tileName: 'Tile23',
-      layerName: 'Ground_Tops'
+      layerName: 'Ground_Tops',
+      component: 'IceGround'
     },
     'BREAKING': {
       tileName: 'Tile17',
-      layerName: 'Ground_Tops'
+      layerName: 'Ground_Tops',
+      component: 'BreakingGround'
     },
     'SOLID': {
       tileName: 'Tile3',
-      layerName: 'Solid_Tops'
+      layerName: 'Solid_Tops',
+      component: 'Solid'
     }
   },
 
@@ -48,6 +53,10 @@ Editor = {
 
   tileNameFor: function(editMode) {
     return Editor.EDIT_MODES[editMode].tileName;
+  },
+
+  componentFor: function(editMode) {
+    return Editor.EDIT_MODES[editMode].component;
   },
 
   tilePositionZFor: function(editMode, y) {
@@ -94,6 +103,8 @@ Editor = {
       entity.y -= Crafty.viewport.y;
       // adjust z position
       entity.z = Editor.tilePositionZFor(editMode, entity.y);
+      // add components
+      entity.addComponent(Editor.componentFor(editMode));
     }
     return entity;
 
@@ -102,6 +113,10 @@ Editor = {
   saveChanges: function() {
     // TODO Currently just logs to console. Could this be saved to file?
     console.log(JSON.stringify(Game.tiledMapBuilder.getSource()));
+  },
+
+  playGame: function() {
+    Game.initLevel();
   },
 
   initEditor: function() {
@@ -362,6 +377,10 @@ Crafty.c('EditModeControl', {
     else if (this.isDown('S')) {
       // Save
       Editor.saveChanges();
+    }
+    else if (this.isDown('P')) {
+      // Play game
+      Editor.playGame();
     }
     else if (this.isDown('SHIFT')) {
       Editor.shiftKeyDown = true;
