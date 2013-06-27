@@ -443,6 +443,7 @@ Crafty.c('ScaleIndicator', {
     this.css('text-align', 'left');
     this.textColor('#00000', 1.0);
     this.text("Scale: " + this.scalePercentage + "%");
+    this.unselectable();
     this._updatePosition();
 
     this.bind("ViewportChanged", this._updatePosition.bind(this));
