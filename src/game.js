@@ -19,7 +19,7 @@ Game = {
   fontFamily: 'QBO', //'SIMPLETYPE', //'UNICODE0',
   levels:[],
   levelIndex:0,
-  waypointIndex:0,
+  currentWaypointNum:1,
   waypoint:null,
   navigator:null,
   countdown:null,
@@ -156,11 +156,8 @@ Game = {
     Game.mainMenu.destroy();
   },
 
-  initWaypoint: function () {
-    var waypoint = this.waypoints[this.waypointIndex];
-    this.waypoint = Crafty.e('Waypoint');
-    this.waypoint.setName("Waypoint");
-    this.waypoint.setPosition(waypoint.x, waypoint.y);
+  getCurrentWaypointMarker: function() {
+    return Crafty("Tile" + (6 + this.currentWaypointNum));
   },
 
   initPauseControl: function() {
@@ -207,7 +204,12 @@ Game = {
   },
 
   hideMarkers: function() {
+    // Hide player marker
     Game.getPlayerMarker().visible = false;
+    // Hide waypoint markers
+    Crafty("WaypointMarker").each(function() {
+      this.visible = false;
+    });
   },
 
   initPlayer: function() {
@@ -222,21 +224,21 @@ Game = {
   },
 
   initLevel: function () {
-    this.waypointIndex = 0;
+    Game.currentWaypointNum = 1;
     Game.hideMarkers();
     Game.initPauseControl();
     Game.initNavigator();
     Game.initCountdown();
     Game.initMiniMap();
     Game.initLevelIndicator();
-    Game.resetWaypoint();
+    Game.initWaypoint();
     Game.initWaypointsCollectedIndicator();
     Game.initPlayer();
     Game.initRecordControl();
   },
 
   isLevelComplete: function () {
-    return this.NUMBER_OF_WAYPOINTS === (this.waypointIndex + 1);
+    return this.NUMBER_OF_WAYPOINTS === (this.currentWaypointNum);
   },
 
   getLevelNumber: function() {
@@ -247,20 +249,22 @@ Game = {
     return 'LEVEL ' + Game.getLevelNumber() + ' COMPLETE!';
   },
 
-  addWaypoint: function (idx, x, y) {
-    this.waypoints[idx] = {x: x, y: y};
+  initWaypoint: function () {
+    this.waypoint = Crafty.e('Waypoint');
+    this.waypoint.setName("Waypoint");
+    Game.resetWaypoint();
   },
 
   nextWaypoint: function () {
-    this.waypointIndex++;
+    this.currentWaypointNum++;
     Game.resetWaypoint();
   },
 
   resetWaypoint: function () {
-    this.waypoint && this.waypoint.destroy();
-    Game.initWaypoint();
+    var waypointPos = Game.getCurrentWaypointMarker().getWaypointPosition();
+    this.waypoint.setPosition(waypointPos.x, waypointPos.y);
 
-//    this.countdown.start(1000000);
+    //this.countdown.start(1000000);
     this.countdown.start(30000);
   },
 
@@ -302,14 +306,6 @@ Game = {
       { tileName: 'Tile4', component: 'MudGround' },
       { tileName: 'Tile5', component: 'IceGround' }
     ];
-
-    var getWaypointIndex = function(entity) {
-      for (var index=0; index<10; index++) {
-        if (entity.has("Tile" + (WAYPOINT_TILE_FIRST_GID + index))) {
-          return index;
-        }
-      }
-    };
 
     var isOneWayTile = function(entity) {
       return getOneWayType(entity) != 'NONE';
@@ -386,14 +382,10 @@ Game = {
             entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
           }
           else {
-            // Setup waypoints and hide waypoint markers (Tile7 - Tile16)
-            var waypointIndex = getWaypointIndex(entity);
-            Game.addWaypoint(waypointIndex, entity._x + 32, entity._y - 16);
-            entity._visible = false;
+            // Setup waypoints markers (Tile7 - Tile16)
+            entity.addComponent("WaypointMarker");
           }
-
         }
-
       });
   },
 
@@ -497,7 +489,7 @@ Game = {
   },
 
   retryLevel: function() {
-    this.waypointIndex = 0;
+    this.currentWaypointNum = 1;
     Game.hideMarkers();
     Game.resetWaypoint();
     var entities = Crafty("WasBreaking");

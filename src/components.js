@@ -1329,6 +1329,19 @@ Crafty.c('PlayerMarker', {
   }
 });
 
+Crafty.c('WaypointMarker', {
+  init: function() {
+    this.z = Math.floor(this._y);
+  },
+
+  getWaypointPosition: function() {
+    return {
+      x: this._x + 32,
+      y: this._y - 16
+    }
+  }
+});
+
 Crafty.c('Car', {
   init: function() {
     this.directionIndex = 27;  // NE

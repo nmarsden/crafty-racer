@@ -91,7 +91,7 @@ Editor = {
   },
 
   deleteAllTiles: function(editMode) {
-    Crafty(Editor.componentFor(editMode)).each(function() {
+    Crafty(Editor.tileNameFor(editMode)).each(function() {
       var tileIso = Editor.tilePosToIso(this.x, this.y);
       Editor.deleteTile(tileIso, Editor.layerNameFor(editMode));
     });
@@ -122,7 +122,6 @@ Editor = {
       entity.addComponent(Editor.componentFor(editMode));
     }
     return entity;
-
   },
 
   saveChanges: function() {
@@ -131,15 +130,34 @@ Editor = {
   },
 
   playGame: function() {
+    Editor.destroyEditor();
     Game.initLevel();
   },
 
   initEditor: function() {
+    Editor.initEditModes();
     Editor.setupMouseEvents();
     Editor.tileCursor = Crafty.e('TileCursor');
     Crafty.e('ScaleIndicator');
     Crafty.e('EditModeControl');
-    Editor.showPlayerMarker();
+    //Editor.showPlayerMarker();
+  },
+
+  destroyEditor: function() {
+    Crafty('Editor').each(function() {
+      this.destroy();
+    })
+  },
+
+  initEditModes: function() {
+    // setup waypoint edit modes
+    for (var i=1; i<=10; i++) {
+      Editor.EDIT_MODES['WAYPOINT' + i] = {
+        tileName: 'Tile' + (6+i),
+        layerName: 'Objects',
+        component: 'WaypointMarker'
+      };
+    }
   },
 
   showPlayerMarker: function() {
@@ -286,7 +304,7 @@ Editor = {
   performEditOperation: function(e) {
     var iso = Editor.mouseToIso(e.clientX, e.clientY);
 
-    if (Editor.currentEditMode === 'PLAYER') {
+    if (Editor.currentEditMode === 'PLAYER' || Editor.isWaypointEditMode()) {
       Editor.performAddSingleInstanceOperation(iso);
     }
     else if (Editor.currentEditMode === 'DELETE') {
@@ -357,6 +375,17 @@ Editor = {
     Editor.addTile(iso, Editor.currentEditMode);
   },
 
+  isWaypointEditMode: function() {
+    return Editor.currentEditMode.indexOf('WAYPOINT') === 0;
+  },
+
+  nextWaypointEditMode: function() {
+    var waypointNum = parseInt(Editor.currentEditMode.substring('WAYPOINT'.length), 10); // ignore leading 'WAYPOINT' prefix
+    waypointNum++;
+    if (waypointNum > 10) waypointNum = 1;
+    return 'WAYPOINT' + waypointNum;
+  },
+
   changeEditMode: function(editMode) {
     // save new edit mode
     Editor.currentEditMode = editMode;
@@ -371,7 +400,7 @@ Editor = {
 
 Crafty.c('EditModeControl', {
   init: function() {
-    this.requires('2D, Keyboard');
+    this.requires('2D, Keyboard, Editor');
 
     this.bind('KeyDown', this._handleKeyDown);
     this.bind('KeyUp', this._handleKeyUp);
@@ -445,6 +474,15 @@ Crafty.c('EditModeControl', {
     else if (this.isDown('Q')) {
       Editor.changeEditMode('PLAYER');
     }
+    else if (this.isDown('W')) {
+      if (Editor.isWaypointEditMode()) {
+        // Cycle to next waypoint edit mode
+        Editor.changeEditMode(Editor.nextWaypointEditMode());
+      } else {
+        // TODO perhaps should set to first unused waypoint?
+        Editor.changeEditMode('WAYPOINT1');
+      }
+    }
   },
 
   _handleKeyUp: function(e) {
@@ -473,7 +511,7 @@ Crafty.c('EditModeControl', {
 
 Crafty.c('ScaleIndicator', {
   init: function() {
-    this.requires('2D, DOM, Text, Keyboard');
+    this.requires('2D, DOM, Text, Keyboard, Editor');
     this.scalePercentage = 100.0;
     this.fontSize = 16;
     this.margin = 10;
@@ -509,7 +547,7 @@ Crafty.c('ScaleIndicator', {
 
 Crafty.c('TileCursor', {
   init: function() {
-    this.requires('2D, Canvas, Tween');
+    this.requires('2D, Canvas, Tween, Editor');
     this.currentIso = {row:0, col:0};
     this.z = 8000;
     this.currentEditMode = Editor.currentEditMode;
@@ -562,7 +600,7 @@ Crafty.c('TileCursor', {
 
 Crafty.c('IsoTileOutline', {
   init: function() {
-    this.requires('2D, Canvas');
+    this.requires('2D, Canvas, Editor');
     this.z = 7000;
     this.w = 128;
     this.h = 64;
