@@ -26,7 +26,6 @@ Game = {
   levelIndicator:null,
   NUMBER_OF_WAYPOINTS:10,
   waypoints:{},
-  initialPlayerPosition:null,
   attractMode:false,
   editMode:false,
   musicPlaying:'',
@@ -55,13 +54,6 @@ Game = {
 
   viewportHeight:function () {
     return 640;
-  },
-
-  toTilePosition:function (position) {
-    return {
-      col: Math.round((position.x / 128) + (position.y / 64)),
-      row: Math.round((position.y - (position.x/2)) / 64)
-    };
   },
 
   playMusic:function (music) {
@@ -209,10 +201,20 @@ Game = {
     Game.waypointsCollectedIndicator.setName("WaypointsCollectedIndicator");
   },
 
+  getPlayerMarker: function() {
+    var markers = Crafty("PlayerMarker");
+    return (markers.length === 1) ? markers : null;
+  },
+
+  hideMarkers: function() {
+    Game.getPlayerMarker().visible = false;
+  },
+
   initPlayer: function() {
     Game.player = Crafty.e('Car');
     Game.player.setName("Player");
-    Game.player.setPosition(Game.initialPlayerPosition.x, Game.initialPlayerPosition.y);
+    var playerPos = Game.getPlayerMarker().getPlayerPosition();
+    Game.player.setPosition(playerPos.x, playerPos.y);
   },
 
   initRecordControl: function() {
@@ -221,6 +223,7 @@ Game = {
 
   initLevel: function () {
     this.waypointIndex = 0;
+    Game.hideMarkers();
     Game.initPauseControl();
     Game.initNavigator();
     Game.initCountdown();
@@ -242,10 +245,6 @@ Game = {
 
   getLevelCompleteMessage: function () {
     return 'LEVEL ' + Game.getLevelNumber() + ' COMPLETE!';
-  },
-
-  setInitialPlayerPosition: function(playerX, playerY) {
-    Game.initialPlayerPosition = {x: playerX, y: playerY};
   },
 
   addWaypoint: function (idx, x, y) {
@@ -368,9 +367,8 @@ Game = {
           var entity = entities[obstacle];
 
           if (entity.has('Tile6')) {
-            // Setup player and hide player marker
-            Game.setInitialPlayerPosition(entity._x + 15, entity._y - 17);
-            entity._visible = false;
+            // Setup player marker entity
+            entity.addComponent('PlayerMarker');
           }
           else if (entity.has('Tile21')) {
             // Setup Oil entity
@@ -500,13 +498,15 @@ Game = {
 
   retryLevel: function() {
     this.waypointIndex = 0;
+    Game.hideMarkers();
     Game.resetWaypoint();
     var entities = Crafty("WasBreaking");
     entities.each(function() {
       this.restoreAsUnbroken();
     });
     Game.waypointsCollectedIndicator.resetNumberCollected();
-    Game.player.setPosition(Game.initialPlayerPosition.x, Game.initialPlayerPosition.y);
+    var playerPos = Game.getPlayerMarker().getPlayerPosition();
+    Game.player.setPosition(playerPos.x, playerPos.y);
     Game.playMusic('level_music');
     Game.unpauseGame();
     Game.enablePauseControl()

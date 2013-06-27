@@ -1316,6 +1316,19 @@ Crafty.c('Exhaust', {
   }
 });
 
+Crafty.c('PlayerMarker', {
+  init: function() {
+    this.z = Math.floor(this._y);
+  },
+
+  getPlayerPosition: function() {
+    return {
+      x: this._x + 15,
+      y: this._y - 17
+    }
+  }
+});
+
 Crafty.c('Car', {
   init: function() {
     this.directionIndex = 27;  // NE

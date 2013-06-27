@@ -31,6 +31,11 @@ Editor = {
       tileName: 'Tile5',
       layerName: 'Ground_Tops',
       component: 'IceGround'
+    },
+    'PLAYER': {
+      tileName: 'Tile6',
+      layerName: 'Objects',
+      component: 'PlayerMarker'
     }
   },
 
@@ -67,6 +72,9 @@ Editor = {
     else if (layerName == 'Solid_Tops') {
       return Math.floor(y + 64);
     }
+    else if (layerName == 'Objects') {
+      return Math.floor(y);
+    }
     else {
       return Math.floor(y - 64 - 10);
     }
@@ -80,6 +88,13 @@ Editor = {
 
   isScaleZoomLevelPrevented: function(scale) {
     return (scale > 1 && Editor.zoomLevel >= 1) || (scale < 1 && Editor.zoomLevel <= 0.0625);
+  },
+
+  deleteAllTiles: function(editMode) {
+    Crafty(Editor.componentFor(editMode)).each(function() {
+      var tileIso = Editor.tilePosToIso(this.x, this.y);
+      Editor.deleteTile(tileIso, Editor.layerNameFor(editMode));
+    });
   },
 
   deleteTile: function(iso, layerName) {
@@ -124,6 +139,14 @@ Editor = {
     Editor.tileCursor = Crafty.e('TileCursor');
     Crafty.e('ScaleIndicator');
     Crafty.e('EditModeControl');
+    Editor.showPlayerMarker();
+  },
+
+  showPlayerMarker: function() {
+    var playerMarker = Game.getPlayerMarker();
+    if (playerMarker) {
+      playerMarker.visible = true;
+    }
   },
 
   setupMouseEvents: function() {
@@ -192,6 +215,12 @@ Editor = {
     }
   },
 
+  tilePosToIso: function(x, y) {
+    var tileCenterX = x + Editor.TILE_WIDTH/2;
+    var tileCenterY = y + Editor.TILE_HEIGHT/2;
+    return Editor.worldToIso(tileCenterX, tileCenterY);
+  },
+
   worldToIso: function(x, y) {
     var x0 = Editor.TILE_WIDTH/2;
     var y0 = 0;
@@ -257,7 +286,10 @@ Editor = {
   performEditOperation: function(e) {
     var iso = Editor.mouseToIso(e.clientX, e.clientY);
 
-    if (Editor.currentEditMode === 'DELETE') {
+    if (Editor.currentEditMode === 'PLAYER') {
+      Editor.performAddSingleInstanceOperation(iso);
+    }
+    else if (Editor.currentEditMode === 'DELETE') {
       // Perform delete area or delete single tile
       if (Editor.shiftKeyDown) {
         Editor.performDeleteAreaOperation(iso);
@@ -277,9 +309,7 @@ Editor = {
   performDeleteAreaOperation: function(currentIso) {
     // Delete area covered by fill grid
     Editor.fillGridTiles.forEach(function(fillGridTile) {
-      var tileCenterX = fillGridTile.x + Editor.TILE_WIDTH/2;
-      var tileCenterY = fillGridTile.y + Editor.TILE_HEIGHT/2;
-      var tileIso = Editor.worldToIso(tileCenterX, tileCenterY);
+      var tileIso = Editor.tilePosToIso(fillGridTile.x, fillGridTile.y);
       Editor.deleteTile(tileIso, Editor.mostRecentDeleteLayer);
     });
     // Cleanup previously drawn fill grid
@@ -293,9 +323,11 @@ Editor = {
       // Restrict deletion to most recent delete layer
       Editor.deleteTile(iso, Editor.mouseDownDeleteLayer);
     } else {
-      // Attempt to delete from Solid layer first, then from Ground layer if nothing deleted on Solid layer
+      // Attempt to delete from the Solid layer first, then from the Objects layer, and then finally from the Ground layer
       if (!Editor.deleteTile(iso, 'Solid_Tops')) {
-        Editor.deleteTile(iso, 'Ground_Tops');
+        if (!Editor.deleteTile(iso, 'Objects')) {
+          Editor.deleteTile(iso, 'Ground_Tops');
+        }
       }
     }
   },
@@ -318,6 +350,11 @@ Editor = {
     Editor.addTile(iso, Editor.currentEditMode);
     // set start position of fill grid
     Editor.fillGridStartTileIso = iso;
+  },
+
+  performAddSingleInstanceOperation: function(iso) {
+    Editor.deleteAllTiles(Editor.currentEditMode);
+    Editor.addTile(iso, Editor.currentEditMode);
   },
 
   changeEditMode: function(editMode) {
@@ -404,6 +441,9 @@ Crafty.c('EditModeControl', {
     }
     else if (this.isDown('5')) {
       Editor.changeEditMode('SOLID');
+    }
+    else if (this.isDown('Q')) {
+      Editor.changeEditMode('PLAYER');
     }
   },
 
