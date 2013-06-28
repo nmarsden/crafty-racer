@@ -1040,6 +1040,40 @@ Crafty.c('GameOverControl', {
 
 });
 
+Crafty.c('OptionsControl', {
+  init: function() {
+    this.requires('2D, Keyboard');
+    this.paused = false;
+    this.isShowExhaust = true;
+
+    this.bind("PauseGame", this._pauseGame);
+    this.bind("UnpauseGame", this._unpauseGame);
+    this.bind("KeyDown", this._handleKeyDown);
+  },
+
+  _pauseGame: function() {
+    this.paused = true;
+  },
+
+  _unpauseGame: function() {
+    this.paused = false;
+  },
+
+  _handleKeyDown: function(e) {
+    if (this.paused) {
+      return;
+    }
+    if (this.isDown('X')) {
+      this._toggleShowExhaust();
+    }
+  },
+
+  _toggleShowExhaust: function() {
+    this.isShowExhaust = !this.isShowExhaust;
+    Game.player.setShowExhaust(this.isShowExhaust);
+  }
+});
+
 Crafty.c('PauseControl', {
   init: function() {
     this.requires('2D, Keyboard');
@@ -1451,6 +1485,7 @@ Crafty.c('Car', {
     this.seekEnginePower = this.engineMagnitude;
     this.playingSounds = [];
     this.revStartTime = 0;
+    this.showExhaust = true;
 
     this.RECORDABLE_METHODS =  [
       this._upArrowPressed,
@@ -1790,7 +1825,9 @@ Crafty.c('Car', {
     }
 
     // update exhaust angle
-    this.exhaust.updateAngle(this.DIRECTIONS[this.directionIndex].angle);
+    if (this.showExhaust) {
+      this.exhaust.updateAngle(this.DIRECTIONS[this.directionIndex].angle);
+    }
   },
 
   _updateMovementToSeek: function(targetX, targetY) {
@@ -1936,7 +1973,9 @@ Crafty.c('Car', {
       // -adjust z otherwise the car sometimes drops through the floor
       this.z -= 50;
       // -stop exhaust
-      this.exhaust.stop();
+      if (this.showExhaust) {
+        this.exhaust.stop();
+      }
       // -setup dropping movement
       this.fallStepsDropping = 40;
     } else {
@@ -2000,7 +2039,9 @@ Crafty.c('Car', {
     this.z = Math.floor(z);
 
     // update exhaust position
-    this.exhaust.updatePosition(this.x, this.y, this.DIRECTIONS[this.directionIndex].angle);
+    if (this.showExhaust) {
+      this.exhaust.updatePosition(this.x, this.y, this.DIRECTIONS[this.directionIndex].angle);
+    }
   },
 
   _clonePoints: function (points) {
@@ -2085,15 +2126,27 @@ Crafty.c('Car', {
   _pause: function() {
     this.paused = true;
     // destroy exhaust
-    this.exhaust.destroy();
+    if (this.showExhaust) {
+      this._destroyExhaust();
+    }
   },
 
   _unpause: function() {
     this.paused = false;
     // recreate exhaust
+    if (this.showExhaust) {
+      this._createExhaust();
+    }
+  },
+
+  _createExhaust: function() {
     this.exhaust = Crafty.e('Exhaust');
     this.exhaust.updateAngle(this.DIRECTIONS[this.directionIndex].angle);
     this.exhaust.updatePosition(this.x, this.y, this.DIRECTIONS[this.directionIndex].angle);
+  },
+
+  _destroyExhaust: function() {
+    this.exhaust.destroy();
   },
 
   _initSounds: function() {
@@ -2123,8 +2176,22 @@ Crafty.c('Car', {
     this._updateViewportWithPlayerInCenter();
     this._triggerPlayerMoved();
     // set exhaust
-    this.exhaust.updateAngle(this.DIRECTIONS[this.directionIndex].angle);
-    this.exhaust.updatePosition(this.x, this.y, this.DIRECTIONS[this.directionIndex].angle);
+    if (this.showExhaust) {
+      this.exhaust.updateAngle(this.DIRECTIONS[this.directionIndex].angle);
+      this.exhaust.updatePosition(this.x, this.y, this.DIRECTIONS[this.directionIndex].angle);
+    }
+  },
+
+  setShowExhaust: function(isShowExhaust) {
+    if (isShowExhaust === this.showExhaust) {
+      return; // no change, do nothing!
+    }
+    if (isShowExhaust) {
+      this._createExhaust();
+    } else {
+      this._destroyExhaust();
+    }
+    this.showExhaust = isShowExhaust;
   },
 
   seek: function(targetX, targetY) {

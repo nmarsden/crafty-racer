@@ -160,6 +160,11 @@ Game = {
     return Crafty("Tile" + (6 + this.currentWaypointNum));
   },
 
+  initOptionsControl: function() {
+    Game.optionsControl = Crafty.e('OptionsControl');
+    Game.optionsControl.setName("OptionsControl");
+  },
+
   initPauseControl: function() {
     Game.pauseControl = Crafty.e('PauseControl');
     Game.pauseControl.setName("PauseControl");
@@ -226,6 +231,7 @@ Game = {
   initLevel: function () {
     Game.currentWaypointNum = 1;
     Game.hideMarkers();
+    Game.initOptionsControl();
     Game.initPauseControl();
     Game.initNavigator();
     Game.initCountdown();
