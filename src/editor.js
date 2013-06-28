@@ -80,14 +80,29 @@ Editor = {
     }
   },
 
-  scaleZoomLevel: function(scale) {
+  isScaleZoomLevelPrevented: function(scale) {
+    return (scale > 1 && Editor.zoomLevel >= 1) || (scale < 1 && Editor.zoomLevel <= 0.0625);
+  },
+
+  zoom: function(scale) {
+    if (Editor.isScaleZoomLevelPrevented(scale)) {
+      return;
+    }
+    var centerX = Crafty.viewport.width/2 - Crafty.viewport.x;
+    var centerY = Crafty.viewport.height/2 - Crafty.viewport.y;
+    Crafty.viewport.scrollXY(0,0);
+    Crafty.viewport.width = Crafty.viewport.width / scale;
+    Crafty.viewport.height = Crafty.viewport.height / scale;
+    Crafty.viewport.scale(scale);
+    Crafty.viewport.scrollXY((Crafty.viewport.width/2) - centerX, (Crafty.viewport.height/2) - centerY);
+
     Editor.zoomLevel *= scale;
     Crafty.trigger("ZoomLevelChanged", Editor.zoomLevel);
     Crafty.trigger("ViewportChanged");
   },
 
-  isScaleZoomLevelPrevented: function(scale) {
-    return (scale > 1 && Editor.zoomLevel >= 1) || (scale < 1 && Editor.zoomLevel <= 0.0625);
+  resetZoom: function() {
+    Editor.zoom(1/Editor.zoomLevel);
   },
 
   deleteAllTiles: function(editMode) {
@@ -130,6 +145,7 @@ Editor = {
   },
 
   playGame: function() {
+    Editor.resetZoom();
     Editor.destroyEditor();
     Game.initLevel();
   },
@@ -409,11 +425,11 @@ Crafty.c('EditModeControl', {
   _handleKeyDown: function(e) {
     if (this.isDown('PLUS')) {
       // Zoom In
-      this._zoom(2);
+      Editor.zoom(2);
     }
     else if (this.isDown('MINUS')) {
       // Zoom Out
-      this._zoom(0.5);
+      Editor.zoom(0.5);
     }
     else if (this.isDown('0')) {
       // Scroll (0,0)
@@ -491,22 +507,8 @@ Crafty.c('EditModeControl', {
       // Cleanup previously drawn fill grid
       Editor.cleanupFillGrid();
     }
-  },
-
-  _zoom: function(scale) {
-    if (Editor.isScaleZoomLevelPrevented(scale)) {
-      return;
-    }
-    var centerX = Crafty.viewport.width/2 - Crafty.viewport.x;
-    var centerY = Crafty.viewport.height/2 - Crafty.viewport.y;
-    Crafty.viewport.scrollXY(0,0);
-    Crafty.viewport.width = Crafty.viewport.width / scale;
-    Crafty.viewport.height = Crafty.viewport.height / scale;
-    Crafty.viewport.scale(scale);
-    Crafty.viewport.scrollXY((Crafty.viewport.width/2) - centerX, (Crafty.viewport.height/2) - centerY);
-
-    Editor.scaleZoomLevel(scale);
   }
+
 });
 
 Crafty.c('ScaleIndicator', {
