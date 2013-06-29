@@ -1566,7 +1566,13 @@ Crafty.c('Car', {
     this.revStartTime = 0;
     this.showExhaust = true;
     this.playerPosition = {x: 0, y:0};
-
+    // Note: re-using vectors to avoid memory allocation per frame
+    this.seekTargetVars = {
+      target:        new Crafty.math.Vector2D(0, 0),
+      position:      new Crafty.math.Vector2D(0, 0),
+      steeringForce: new Crafty.math.Vector2D(0, 0),
+      newVelocity:   new Crafty.math.Vector2D(0, 0)
+    };
     // Note: re-using collisionPolygon to avoid memory allocation per frame
     this.collisionPolygon = new Crafty.polygon([35,15],[63,15],[63,68],[35,68]);
 
@@ -1917,57 +1923,56 @@ Crafty.c('Car', {
     }
   },
 
-  _updateMovementToSeek: function(targetX, targetY) {
-    var target = new Crafty.math.Vector2D(targetX, targetY);
-    var position = new Crafty.math.Vector2D(this.x, this.y);
-    var desiredVelocity = target.subtract(position);
-    desiredVelocity.normalize();
-    // Calculating the desired velocity to target at max speed
-    desiredVelocity.scale(this.MAX_VELOCITY);
+//  _updateMovementToSeek: function(targetX, targetY) {
+//    var target = new Crafty.math.Vector2D(targetX, targetY);
+//    var position = new Crafty.math.Vector2D(this.x, this.y);
+//    var desiredVelocity = target.subtract(position);
+//    desiredVelocity.normalize();
+//    // Calculating the desired velocity to target at max speed
+//    desiredVelocity.scale(this.MAX_VELOCITY);
+//
+//    // Steering force = desired velocity - current velocity
+//    var steeringForce = desiredVelocity.clone();
+//    steeringForce.subtract(this.velocity);
+//
+//    // Apply the force to the car’s velocity
+//    this.velocity.add(steeringForce);
+//
+//    this.movement.x = this.velocity.x;
+//    this.movement.y = this.velocity.y;
+//  },
 
-    // Steering force = desired velocity - current velocity
-    var steeringForce = desiredVelocity.clone();
-    steeringForce.subtract(this.velocity);
-
-    // Apply the force to the car’s velocity
-    this.velocity.add(steeringForce);
-
-    this.movement.x = this.velocity.x;
-    this.movement.y = this.velocity.y;
-  },
-
-  _updateMovementToArrive: function(targetX, targetY) {
-    var target = new Crafty.math.Vector2D(targetX, targetY);
-    var position = new Crafty.math.Vector2D(this.x, this.y);
-    var desiredVelocity = target.subtract(position);
-
-    // The distance is the magnitude of the vector pointing from location to target.
-    var distance = desiredVelocity.magnitude();
-    desiredVelocity.normalize();
-    // If we are closer than 100 pixels...
-    if (distance < 100) {
-      // Set the magnitude according to how close we are.
-      var m = (distance / 100) * (this.MAX_VELOCITY*2);
-      desiredVelocity.scale(m);
-    } else {
-      // Otherwise, proceed at maximum speed.
-      desiredVelocity.scale(this.MAX_VELOCITY*2);
-    }
-    // Steering force = desired velocity - current velocity
-    var steeringForce = desiredVelocity.clone();
-    steeringForce.subtract(this.velocity);
-
-    // Apply the force to the car’s velocity
-    this.velocity.add(steeringForce);
-
-    this.movement.x = this.velocity.x;
-    this.movement.y = this.velocity.y;
-  },
+//  _updateMovementToArrive: function(targetX, targetY) {
+//    var target = new Crafty.math.Vector2D(targetX, targetY);
+//    var position = new Crafty.math.Vector2D(this.x, this.y);
+//    var desiredVelocity = target.subtract(position);
+//
+//    // The distance is the magnitude of the vector pointing from location to target.
+//    var distance = desiredVelocity.magnitude();
+//    desiredVelocity.normalize();
+//    // If we are closer than 100 pixels...
+//    if (distance < 100) {
+//      // Set the magnitude according to how close we are.
+//      var m = (distance / 100) * (this.MAX_VELOCITY*2);
+//      desiredVelocity.scale(m);
+//    } else {
+//      // Otherwise, proceed at maximum speed.
+//      desiredVelocity.scale(this.MAX_VELOCITY*2);
+//    }
+//    // Steering force = desired velocity - current velocity
+//    var steeringForce = desiredVelocity.clone();
+//    steeringForce.subtract(this.velocity);
+//
+//    // Apply the force to the car’s velocity
+//    this.velocity.add(steeringForce);
+//
+//    this.movement.x = this.velocity.x;
+//    this.movement.y = this.velocity.y;
+//  },
 
   _adjustDirectionIncrementForSeekTarget: function() {
-    // TODO optimization: create these vectors once and reuse so that re-allocation does not cause GC
-    var target = new Crafty.math.Vector2D(this.seekTarget.x, this.seekTarget.y);
-    var position = new Crafty.math.Vector2D(this.x, this.y);
+    var target = this.seekTargetVars.target.setValues(this.seekTarget.x, this.seekTarget.y);
+    var position = this.seekTargetVars.position.setValues(this.x, this.y);
     var desiredVelocity = target.subtract(position);
 
     // The distance is the magnitude of the vector pointing from location to target.
@@ -1984,11 +1989,11 @@ Crafty.c('Car', {
     }
 
     // Steering force = desired velocity - current velocity
-    var steeringForce = desiredVelocity.clone();
+    var steeringForce = this.seekTargetVars.steeringForce.setValues(desiredVelocity.x, desiredVelocity.y);
     steeringForce.subtract(this.velocity);
 
     // New velocity = current velocity + steering force
-    var newVelocity = this.velocity.clone();
+    var newVelocity = this.seekTargetVars.newVelocity.setValues(this.velocity.x, this.velocity.y);
     newVelocity.add(steeringForce);
 
     // Determine angle between current and new velocity
@@ -2014,9 +2019,8 @@ Crafty.c('Car', {
   },
 
   _isSeekTargetReached: function() {
-    // TODO optimization: create these vectors once and re-use
-    var target = new Crafty.math.Vector2D(this.seekTarget.x, this.seekTarget.y);
-    var position = new Crafty.math.Vector2D(this.x, this.y);
+    var target = this.seekTargetVars.target.setValues(this.seekTarget.x, this.seekTarget.y);
+    var position = this.seekTargetVars.position.setValues(this.x, this.y);
     var distanceVector = target.subtract(position);
     var distance = distanceVector.magnitude();
     return (distance < Game.SEEK_TARGET_RADIUS);
@@ -2526,11 +2530,12 @@ Crafty.c('PlayerPlaybackControl', {
   },
 
   _setupNextSeekTarget: function() {
-    var target = {x: this.recordedData[this.playbackIndex], y: this.recordedData[this.playbackIndex+1]};
+    var targetX = this.recordedData[this.playbackIndex];
+    var targetY = this.recordedData[this.playbackIndex+1];
     if (this.debugMode) {
-      this.seekTarget.setPosition(target.x, target.y);
+      this.seekTarget.setPosition(targetX, targetY);
     }
-    this.player.seek(target.x, target.y);
+    this.player.seek(targetX, targetY);
     this.playbackIndex += Game.SEEK_TARGET_FREQUENCY * 2;
   }
 });
@@ -2591,9 +2596,12 @@ Crafty.c('AttractModeControl', {
     var x = Crafty.viewport.width/2 - Crafty.viewport.x - (650/2);
     var y = Crafty.viewport.height/2 - Crafty.viewport.y - 140;
 
-    this.title.attr({ x: x, y: y - 130 })
-    this.demo.attr({ x: x, y: y + 300 })
-    this.pressAnyKey.attr({ x: x, y: y + 360 })
+    this.title.x = x;
+    this.title.y = y - 130;
+    this.demo.x = x;
+    this.demo.y = y + 300;
+    this.pressAnyKey.x = x;
+    this.pressAnyKey.y = y + 360;
   },
 
   _playbackStarted: function() {
