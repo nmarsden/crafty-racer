@@ -1565,6 +1565,8 @@ Crafty.c('Car', {
     this.playingSounds = [];
     this.revStartTime = 0;
     this.showExhaust = true;
+    this.playerPosition = {x: 0, y:0};
+
     // Note: re-using collisionPolygon to avoid memory allocation per frame
     this.collisionPolygon = new Crafty.polygon([35,15],[63,15],[63,68],[35,68]);
 
@@ -2145,7 +2147,9 @@ Crafty.c('Car', {
   },
 
   _triggerPlayerMoved: function () {
-    Crafty.trigger("PlayerMoved", {x: this.x, y: this.y});
+    this.playerPosition.x = this.x;
+    this.playerPosition.y = this.y;
+    Crafty.trigger("PlayerMoved", this.playerPosition);
   },
 
   _enterFrame: function() {
