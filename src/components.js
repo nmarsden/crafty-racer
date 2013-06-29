@@ -1573,6 +1573,8 @@ Crafty.c('Car', {
     this.playingSounds = [];
     this.revStartTime = 0;
     this.showExhaust = true;
+    // Note: re-using collisionPolygon to avoid memory allocation per frame
+    this.collisionPolygon = new Crafty.polygon([35,15],[63,15],[63,68],[35,68]);
 
     this.RECORDABLE_METHODS =  [
       this._upArrowPressed,
@@ -1588,7 +1590,7 @@ Crafty.c('Car', {
     this.requires('Actor, Keyboard, Collision, spr_car, SpriteAnimation');
 
     this.attr({z:1000});
-    this.collision( new Crafty.polygon([35,15],[63,15],[63,68],[35,68]) );
+    this.collision(this.collisionPolygon);
 
     this.onHit('Solid', this.stopMovement);
     this.onHit('Oil', this.oilHit);
@@ -2135,18 +2137,14 @@ Crafty.c('Car', {
     }
   },
 
-  _clonePoints: function (points) {
-    var clonedPoints = [];
-    for (var i=0; i<points.length; i++) {
-      clonedPoints.push(points[i].slice(0));
-    }
-    return clonedPoints;
-  },
-
   _updateCollisionBoundingBox: function () {
-    // TODO optimization: create polygon once and re-use
-    var clonedPoints = this._clonePoints(this.BOUNDING_BOXES[this.directionIndex]);
-    this.collision(new Crafty.polygon(clonedPoints));
+    var bb = this.BOUNDING_BOXES[this.directionIndex];
+    var len = bb.length;
+    for (var i=0; i<len; i++) {
+      this.collisionPolygon.points[i][0] = bb[i][0];
+      this.collisionPolygon.points[i][1] = bb[i][1];
+    }
+    this.collision(this.collisionPolygon);
   },
 
   _updateViewportWithPlayerInCenter: function () {
