@@ -93,6 +93,8 @@ Crafty.c('Waypoint', {
     this.requires('Actor, spr_waypoint, SpriteAnimation, Collision');
     this.collision( new Crafty.polygon([32,0],[64,16],[64,48],[32,64],[0,48],[0,16]) );
 
+    this.waypointPosition = {x:0, y:0};
+
     this.animate('ChangeColour', 4, 0, 5); //setup animation
     this.animate('ChangeColour', 30, -1); // start animation
     this.isReached = false;
@@ -107,7 +109,11 @@ Crafty.c('Waypoint', {
     this.x = x;
     this.y = y;
     this.z = Math.floor(y);
-    Crafty.trigger("WaypointMoved", {x: this.x, y: this.y});
+
+    this.waypointPosition.x = this.x;
+    this.waypointPosition.y = this.y;
+
+    Crafty.trigger("WaypointMoved", this.waypointPosition);
   },
 
   reached: function() {
