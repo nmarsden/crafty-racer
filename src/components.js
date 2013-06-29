@@ -34,11 +34,14 @@ Crafty.c('LoadingText', {
 
 Crafty.c('TipText', {
   init: function() {
-    this.requires('OutlineText');
-    this.delay = 10;
+    this.requires('OutlineText, Tween');
+    this.delay = 500;
     this.animating = false;
     this.startTime = null;
-    this.totalShowDuration = 5000;
+    this.totalShowDuration = 2000;
+    this.visible = false;
+    this.alphaZero = {alpha: 0.0};
+
     this.attr({ w: 320 })
     this.textFont({ type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE' })
     this.textColor('#0061FF', 1.0);
@@ -51,30 +54,30 @@ Crafty.c('TipText', {
 
   show: function() {
     this.startTime = Date.now();
-    this.css({
-      'transition-property': 'opacity, top',
-      'transition-duration': '4s, 1s',
-      'transition-timing-function': 'ease'
-    });
+    this.animating = false;
+    this.alpha = 1.0;
     this.bind("EnterFrame", this._enterFrameHandler.bind(this));
   },
 
   _enterFrameHandler: function() {
     var timeElapsed = Date.now() - this.startTime;
     if (timeElapsed > this.totalShowDuration) {
-      this.destroy();
+      this.visible = false;
+      this.unbind("EnterFrame", this._enterFrameHandler);
       return;
     }
     var x = Crafty.viewport.width/2 - Crafty.viewport.x - 160;
     var y = Crafty.viewport.height/2 - Crafty.viewport.y;
-    this.attr({ x: x, y: y - 100 });
+    this.x = x;
+    this.y = y - 100;
 
-    if (this.animating) {
-      return;
+    if (!this.visible) {
+      this.visible = true;
     }
-    if (timeElapsed > this.delay) {
+
+    if (!this.animating && timeElapsed > this.delay) {
       this.animating = true;
-      this.css({ 'top': '-50px', 'opacity': '0.0' });
+      this.tween(this.alphaZero, 60);
     }
   }
 });
@@ -93,6 +96,10 @@ Crafty.c('Waypoint', {
     this.animate('ChangeColour', 4, 0, 5); //setup animation
     this.animate('ChangeColour', 30, -1); // start animation
     this.isReached = false;
+
+    this.waypointReachedText = Crafty.e('TipText');
+    this.waypointReachedText.setName("WaypointReachedText");
+    this.waypointReachedText.text("WOOHOO!");
   },
 
   setPosition: function(x, y) {
@@ -109,10 +116,7 @@ Crafty.c('Waypoint', {
     }
     this.isReached = true;
     Game.playSoundEffect('woop', 1, 1.0);
-    var waypointText = Crafty.e('TipText');
-    waypointText.setName("WaypointText");
-    waypointText.text("WOOHOO!");
-    waypointText.show();
+    this.waypointReachedText.show();
 
     Crafty.trigger('WaypointReached', this);
   }
@@ -1576,6 +1580,10 @@ Crafty.c('Car', {
     // Note: re-using collisionPolygon to avoid memory allocation per frame
     this.collisionPolygon = new Crafty.polygon([35,15],[63,15],[63,68],[35,68]);
 
+    this.fallingText = Crafty.e('TipText');
+    this.fallingText.setName("FallingText");
+    this.fallingText.text("UH OH!");
+
     this.RECORDABLE_METHODS =  [
       this._upArrowPressed,
       this._upArrowReleased,
@@ -2032,10 +2040,7 @@ Crafty.c('Car', {
     // play car horn sound
     Game.playSoundEffect('car_horn', 1, 1.0);
     // show falling text
-    var fallingText = Crafty.e('TipText');
-    fallingText.setName("FallingText");
-    fallingText.text("UH OH!");
-    fallingText.show();
+    this.fallingText.show();
     // start falling mode
     this.fallDelay = 40;
     this.falling = true;
@@ -2308,10 +2313,6 @@ Crafty.c('Car', {
     waypoint.reached();
   },
 
-  roundPoints: function(points) {
-    return [Math.round(points[0]), Math.round(points[1])];
-  },
-
   spriteSheetXY: function(pos) {
     var x = pos % 10,
         y = Math.floor(pos / 10);
@@ -2401,34 +2402,34 @@ Crafty.c('Car', {
     }
   },
 
-  boundingPolygon: function(direction, w, h) {
-    var LEFT_PADDING = 38;
-    var TOP_PADDING = 18;
-    var RIGHT_PADDING = 38;
-    var BOTTOM_PADDING = 33;
-
-    var DEG_TO_RAD = Math.PI / 180;
-    var polygon = new Crafty.polygon(
-      [LEFT_PADDING, TOP_PADDING],
-      [w - RIGHT_PADDING, TOP_PADDING],
-      [w - RIGHT_PADDING, h - BOTTOM_PADDING],
-      [LEFT_PADDING, h - BOTTOM_PADDING]);
-
-    var angle = this.convertToAngle(direction);
-    var drad = angle * DEG_TO_RAD;
-
-    var centerX = LEFT_PADDING + (w - LEFT_PADDING - RIGHT_PADDING)/2;
-    var centerY = TOP_PADDING + (h - TOP_PADDING - BOTTOM_PADDING)/2;
-
-    var e = {
-      cos: Math.cos(drad),
-      sin: Math.sin(drad),
-      o: { x: centerX, y: centerY }
-    }
-
-    polygon.rotate(e);
-    return polygon;
-  },
+//  boundingPolygon: function(direction, w, h) {
+//    var LEFT_PADDING = 38;
+//    var TOP_PADDING = 18;
+//    var RIGHT_PADDING = 38;
+//    var BOTTOM_PADDING = 33;
+//
+//    var DEG_TO_RAD = Math.PI / 180;
+//    var polygon = new Crafty.polygon(
+//      [LEFT_PADDING, TOP_PADDING],
+//      [w - RIGHT_PADDING, TOP_PADDING],
+//      [w - RIGHT_PADDING, h - BOTTOM_PADDING],
+//      [LEFT_PADDING, h - BOTTOM_PADDING]);
+//
+//    var angle = this.convertToAngle(direction);
+//    var drad = angle * DEG_TO_RAD;
+//
+//    var centerX = LEFT_PADDING + (w - LEFT_PADDING - RIGHT_PADDING)/2;
+//    var centerY = TOP_PADDING + (h - TOP_PADDING - BOTTOM_PADDING)/2;
+//
+//    var e = {
+//      cos: Math.cos(drad),
+//      sin: Math.sin(drad),
+//      o: { x: centerX, y: centerY }
+//    }
+//
+//    polygon.rotate(e);
+//    return polygon;
+//  },
 
   convertToAngle: function(direction) {
     return 360 - ((direction + 360 + 90) % 360);
