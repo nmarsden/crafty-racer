@@ -1441,13 +1441,14 @@ Crafty.c('PlayerMarker', {
 Crafty.c('WaypointMarker', {
   init: function() {
     this.z = Math.floor(this._y);
+    this.waypointPosition = {
+      x: this._x + 32,
+      y: this._y - 16
+    };
   },
 
   getWaypointPosition: function() {
-    return {
-      x: this._x + 32,
-      y: this._y - 16
-    }
+    return this.waypointPosition;
   }
 });
 
