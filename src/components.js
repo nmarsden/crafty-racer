@@ -182,19 +182,13 @@ Crafty.c('MiniMapMarker', {
   },
 
   setOffset: function(offsetX, offsetY) {
-    this.attr({ x: offsetX, y: offsetY });
+    this.x = offsetX;
+    this.y = offsetY;
   },
 
   setPosition: function(position) {
-    this.miniMapPosition = this.toMiniMapPosition(position || {x:0, y:0});
-  },
-
-  toMiniMapPosition: function(position) {
-    var miniPosition = {
-      x: Math.round(((6200 + position.x) / Game.width()) * 200),
-      y: Math.round((position.y / Game.height()) * 100)
-    };
-    return miniPosition;
+    this.miniMapPosition.x = position ? Math.round(((6200 + position.x) / Game.width()) * 200) : 0;
+    this.miniMapPosition.y = position ? Math.round((position.y / Game.height()) * 100) : 0;
   },
 
   drawHandler: function (e) {
@@ -229,27 +223,21 @@ Crafty.c('MiniMapViewport', {
     this.ready = true;
   },
 
-  setOffset : function(offsetX, offsetY) {
-    this.attr({ x: offsetX, y: offsetY });
+  setOffset: function(offsetX, offsetY) {
+    this.x = offsetX;
+    this.y = offsetY;
   },
 
-  setPosition : function(position) {
-    this.miniMapPosition = this.toMiniMapPosition(position || {x:0, y:0});
+  setPosition: function(position) {
+    this.miniMapPosition.x = position ? Math.round(((6200 + position.x) / Game.width()) * 200) : 0;
+    this.miniMapPosition.y = position ? Math.round((position.y / Game.height()) * 100) : 0;
   },
 
-  toMiniMapPosition : function(position) {
-    var miniPosition = {
-      x: Math.round(((6200 + position.x) / Game.width()) * 200),
-      y: Math.round((position.y / Game.height()) * 100)
-    };
-    return miniPosition;
-  },
-
-  drawHandler : function (e) {
+  drawHandler: function (e) {
     this.drawViewport(e.ctx);
   },
 
-  drawViewport : function(ctx) {
+  drawViewport: function(ctx) {
     ctx.save();
     ctx.strokeStyle = "rgba(255,0,0,0.2)";
     ctx.stroke
@@ -292,20 +280,12 @@ Crafty.c('MiniMap', {
     this.bind("WaypointMoved", this._waypointMovedHandler.bind(this));
   },
 
-  _miniMapPosition: function() {
-    return {
-      x: Crafty.viewport.width - Crafty.viewport.x - this.w - 5,
-      y: (- Crafty.viewport.y + 5)
-    };
-  },
-
   _playerMovedHandler: function(playerPosition) {
-    var miniMapPos = this._miniMapPosition();
-    this.x = miniMapPos.x;
-    this.y = miniMapPos.y;
+    this.x = Crafty.viewport.width - Crafty.viewport.x - this.w - 5;
+    this.y = (- Crafty.viewport.y + 5);
 
-    var offsetX = miniMapPos.x + 10;
-    var offsetY = miniMapPos.y + 5;
+    var offsetX = this.x + 10;
+    var offsetY = this.y + 5;
 
     this.diamond.x = offsetX;
     this.diamond.y = offsetY;
@@ -320,12 +300,11 @@ Crafty.c('MiniMap', {
   },
 
   _waypointMovedHandler: function(waypointPosition) {
-    var miniMapPos = this._miniMapPosition();
-    this.x = miniMapPos.x;
-    this.y = miniMapPos.y;
+    this.x = Crafty.viewport.width - Crafty.viewport.x - this.w - 5;
+    this.y = (- Crafty.viewport.y + 5);
 
-    var offsetX = miniMapPos.x + 10;
-    var offsetY = miniMapPos.y + 5;
+    var offsetX = this.x + 10;
+    var offsetY = this.y + 5;
 
     this.waypointMarker.setPosition(waypointPosition);
     this.waypointMarker.setOffset(offsetX, offsetY);
