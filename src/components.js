@@ -1561,6 +1561,9 @@ Crafty.c('Car', {
     this.playback = false;
     this.goingOneWay = false;
     this.velocity = new Crafty.math.Vector2D(0,0);
+    this.engineForce = new Crafty.math.Vector2D(0,0);
+    this.friction = new Crafty.math.Vector2D(0,0);
+    this.acceleration = new Crafty.math.Vector2D(0,0);
     this.MAX_VELOCITY = 10;
     this.currentReelId = "";
     this.lastRecordedFrame = 0;
@@ -2083,28 +2086,29 @@ Crafty.c('Car', {
 
     var carAngleInRadians = this.DIRECTIONS[directionIndex].angle * (Math.PI / 180);
 
-    // TODO optimization: create vectors once and re-use
-    var engineForce = new Crafty.math.Vector2D(
-      Math.cos(carAngleInRadians) * enginePower,
-      Math.sin(carAngleInRadians) * enginePower
-    );
-
     if (enginePower == 0.0 && this.velocity.magnitude() < 0.5) {
       // force car to stop
-      this.velocity = new Crafty.math.Vector2D(0.0, 0.0);
+      this.velocity.setValues(0.0, 0.0);
+
     } else {
-      var friction = this.velocity.clone();
-      friction.normalize();
-      friction.negate();
-      friction.x = (isNaN(friction.x) ? 0.0 : Math.round(friction.x * 100)/100);
-      friction.y = (isNaN(friction.y) ? 0.0 : Math.round(friction.y * 100)/100);
-      friction.scale(this.frictionMagnitude);
 
-      var acceleration = new Crafty.math.Vector2D(0.0, 0.0);
-      acceleration.add(engineForce);
-      acceleration.add(friction);
+      this.engineForce.setValues(
+        Math.cos(carAngleInRadians) * enginePower,
+        Math.sin(carAngleInRadians) * enginePower
+      );
 
-      this.velocity.add(acceleration);
+      this.friction.setValues(this.velocity);
+      this.friction.normalize();
+      this.friction.negate();
+      this.friction.x = (isNaN(this.friction.x) ? 0.0 : Math.round(this.friction.x * 100)/100);
+      this.friction.y = (isNaN(this.friction.y) ? 0.0 : Math.round(this.friction.y * 100)/100);
+      this.friction.scale(this.frictionMagnitude);
+
+      this.acceleration.setValues(0.0, 0.0);
+      this.acceleration.add(this.engineForce);
+      this.acceleration.add(this.friction);
+
+      this.velocity.add(this.acceleration);
     }
 
     // Limit max velocity
