@@ -2330,8 +2330,7 @@ Crafty.c('Car', {
       this.y -= this.movement.y;
     }
     // set velocity to zero
-    // TODO optimization: create this vector once and re-use
-    this.velocity = new Crafty.math.Vector2D(0.0, 0.0);
+    this.velocity.setValues(0.0, 0.0);
 
     // move away from obstacle
     // Note: not exactly sure what 'normal' is, but adding it x and y seems to avoid the car getting stuck :-)
