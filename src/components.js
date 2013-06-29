@@ -477,8 +477,10 @@ Crafty.c('Countdown', {
   _updatePosition:function () {
     var x = (Crafty.viewport.width/2) - Crafty.viewport.x - 70;
     var y = - Crafty.viewport.y + 105;
-    this.minutes.attr({ x: x, y: y - 100 });
-    this.seconds.attr({ x: x + 70, y: y - 100 });
+    this.minutes.x = x;
+    this.minutes.y = y - 100;
+    this.seconds.x = x + 70;
+    this.seconds.y = y - 100;
   },
 
   _enterFrame: function() {
