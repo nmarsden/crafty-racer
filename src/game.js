@@ -303,7 +303,6 @@ Game = {
   },
 
   loadLevel: function() {
-    var WAYPOINT_TILE_FIRST_GID = 7;
     var ONE_WAY_TILE_FIRST_GID = 17;
     var ONE_WAY_TYPES = ['NE','SE','SW','NW'];
     var GROUND_TILES = [
@@ -311,6 +310,13 @@ Game = {
       { tileName: 'Tile2', component: 'BreakingGround' },
       { tileName: 'Tile4', component: 'MudGround' },
       { tileName: 'Tile5', component: 'IceGround' }
+    ];
+
+    var ONEWAY_TILES = [
+      { tileName: 'Tile17', component: 'OneWayNE' },
+      { tileName: 'Tile18', component: 'OneWaySE' },
+      { tileName: 'Tile19', component: 'OneWaySW' },
+      { tileName: 'Tile20', component: 'OneWayNW' }
     ];
 
     var isOneWayTile = function(entity) {
@@ -336,6 +342,16 @@ Game = {
       }
     };
 
+    var addOneWayComponentTo = function(entity) {
+      var len = ONEWAY_TILES.length;
+      for (var i=0; i<len; i++) {
+        if (entity.has(ONEWAY_TILES[i].tileName)) {
+          entity.addComponent(ONEWAY_TILES[i].component);
+          return;
+        }
+      }
+    };
+
     Game.tiledMapBuilder = Crafty.e("2D, Canvas, TiledMapBuilder")
       .setName("TiledMapBuilder")
       .setMapDataSource( LEVELS[Game.levelIndex] )
@@ -346,9 +362,6 @@ Game = {
         entities = tiledmap.getEntitiesInLayer('Ground_Tops');
         for (obstacle = 0; obstacle < entities.length; obstacle++){
           entity = entities[obstacle];
-          //Set z-index for correct view: front, back
-          entity.z = Math.floor(entity._y - 64 - 10);
-          // Add component for ground
           addGroundComponentTo(entity);
         }
 
@@ -356,10 +369,6 @@ Game = {
         entities = tiledmap.getEntitiesInLayer('Solid_Tops');
         for (obstacle = 0; obstacle < entities.length; obstacle++){
           var entity = entities[obstacle];
-
-          //Set z-index for correct view: front, back
-          entity.z = Math.floor(entity._y + 64);
-
           entity.addComponent("Solid");
         }
 
@@ -369,23 +378,13 @@ Game = {
           var entity = entities[obstacle];
 
           if (entity.has('Tile6')) {
-            // Setup player marker entity
             entity.addComponent('PlayerMarker');
           }
           else if (entity.has('Tile21')) {
-            // Setup Oil entity
-            entity.z = Math.floor(entity._y - 64 - 10);
             entity.addComponent('Oil');
-            entity.addComponent("Collision")
-            entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
           }
           else if (isOneWayTile(entity)) {
-            // Setup one way entities
-            entity.z = Math.floor(entity._y - 64 - 10);
-            entity.addComponent('OneWay');
-            entity.setOneWayType(getOneWayType(entity));
-            entity.addComponent("Collision")
-            entity.collision( new Crafty.polygon([0,32],[64,0],[128,32],[64,64]) );
+            addOneWayComponentTo(entity);
           }
           else {
             // Setup waypoints markers (Tile7 - Tile16)

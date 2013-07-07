@@ -36,6 +36,31 @@ Editor = {
       tileName: 'Tile6',
       layerName: 'Objects',
       component: 'PlayerMarker'
+    },
+    'ONEWAY1': {
+      tileName: 'Tile17',
+      layerName: 'Objects',
+      component: 'OneWayNE'
+    },
+    'ONEWAY2': {
+      tileName: 'Tile18',
+      layerName: 'Objects',
+      component: 'OneWaySE'
+    },
+    'ONEWAY3': {
+      tileName: 'Tile19',
+      layerName: 'Objects',
+      component: 'OneWaySW'
+    },
+    'ONEWAY4': {
+      tileName: 'Tile20',
+      layerName: 'Objects',
+      component: 'OneWayNW'
+    },
+    'OIL': {
+      tileName: 'Tile21',
+      layerName: 'Objects',
+      component: 'Oil'
     }
   },
 
@@ -131,8 +156,6 @@ Editor = {
       // place() adds viewport x & y which is not wanted, so undoing here
       entity.x -= Crafty.viewport.x;
       entity.y -= Crafty.viewport.y;
-      // adjust z position
-      entity.z = Editor.tilePositionZFor(editMode, entity.y);
       // add components
       entity.addComponent(Editor.componentFor(editMode));
     }
@@ -402,6 +425,17 @@ Editor = {
     return 'WAYPOINT' + waypointNum;
   },
 
+  isOneWayEditMode: function() {
+    return Editor.currentEditMode.indexOf('ONEWAY') === 0;
+  },
+
+  nextOneWayEditMode: function() {
+    var oneWayNum = parseInt(Editor.currentEditMode.substring('ONEWAY'.length), 10); // ignore leading 'ONEWAY' prefix
+    oneWayNum++;
+    if (oneWayNum > 4) oneWayNum = 1;
+    return 'ONEWAY' + oneWayNum;
+  },
+
   changeEditMode: function(editMode) {
     // save new edit mode
     Editor.currentEditMode = editMode;
@@ -497,6 +531,17 @@ Crafty.c('EditModeControl', {
       } else {
         // TODO perhaps should set to first unused waypoint?
         Editor.changeEditMode('WAYPOINT1');
+      }
+    }
+    else if (this.isDown('E')) {
+      Editor.changeEditMode('OIL');
+    }
+    else if (this.isDown('R')) {
+      if (Editor.isOneWayEditMode()) {
+        // Cycle to next one-way edit mode
+        Editor.changeEditMode(Editor.nextOneWayEditMode());
+      } else {
+        Editor.changeEditMode('ONEWAY1');
       }
     }
   },
