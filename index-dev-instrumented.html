@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--<script src="crafty-racer.instrumented.js"></script>-->
+
+    <script src="lib/qlass.js"></script>
+    <script src="lib/crafty_0.5.4.instrumented.js"></script>
+    <!--<script src="lib/crafty_0.5.4.js"></script>-->
+    <script src="lib/gamepad.js"></script>
+    <script src="lib/tiledmapbuilder/create_mocks_module.js"></script>
+    <script src="lib/tiledmapbuilder/tiledmapbuilder.js"></script>
+    <script src="src/levels.js"></script>
+    <script src="src/game.js"></script>
+    <script src="src/components.js"></script>
+    <script src="src/editor.js"></script>
+    <script src="src/scenes.js"></script>
+
+    <!-- Uncomment line below if using 'grunt watch' to take advantage of livereload -->
+    <!--<script src="http://localhost:35729/livereload.js"></script>-->
+    <script>
+        window.addEventListener('load', Game.start);
+    </script>
+    <link rel="stylesheet" type="text/css" href="crafty-racer.css"/>
+</head>
+<body>
+<div id="container">
+    <div id="options">
+        <div class="option sfx"></div>
+        <div class="option music"></div>
+    </div>
+    <div id="cr-stage">
+    </div>
+</div>
+</body>
+</html>

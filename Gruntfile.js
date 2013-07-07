@@ -59,6 +59,7 @@ module.exports = function(grunt) {
           {expand: true, src: ['assets/images/favicon.ico'], dest: 'build/'},
           /* Extra html & unminified js files for dev */
           {expand: true, src: ['index-dev.html'], dest: 'build/'},
+          {expand: true, src: ['index-dev-instrumented.html'], dest: 'build/'},
           {expand: true, src: ['lib/**'], dest: 'build/'},
           {expand: true, src: ['src/**'], dest: 'build/'}
         ]
@@ -72,6 +73,11 @@ module.exports = function(grunt) {
         interval: 500,
         livereload: true
       }
+    },
+    exec: {
+      wtf_instrument: {
+        cmd: 'wtf-instrument --track-heap build/lib/crafty_0.5.4.js build/lib/crafty_0.5.4.instrumented.js'
+      }
     }
   });
 
@@ -80,8 +86,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-pngmin');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-exec');
 
   // Default task(s).
-  grunt.registerTask('default', ['concat','uglify','copy','pngmin']);
+  grunt.registerTask('default', ['concat','uglify','copy','exec:wtf_instrument','pngmin']);
 
 };
