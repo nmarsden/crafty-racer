@@ -66,10 +66,140 @@ body {
     to   { color: rgb(0,0,0); }
 }
 
+#editorToolbar {
+    display: none;
+    width: 138px;
+    height: 640px;
+    float: left;
+    border-color: black;
+    border-width: 0 1px;
+    border-style: solid;
+    background-color: rgba(130,192,255,1.0);
+}
+
+#editorToolbar.editMode {
+    display: block;
+}
+
+.leftButtons {
+    display: inline;
+    float: left;
+}
+
+.rightButtons {
+    display: inline;
+}
+
 #container {
     margin: 0 auto 0;
     width: 1024px;
     height: 680px;
+}
+
+#container.editMode {
+    width: 1164px;
+}
+
+.button {
+    position:relative;
+    overflow:hidden;
+    width: 64px;
+    height: 36px;
+    cursor: pointer;
+    margin: 2px 2px;
+    background: rgba(130,192,255,1.0);
+    border: 1px solid #333;
+
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+
+    -webkit-box-shadow: 0 0 4px rgba(0,0,0, .75);
+    -moz-box-shadow: 0 0 4px rgba(0,0,0, .75);
+    box-shadow: 0 0 4px rgba(0,0,0, .75);
+}
+
+.emptyButton {
+    width: 64px;
+    height: 37px;
+    margin: 3px 3px;
+}
+
+.separator {
+    width: 64px;
+    height: 16px;
+    margin: 3px 3px;
+}
+
+.button:hover,
+.button:focus {
+    background: rgb(98, 160, 255);
+    -webkit-box-shadow: 0 0 1px rgba(0,0,0, .75);
+    -moz-box-shadow: 0 0 1px rgba(0,0,0, .75);
+    box-shadow: 0 0 1px rgba(0,0,0, .75);
+}
+
+.selected {
+    background: rgb(98, 160, 255);
+    -webkit-box-shadow: 0 0 1px rgba(0,0,0, .75);
+    -moz-box-shadow: 0 0 1px rgba(0,0,0, .75);
+    box-shadow: 0 0 1px rgba(0,0,0, .75);
+}
+
+img {
+    position:absolute;
+    width: 1125px;
+    height: 79px
+}
+
+#btnDelete {
+    top: -40px;
+    left: -5px;
+}
+
+#btnSolidWall {
+    top: -40px;
+    left: -214px;
+}
+
+#btnNormalGround {
+    top: -40px;
+    left: -75px;
+}
+
+#btnBreakingGround {
+    top: -40px;
+    left: -142px;
+}
+
+#btnMudGround {
+    top: -40px;
+    left: -286px;
+}
+
+#btnIceGround {
+    top: -40px;
+    left: -354px;
+}
+
+#btnCar {
+    top: -2px;
+    left: -5px;
+}
+
+#btnOneWay {
+    top: -5px;
+    left: -776px;
+}
+
+#btnWaypoint {
+    top: -3px;
+    left: -75px;
+}
+
+#btnOil {
+    top: -3px;
+    left: -1055px;
 }
 
 #cr-stage {

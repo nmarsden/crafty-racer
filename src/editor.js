@@ -5,62 +5,86 @@ Editor = {
   EDIT_MODES: {
     'DELETE': {
       tileName: 'spr_delete',
-      layerName: null
+      layerName: null,
+      buttonId: 'btnDelete',
+      hotKey: 'DELETE' 
     },
     'GROUND': {
       tileName: 'Tile1',
       layerName: 'Ground_Tops',
-      component: 'NormalGround'
+      component: 'NormalGround',
+      buttonId: 'btnNormalGround',
+      hotKey: '1'
     },
     'BREAKING': {
       tileName: 'Tile2',
       layerName: 'Ground_Tops',
-      component: 'BreakingGround'
+      component: 'BreakingGround',
+      buttonId: 'btnBreakingGround',
+      hotKey: '3'
     },
     'SOLID': {
       tileName: 'Tile3',
       layerName: 'Solid_Tops',
-      component: 'Solid'
+      component: 'Solid',
+      buttonId: 'btnSolidWall',
+      hotKey: '5'
     },
     'MUD': {
       tileName: 'Tile4',
       layerName: 'Ground_Tops',
-      component: 'MudGround'
+      component: 'MudGround',
+      buttonId: 'btnMudGround',
+      hotKey: '4'
     },
     'ICE': {
       tileName: 'Tile5',
       layerName: 'Ground_Tops',
-      component: 'IceGround'
+      component: 'IceGround',
+      buttonId: 'btnIceGround',
+      hotKey: '2'
     },
     'PLAYER': {
       tileName: 'Tile6',
       layerName: 'Objects',
-      component: 'PlayerMarker'
+      component: 'PlayerMarker',
+      buttonId: 'btnCar',
+      hotKey: 'Q'
     },
     'ONEWAY1': {
       tileName: 'Tile17',
       layerName: 'Objects',
-      component: 'OneWayNE'
+      component: 'OneWayNE',
+      buttonId: 'btnOneWay',
+      hotKey: 'R'
     },
     'ONEWAY2': {
       tileName: 'Tile18',
       layerName: 'Objects',
-      component: 'OneWaySE'
+      component: 'OneWaySE',
+      buttonId: 'btnOneWay',
+      hotKey: 'R'
     },
     'ONEWAY3': {
       tileName: 'Tile19',
       layerName: 'Objects',
-      component: 'OneWaySW'
+      component: 'OneWaySW',
+      buttonId: 'btnOneWay',
+      hotKey: 'R'
     },
     'ONEWAY4': {
       tileName: 'Tile20',
       layerName: 'Objects',
-      component: 'OneWayNW'
+      component: 'OneWayNW',
+      buttonId: 'btnOneWay',
+      hotKey: 'R'
     },
     'OIL': {
       tileName: 'Tile21',
       layerName: 'Objects',
-      component: 'Oil'
+      component: 'Oil',
+      buttonId: 'btnOil',
+      hotKey: 'E'
     }
   },
 
@@ -87,6 +111,14 @@ Editor = {
 
   componentFor: function(editMode) {
     return Editor.EDIT_MODES[editMode].component;
+  },
+
+  buttonIdFor: function(editMode) {
+    return Editor.EDIT_MODES[editMode].buttonId;
+  },
+
+  hotKeyFor: function(editMode) {
+    return Editor.EDIT_MODES[editMode].hotKey;
   },
 
   tilePositionZFor: function(editMode, y) {
@@ -179,13 +211,44 @@ Editor = {
     Editor.tileCursor = Crafty.e('TileCursor');
     Crafty.e('ScaleIndicator');
     Crafty.e('EditModeControl');
-    //Editor.showPlayerMarker();
+    Editor.initToolbar();
+  },
+
+  initToolbar: function() {
+    // show toolbar
+    Editor.toggleToolbar();
+    // select current edit mode toolbar button
+    Editor.toggleButtonSelection(Editor.currentEditMode);
+    // bind click handlers to toolbar buttons
+    var buttonIds = [];
+    for (var editMode in Editor.EDIT_MODES) {
+      if (Editor.EDIT_MODES.hasOwnProperty(editMode)) {
+        var buttonId = Editor.buttonIdFor(editMode);
+        if (buttonIds.indexOf(buttonId) === -1) {
+          buttonIds.push(buttonId);
+          document.getElementById(buttonId).onclick = Editor.buttonHandlerFor(editMode, Editor.hotKeyFor(editMode));
+        }
+      }
+    }
+  },
+
+  buttonHandlerFor: function(editMode, hotKey) {
+    return function() {
+      Game.dispatchKeyDown(hotKey);
+      Game.dispatchKeyUp(hotKey);
+    };
+  },
+
+  toggleToolbar: function() {
+    Game.toggleClass(document.getElementById("container"), 'editMode');
+    Game.toggleClass(document.getElementById("editorToolbar"), 'editMode');
   },
 
   destroyEditor: function() {
     Crafty('Editor').each(function() {
       this.destroy();
     })
+    Editor.toggleToolbar();
   },
 
   initEditModes: function() {
@@ -194,7 +257,9 @@ Editor = {
       Editor.EDIT_MODES['WAYPOINT' + i] = {
         tileName: 'Tile' + (6+i),
         layerName: 'Objects',
-        component: 'WaypointMarker'
+        component: 'WaypointMarker',
+        buttonId: 'btnWaypoint',
+        hotKey: 'W'
       };
     }
   },
@@ -436,7 +501,15 @@ Editor = {
     return 'ONEWAY' + oneWayNum;
   },
 
+  toggleButtonSelection: function(editMode) {
+    Game.toggleClass(document.getElementById(Editor.buttonIdFor(editMode)), 'selected');
+  },
+
   changeEditMode: function(editMode) {
+    // unselect current edit mode toolbar button
+    Editor.toggleButtonSelection(Editor.currentEditMode);
+    // select new edit mode toolbar button
+    Editor.toggleButtonSelection(editMode);
     // save new edit mode
     Editor.currentEditMode = editMode;
     // clear fill grid start position
@@ -558,7 +631,7 @@ Crafty.c('EditModeControl', {
 
 Crafty.c('ScaleIndicator', {
   init: function() {
-    this.requires('2D, DOM, Text, Keyboard, Editor');
+    this.requires('2D, DOM, Text, Editor');
     this.scalePercentage = 100.0;
     this.fontSize = 16;
     this.margin = 10;
@@ -573,7 +646,6 @@ Crafty.c('ScaleIndicator', {
 
     this.bind("ViewportChanged", this._updatePosition.bind(this));
     this.bind("ZoomLevelChanged", this._updateScalePercentage.bind(this));
-    this.bind('KeyDown', this._handleKeyDown);
   },
 
   _updatePosition: function() {
