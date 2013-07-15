@@ -207,10 +207,11 @@ Editor = {
 
   initEditor: function() {
     Editor.initEditModes();
-    Editor.setupMouseEvents();
+    Editor.addMouseEvents();
     Editor.tileCursor = Crafty.e('TileCursor');
     Crafty.e('ScaleIndicator');
     Crafty.e('EditModeControl');
+    Editor.zoom(0.5);
     Editor.initToolbar();
   },
 
@@ -265,6 +266,7 @@ Editor = {
     Crafty('Editor').each(function() {
       this.destroy();
     })
+    Editor.removeMouseEvents();
     Editor.unbindToolbarButtonClickHandlers();
     Editor.toggleToolbar();
   },
@@ -289,37 +291,44 @@ Editor = {
     }
   },
 
-  setupMouseEvents: function() {
-    // mousemove event
-    Crafty.addEvent(this, Crafty.stage.elem, "mousemove", function(e) {
-      // Move Tile Cursor
-      Editor.tileCursor.updatePosition(e.clientX, e.clientY);
-      // Draw fill grid if shift key is down
-      var iso = Editor.mouseToIso(e.clientX, e.clientY);
-      Editor.drawFillGrid(iso);
+  mouseMoveHandler: function(e) {
+    // Move Tile Cursor
+    Editor.tileCursor.updatePosition(e.clientX, e.clientY);
+    // Draw fill grid if shift key is down
+    var iso = Editor.mouseToIso(e.clientX, e.clientY);
+    Editor.drawFillGrid(iso);
 
-      if (Editor.leftMouseButtonDown) {
-        Editor.performEditOperation(e);
-      }
-    });
+    if (Editor.leftMouseButtonDown) {
+      Editor.performEditOperation(e);
+    }
+  },
 
-    // mousedown event
-    Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function(e) {
-      if(e.button == Crafty.mouseButtons.LEFT) {
-        Editor.leftMouseButtonDown = true;
-        Editor.performEditOperation(e);
+  mouseDownHandler: function(e) {
+    if(e.button == Crafty.mouseButtons.LEFT) {
+      Editor.leftMouseButtonDown = true;
+      Editor.performEditOperation(e);
 
-      } else if(e.button == Crafty.mouseButtons.MIDDLE) {
-        Editor.scrollOnMouseMove(e);
-      }
-    });
+    } else if(e.button == Crafty.mouseButtons.MIDDLE) {
+      Editor.scrollOnMouseMove(e);
+    }
+  },
 
-    // mouseup event
-    Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function(e) {
-      Editor.leftMouseButtonDown = false;
-      // reset mouse down delete layer
-      Editor.mouseDownDeleteLayer = null;
-    });
+  mouseUpHandler: function(e) {
+    Editor.leftMouseButtonDown = false;
+    // reset mouse down delete layer
+    Editor.mouseDownDeleteLayer = null;
+  },
+
+  addMouseEvents: function() {
+    Crafty.addEvent(this, Crafty.stage.elem, "mousemove", Editor.mouseMoveHandler);
+    Crafty.addEvent(this, Crafty.stage.elem, "mousedown", Editor.mouseDownHandler);
+    Crafty.addEvent(this, Crafty.stage.elem, "mouseup", Editor.mouseUpHandler);
+  },
+
+  removeMouseEvents: function() {
+    Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", Editor.mouseMoveHandler);
+    Crafty.removeEvent(this, Crafty.stage.elem, "mousedown", Editor.mouseDownHandler);
+    Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", Editor.mouseUpHandler);
   },
 
   scrollOnMouseMove: function(e) {

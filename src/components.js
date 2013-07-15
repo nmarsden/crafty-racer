@@ -130,7 +130,7 @@ Crafty.c('Waypoint', {
 
 Crafty.c('Diamond', {
   init: function() {
-    this.requires('2D, Canvas');
+    this.requires('2D, Canvas, Level');
     this.z = 7000;
     this.w = 200;
     this.h = 100;
@@ -210,7 +210,7 @@ Crafty.c('MiniMapMarker', {
 
 Crafty.c('MiniMapViewport', {
   init: function() {
-    this.requires('2D, Canvas');
+    this.requires('2D, Canvas, Level');
     this.z = 7000;
     this.w = 200;
     this.h = 100;
@@ -255,7 +255,7 @@ Crafty.c('MiniMapViewport', {
 
 Crafty.c('MiniMap', {
   init: function() {
-    this.requires('2D, Canvas');
+    this.requires('2D, Canvas, Level');
     this.z = 7000;
     this.w = 220;
     this.h = 110;
