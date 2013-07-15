@@ -90,7 +90,7 @@ Crafty.c('Actor', {
 
 Crafty.c('Waypoint', {
   init: function() {
-    this.requires('Actor, spr_waypoint, SpriteAnimation, Collision');
+    this.requires('Actor, spr_waypoint, SpriteAnimation, Collision, Level');
     this.collision( new Crafty.polygon([32,0],[64,16],[64,48],[32,64],[0,48],[0,16]) );
 
     this.waypointPosition = {x:0, y:0};
@@ -163,7 +163,7 @@ Crafty.c('Diamond', {
 
 Crafty.c('MiniMapMarker', {
   init: function() {
-    this.requires('2D, Canvas');
+    this.requires('2D, Canvas, Level');
     this.z = 7000;
     this.w = 200;
     this.h = 100;
@@ -336,7 +336,7 @@ Crafty.c('WaypointIndicator', {
 
 Crafty.c('WaypointsCollectedIndicator', {
   init: function() {
-    this.requires('Actor');
+    this.requires('Actor, Level');
     this.w = 10 * (21 + 5);
     this.h = 21;
     this.z = 7000;
@@ -380,7 +380,7 @@ Crafty.c('WaypointsCollectedIndicator', {
 
 Crafty.c('Navigator', {
   init: function() {
-    this.requires('Actor, spr_navigator');
+    this.requires('Actor, spr_navigator, Level');
     this.z = 7000;
     this.origin(96/2, 96/2);
 
@@ -428,7 +428,7 @@ Crafty.c('ShowFPS', {
 
 Crafty.c('Countdown', {
   init: function() {
-    this.requires('2D');
+    this.requires('2D, Level');
     this.playWarningSound = false;
     this.lowTime = false;
     this.noAnimation = {
@@ -485,6 +485,11 @@ Crafty.c('Countdown', {
 
   _enterFrame: function() {
     if (this.complete || this.paused) {
+      return;
+    }
+    if (this.stopping) {
+      this.stopping = false;
+      this.complete = true;
       return;
     }
     var timeLeft = this.totalTime - (Date.now() - this.startTime);
@@ -546,12 +551,18 @@ Crafty.c('Countdown', {
     this.minutes.css(this.noAnimation);
     this.seconds.css(this.noAnimation);
     this.complete = false;
+  },
+
+  stop:function() {
+    this.minutes.text("");
+    this.seconds.text("");
+    this.stopping = true;
   }
 });
 
 Crafty.c('LevelIndicator', {
   init: function() {
-    this.requires('2D, DOM, Text');
+    this.requires('2D, DOM, Text, Level');
     this.h = 45;
     this.w = 300;
     this.textFont({ type: 'normal', weight: 'normal', size: '40px', family: Game.fontFamily });
@@ -873,8 +884,8 @@ Crafty.c('Menu', {
       }
     }
     else if (this.isDown('F4')) {
-      this.hideMenu();
-      Game.startEditMode();
+//      this.hideMenu();
+//      Game.loadAndEditLevel(3);
     }
 
   }
@@ -1033,7 +1044,7 @@ Crafty.c('GameOverControl', {
 
 Crafty.c('OptionsControl', {
   init: function() {
-    this.requires('2D, Keyboard');
+    this.requires('2D, Keyboard, Level');
     this.paused = false;
     this.isShowExhaust = true;
 
@@ -1057,17 +1068,29 @@ Crafty.c('OptionsControl', {
     if (this.isDown('X')) {
       this._toggleShowExhaust();
     }
+    else if (this.isDown('F4')) {
+      this._editLevel();
+    }
   },
 
   _toggleShowExhaust: function() {
     this.isShowExhaust = !this.isShowExhaust;
     Game.player.setShowExhaust(this.isShowExhaust);
+  },
+
+  _editLevel: function() {
+    Game.stopAllSoundsExcept();
+    Game.shutdownLevel();
+    Game.restoreBrokenGround();
+    Game.showMarkers();
+
+    Editor.initEditor();
   }
 });
 
 Crafty.c('PauseControl', {
   init: function() {
-    this.requires('2D, Keyboard');
+    this.requires('2D, Keyboard, Level');
     this.paused = false;
     this.enabled = true;
     var textColour = "#0061FF";
@@ -1305,7 +1328,7 @@ Crafty.c('OneWayNW', {
 Crafty.c('Exhaust', {
 
   init: function() {
-    this.requires('Actor,Particles');
+    this.requires('Actor,Particles,Level');
 
     // Note: reusing exhaustPosition which is allocated only once to reduce GC
     this.exhaustPosition = new Crafty.math.Vector2D(0, 0);
@@ -1633,7 +1656,7 @@ Crafty.c('Car', {
       this._rightArrowReleased
     ];
 
-    this.requires('Actor, Keyboard, Collision, spr_car, SpriteAnimation');
+    this.requires('Actor, Keyboard, Collision, spr_car, SpriteAnimation, Level');
 
     this.attr({z:1000});
     this.collision(this.collisionPolygon);
@@ -2476,7 +2499,7 @@ Crafty.c('Car', {
 
 Crafty.c('RecordControl', {
   init: function() {
-    this.requires('2D, DOM, Keyboard');
+    this.requires('2D, DOM, Keyboard, Level');
     this.playerX = 0;
     this.playerY = 0;
 

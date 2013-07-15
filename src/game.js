@@ -217,6 +217,15 @@ Game = {
     });
   },
 
+  showMarkers: function() {
+    // Show player marker
+    Game.getPlayerMarker().visible = true;
+    // Show waypoint markers
+    Crafty("WaypointMarker").each(function() {
+      this.visible = true;
+    });
+  },
+
   initPlayer: function() {
     Game.player = Crafty.e('Car');
     Game.player.setName("Player");
@@ -241,6 +250,13 @@ Game = {
     Game.initWaypointsCollectedIndicator();
     Game.initPlayer();
     Game.initRecordControl();
+  },
+
+  shutdownLevel: function () {
+    this.countdown.stop();
+    Crafty('Level').each(function() {
+      this.destroy();
+    })
   },
 
   isLevelComplete: function () {
@@ -418,9 +434,9 @@ Game = {
     Game.startPlayerPlayback();
   },
 
-  startEditMode: function() {
+  loadAndEditLevel: function(levelIndex) {
     this.editMode = true;
-    this.levelIndex = 3; // Level 4
+    this.levelIndex = levelIndex;
 
     Game.destroyAll2DEntities();
     Crafty.viewport.scrollXY(0, 0);
@@ -497,16 +513,20 @@ Game = {
     this.currentWaypointNum = 1;
     Game.hideMarkers();
     Game.resetWaypoint();
-    var entities = Crafty("WasBreaking");
-    entities.each(function() {
-      this.restoreAsUnbroken();
-    });
+    Game.restoreBrokenGround();
     Game.waypointsCollectedIndicator.resetNumberCollected();
     var playerPos = Game.getPlayerMarker().getPlayerPosition();
     Game.player.setPosition(playerPos.x, playerPos.y);
     Game.playMusic('level_music');
     Game.unpauseGame();
     Game.enablePauseControl()
+  },
+
+  restoreBrokenGround: function() {
+    var entities = Crafty("WasBreaking");
+    entities.each(function() {
+      this.restoreAsUnbroken();
+    });
   },
 
   dispatchKeyDown: function(key) {

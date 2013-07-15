@@ -220,6 +220,10 @@ Editor = {
     // select current edit mode toolbar button
     Editor.toggleButtonSelection(Editor.currentEditMode);
     // bind click handlers to toolbar buttons
+    Editor.bindToolbarButtonClickHandlers();
+  },
+
+  bindToolbarButtonClickHandlers: function() {
     var buttonIds = [];
     for (var editMode in Editor.EDIT_MODES) {
       if (Editor.EDIT_MODES.hasOwnProperty(editMode)) {
@@ -227,6 +231,19 @@ Editor = {
         if (buttonIds.indexOf(buttonId) === -1) {
           buttonIds.push(buttonId);
           document.getElementById(buttonId).onclick = Editor.buttonHandlerFor(editMode, Editor.hotKeyFor(editMode));
+        }
+      }
+    }
+  },
+
+  unbindToolbarButtonClickHandlers: function() {
+    var buttonIds = [];
+    for (var editMode in Editor.EDIT_MODES) {
+      if (Editor.EDIT_MODES.hasOwnProperty(editMode)) {
+        var buttonId = Editor.buttonIdFor(editMode);
+        if (buttonIds.indexOf(buttonId) === -1) {
+          buttonIds.push(buttonId);
+          document.getElementById(buttonId).onclick = null;
         }
       }
     }
@@ -248,6 +265,7 @@ Editor = {
     Crafty('Editor').each(function() {
       this.destroy();
     })
+    Editor.unbindToolbarButtonClickHandlers();
     Editor.toggleToolbar();
   },
 
@@ -567,7 +585,7 @@ Crafty.c('EditModeControl', {
       // Save
       Editor.saveChanges();
     }
-    else if (this.isDown('P')) {
+    else if (this.isDown('F4')) {
       // Play game
       Editor.playGame();
     }
