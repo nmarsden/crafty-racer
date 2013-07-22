@@ -201,7 +201,7 @@ Editor = {
 
   playGame: function() {
     Editor.resetZoom();
-    Editor.destroyEditor();
+    Editor.shutdownEditor();
     Game.initLevel();
   },
 
@@ -264,13 +264,15 @@ Editor = {
     Crafty.viewport.reload();
   },
 
-  destroyEditor: function() {
+  shutdownEditor: function() {
     Crafty('Editor').each(function() {
       this.destroy();
     })
     Editor.removeMouseEvents();
     Editor.unbindToolbarButtonClickHandlers();
     Editor.toggleToolbar();
+    // unselect current edit mode toolbar button
+    Editor.toggleButtonSelection(Editor.currentEditMode);
   },
 
   initEditModes: function() {
