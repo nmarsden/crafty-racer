@@ -260,6 +260,8 @@ Editor = {
   toggleToolbar: function() {
     Game.toggleClass(document.getElementById("container"), 'editMode');
     Game.toggleClass(document.getElementById("editorToolbar"), 'editMode');
+    // Ensure Crafty.stage.x and Crafty.stage.x are updated
+    Crafty.viewport.reload();
   },
 
   destroyEditor: function() {
