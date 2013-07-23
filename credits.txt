@@ -4,7 +4,9 @@ Javascript Libraries/Frameworks/Components:
 * Crafty JS (http://craftyjs.com/)
 * TiledMapBuilder (https://github.com/Kibo/TiledMapBuilder)
 * HTML5-JavaScript-Gamepad-Controller-Library (https://github.com/kallaspriit/HTML5-JavaScript-Gamepad-Controller-Library)
-* DebugBar (http://craftycomponents.com/debugbar)
+* Qlass (https://github.com/jaredwilli/qlass)
+* HTML Parser (http://ejohn.org/blog/pure-javascript-html-parser/)
+* Handlebars Templating (http://handlebarsjs.com/)
 
 Graphics:
 * Reiner “Tiles” Prokein (http://www.reinerstilesets.de)

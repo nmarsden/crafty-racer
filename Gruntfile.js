@@ -3,17 +3,27 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    handlebars: {
+      compile: {
+        files: {
+          "templates/compiled/bodyTemplate.js": "templates/bodyTemplate.hbs"
+        }
+      }
+    },
     concat: {
       options: {
         separator: ';'
       },
       build: {
         src: [
+          'lib/htmlparser.js',
           'lib/qlass.js',
           'lib/crafty_0.5.4.js',
           'lib/gamepad.js',
           'lib/tiledmapbuilder/create_mocks_module.js',
           'lib/tiledmapbuilder/tiledmapbuilder.js',
+          'lib/handlebars.runtime.js',
+          'templates/compiled/bodyTemplate.js',
           'src/levels.js',
           'src/game.js',
           'src/components.js',
@@ -61,6 +71,7 @@ module.exports = function(grunt) {
           {expand: true, src: ['index-dev.html'], dest: 'build/'},
           {expand: true, src: ['index-dev-instrumented.html'], dest: 'build/'},
           {expand: true, src: ['lib/**'], dest: 'build/'},
+          {expand: true, src: ['templates/compiled/**'], dest: 'build/'},
           {expand: true, src: ['src/**'], dest: 'build/'}
         ]
       }
@@ -81,6 +92,7 @@ module.exports = function(grunt) {
     }
   });
 
+  grunt.loadNpmTasks('grunt-contrib-handlebars');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-pngmin');
@@ -89,6 +101,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-exec');
 
   // Default task(s).
-  grunt.registerTask('default', ['concat','uglify','copy','exec:wtf_instrument','pngmin']);
+  grunt.registerTask('default', ['handlebars','concat','uglify','copy','exec:wtf_instrument','pngmin']);
 
 };

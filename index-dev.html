@@ -1,56 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- Uncomment line below if using 'grunt watch' to take advantage of livereload -->
+    <!--<script src="http://localhost:35729/livereload.js"></script>-->
+    <script src="lib/htmlparser.js"></script>
     <script src="lib/qlass.js"></script>
     <script src="lib/crafty_0.5.4.js"></script>
     <script src="lib/gamepad.js"></script>
     <script src="lib/tiledmapbuilder/create_mocks_module.js"></script>
     <script src="lib/tiledmapbuilder/tiledmapbuilder.js"></script>
+    <script src="lib/handlebars.runtime.js"></script>
+    <script src="templates/compiled/bodyTemplate.js"></script>
     <script src="src/levels.js"></script>
     <script src="src/game.js"></script>
     <script src="src/components.js"></script>
     <script src="src/editor.js"></script>
     <script src="src/scenes.js"></script>
-
-    <!-- Uncomment line below if using 'grunt watch' to take advantage of livereload -->
-    <!--<script src="http://localhost:35729/livereload.js"></script>-->
     <script>
         window.addEventListener('load', Game.start);
     </script>
     <link rel="stylesheet" type="text/css" href="crafty-racer.css"/>
 </head>
 <body>
-<div id="container">
-    <div id="options">
-        <div class="option sfx"></div>
-        <div class="option music"></div>
-    </div>
-    <div id="game">
-        <div id="editorToolbar">
-            <div class="leftButtons">
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnSolidWall" alt="Solid Wall" /></div>
-                <div class="separator"></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnNormalGround" alt="Normal Ground" /></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnMudGround" alt="Mud Ground" /></div>
-                <div class="separator"></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnCar" alt="Car" /></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnOneWay" alt="One Way" /></div>
-                <div class="separator"></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnDelete" alt="Delete" /></div>
-            </div>
-            <div class="rightButtons">
-                <div class="emptyButton"></div>
-                <div class="separator"></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnBreakingGround" alt="Breaking Ground" /></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnIceGround" alt="Ice Ground" /></div>
-                <div class="separator"></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnWaypoint" alt="Waypoint" /></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnOil" alt="Oil" /></div>
-                <div class="separator"></div>
-            </div>
-        </div>
-        <div id="cr-stage"></div>
-    </div>
-</div>
 </body>
 </html>

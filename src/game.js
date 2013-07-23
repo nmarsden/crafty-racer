@@ -542,6 +542,8 @@ Game = {
   },
 
   start:function () {
+    HTMLtoDOM(JST['templates/bodyTemplate.hbs'](), document);
+
     Game.initOptions();
 
     Game.gamePad = new Gamepad();
