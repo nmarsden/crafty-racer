@@ -6,25 +6,10 @@
     <div id="game">
         <div id="editorToolbar">
             <div class="leftButtons">
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnSolidWall" alt="Solid Wall" /></div>
-                <div class="separator"></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnNormalGround" alt="Normal Ground" /></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnMudGround" alt="Mud Ground" /></div>
-                <div class="separator"></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnCar" alt="Car" /></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnOneWay" alt="One Way" /></div>
-                <div class="separator"></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnDelete" alt="Delete" /></div>
+              {{#each leftToolbarItems}}{{toolbarItems}}{{/each}}
             </div>
             <div class="rightButtons">
-                <div class="emptyButton"></div>
-                <div class="separator"></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnBreakingGround" alt="Breaking Ground" /></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnIceGround" alt="Ice Ground" /></div>
-                <div class="separator"></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnWaypoint" alt="Waypoint" /></div>
-                <div class="button"><img src="assets/images/editorToolbar.png" id="btnOil" alt="Oil" /></div>
-                <div class="separator"></div>
+              {{#each rightToolbarItems}}{{toolbarItems}}{{/each}}
             </div>
         </div>
         <div id="cr-stage"></div>

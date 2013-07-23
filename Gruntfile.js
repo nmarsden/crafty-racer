@@ -5,6 +5,13 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     handlebars: {
       compile: {
+        options: {
+          compilerOptions: {
+            knownHelpers: {
+              "toolbarItems": true
+            }
+          }
+        },
         files: {
           "templates/compiled/bodyTemplate.js": "templates/bodyTemplate.hbs"
         }

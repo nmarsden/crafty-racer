@@ -541,8 +541,45 @@ Game = {
     }
   },
 
+  initHtmlBody: function() {
+    var context = {
+      leftToolbarItems: [
+        {type: 'button', id: 'btnSolidWall'},
+        {type: 'separator'},
+        {type: 'button', id: 'btnNormalGround'},
+        {type: 'button', id: 'btnMudGround'},
+        {type: 'separator'},
+        {type: 'button', id: 'btnCar'},
+        {type: 'button', id: 'btnOneWay'},
+        {type: 'separator'},
+        {type: 'button', id: 'btnDelete'}
+      ],
+      rightToolbarItems: [
+        {type: 'emptyButton'},
+        {type: 'button', id: 'btnBreakingGround'},
+        {type: 'button', id: 'btnIceGround'},
+        {type: 'separator'},
+        {type: 'button', id: 'btnWaypoint'},
+        {type: 'button', id: 'btnOil'},
+        {type: 'separator'}
+      ]
+    };
+
+    Handlebars.registerHelper('toolbarItems', function() {
+      var output = '';
+      if (this.type === 'button') {
+        output += '<div class="' + this.type + '"><img src="assets/images/editorToolbar.png" id="' + this.id + '"/></div>';
+      } else {
+        output += '<div class="' + this.type + '"></div>';
+      }
+      return new Handlebars.SafeString(output);
+    });
+
+    HTMLtoDOM(JST['templates/bodyTemplate.hbs'](context), document);
+  },
+
   start:function () {
-    HTMLtoDOM(JST['templates/bodyTemplate.hbs'](), document);
+    Game.initHtmlBody();
 
     Game.initOptions();
 
