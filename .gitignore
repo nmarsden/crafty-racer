@@ -2,3 +2,6 @@
 build/
 node_modules/
 src/.allow-devtools-edit
+original_assets/
+original_assets/audio/
+templates/compiled/
