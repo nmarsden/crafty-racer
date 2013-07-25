@@ -72,7 +72,7 @@ module.exports = function(grunt) {
           {expand: true, src: ['assets/audio/*.mp3'], dest: 'build/'},
           {expand: true, src: ['assets/audio/*.wav'], dest: 'build/'},
           {expand: true, src: ['assets/audio/*.ogg'], dest: 'build/'},
-          {expand: true, src: ['assets/*.TTF'], dest: 'build/'},
+          {expand: true, src: ['assets/*.ttf'], dest: 'build/'},
           {expand: true, src: ['assets/images/favicon.ico'], dest: 'build/'},
           /* Extra html & unminified js files for dev */
           {expand: true, src: ['index-dev.html'], dest: 'build/'},

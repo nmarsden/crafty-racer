@@ -544,23 +544,23 @@ Game = {
   initHtmlBody: function() {
     var context = {
       leftToolbarItems: [
-        {type: 'button', id: 'btnSolidWall'},
+        {type: 'button', id: 'btnSolidWall', hotKey:'1', tooltip:'Wall'},
         {type: 'separator'},
-        {type: 'button', id: 'btnNormalGround'},
-        {type: 'button', id: 'btnMudGround'},
+        {type: 'button', id: 'btnNormalGround', hotKey:'2', tooltip:'Ground'},
+        {type: 'button', id: 'btnMudGround', hotKey:'4', tooltip:'Mud'},
         {type: 'separator'},
-        {type: 'button', id: 'btnCar'},
-        {type: 'button', id: 'btnOneWay'},
+        {type: 'button', id: 'btnCar', hotKey:'Q', tooltip:'Car'},
+        {type: 'button', id: 'btnOneWay', hotKey:'E', tooltip:'One Way'},
         {type: 'separator'},
-        {type: 'button', id: 'btnDelete'}
+        {type: 'button', id: 'btnDelete', hotKey:'Delete', tooltip:'Delete Tool'}
       ],
       rightToolbarItems: [
         {type: 'emptyButton'},
-        {type: 'button', id: 'btnBreakingGround'},
-        {type: 'button', id: 'btnIceGround'},
+        {type: 'button', id: 'btnBreakingGround', hotKey:'3', tooltip:'Breaking Ground'},
+        {type: 'button', id: 'btnIceGround', hotKey:'5', tooltip:'Ice'},
         {type: 'separator'},
-        {type: 'button', id: 'btnWaypoint'},
-        {type: 'button', id: 'btnOil'},
+        {type: 'button', id: 'btnWaypoint', hotKey:'W', tooltip:'Waypoint'},
+        {type: 'button', id: 'btnOil', hotKey:'R', tooltip:'Oil'},
         {type: 'separator'}
       ]
     };
@@ -568,7 +568,11 @@ Game = {
     Handlebars.registerHelper('toolbarItems', function() {
       var output = '';
       if (this.type === 'button') {
-        output += '<div class="' + this.type + '"><img src="assets/images/editorToolbar.png" id="' + this.id + '"/></div>';
+        output += '<a href="#">';
+        output += '<span class="tooltip"><img class="callout" src="assets/images/callout.png" />' + this.tooltip + '<br/>';
+        output += '<span class="hotkey">Hotkey: ' + this.hotKey + '</span></span>';
+        output += '<span class="' + this.type + '"><img src="assets/images/editorToolbar.png" id="' + this.id + '"/></span>';
+        output += '</a>';
       } else {
         output += '<div class="' + this.type + '"></div>';
       }

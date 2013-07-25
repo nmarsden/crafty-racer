@@ -14,7 +14,7 @@ Editor = {
       layerName: 'Ground_Tops',
       component: 'NormalGround',
       buttonId: 'btnNormalGround',
-      hotKey: '1'
+      hotKey: '2'
     },
     'BREAKING': {
       tileName: 'Tile2',
@@ -28,7 +28,7 @@ Editor = {
       layerName: 'Solid_Tops',
       component: 'Solid',
       buttonId: 'btnSolidWall',
-      hotKey: '5'
+      hotKey: '1'
     },
     'MUD': {
       tileName: 'Tile4',
@@ -42,7 +42,7 @@ Editor = {
       layerName: 'Ground_Tops',
       component: 'IceGround',
       buttonId: 'btnIceGround',
-      hotKey: '2'
+      hotKey: '5'
     },
     'PLAYER': {
       tileName: 'Tile6',
@@ -56,35 +56,35 @@ Editor = {
       layerName: 'Objects',
       component: 'OneWayNE',
       buttonId: 'btnOneWay',
-      hotKey: 'R'
+      hotKey: 'E'
     },
     'ONEWAY2': {
       tileName: 'Tile18',
       layerName: 'Objects',
       component: 'OneWaySE',
       buttonId: 'btnOneWay',
-      hotKey: 'R'
+      hotKey: 'E'
     },
     'ONEWAY3': {
       tileName: 'Tile19',
       layerName: 'Objects',
       component: 'OneWaySW',
       buttonId: 'btnOneWay',
-      hotKey: 'R'
+      hotKey: 'E'
     },
     'ONEWAY4': {
       tileName: 'Tile20',
       layerName: 'Objects',
       component: 'OneWayNW',
       buttonId: 'btnOneWay',
-      hotKey: 'R'
+      hotKey: 'E'
     },
     'OIL': {
       tileName: 'Tile21',
       layerName: 'Objects',
       component: 'Oil',
       buttonId: 'btnOil',
-      hotKey: 'E'
+      hotKey: 'R'
     }
   },
 
@@ -607,14 +607,11 @@ Crafty.c('EditModeControl', {
       var iso = Editor.tileCursor.getIsoPosition();
       Editor.drawFillGrid(iso);
     }
-    else if (this.isDown('DELETE')) {
-      Editor.changeEditMode('DELETE');
-    }
     else if (this.isDown('1')) {
-      Editor.changeEditMode('GROUND');
+      Editor.changeEditMode('SOLID');
     }
     else if (this.isDown('2')) {
-      Editor.changeEditMode('ICE');
+      Editor.changeEditMode('GROUND');
     }
     else if (this.isDown('3')) {
       Editor.changeEditMode('BREAKING');
@@ -623,7 +620,7 @@ Crafty.c('EditModeControl', {
       Editor.changeEditMode('MUD');
     }
     else if (this.isDown('5')) {
-      Editor.changeEditMode('SOLID');
+      Editor.changeEditMode('ICE');
     }
     else if (this.isDown('Q')) {
       Editor.changeEditMode('PLAYER');
@@ -638,15 +635,18 @@ Crafty.c('EditModeControl', {
       }
     }
     else if (this.isDown('E')) {
-      Editor.changeEditMode('OIL');
-    }
-    else if (this.isDown('R')) {
       if (Editor.isOneWayEditMode()) {
         // Cycle to next one-way edit mode
         Editor.changeEditMode(Editor.nextOneWayEditMode());
       } else {
         Editor.changeEditMode('ONEWAY1');
       }
+    }
+    else if (this.isDown('R')) {
+      Editor.changeEditMode('OIL');
+    }
+    else if (this.isDown('DELETE')) {
+      Editor.changeEditMode('DELETE');
     }
   },
 
