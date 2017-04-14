@@ -96,6 +96,12 @@ module.exports = function(grunt) {
       wtf_instrument: {
         cmd: 'wtf-instrument --track-heap build/lib/crafty_0.5.4.js build/lib/crafty_0.5.4.instrumented.js'
       }
+    },
+    'gh-pages': {
+      options: {
+        base: 'build'
+      },
+      src: ['**']
     }
   });
 
@@ -106,8 +112,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-exec');
+  grunt.loadNpmTasks('grunt-gh-pages');
 
-  // Default task(s).
-  grunt.registerTask('default', ['handlebars','concat','uglify','copy','exec:wtf_instrument','pngmin']);
+  // Tasks
+  grunt.registerTask('build_instrumented', ['handlebars','concat','uglify','copy','exec:wtf_instrument','pngmin']);
+  grunt.registerTask('default', ['handlebars','concat','uglify','copy','pngmin']);
+  grunt.registerTask('deploy_gh-pages', ['gh-pages']);
 
 };
