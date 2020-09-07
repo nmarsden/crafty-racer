@@ -11,6 +11,6 @@
     "grunt-contrib-watch": "~0.4.4",
     "grunt-exec": "~0.4.2",
     "grunt-gh-pages": "^2.0.0",
-    "grunt-pngmin": "~0.6.0"
+    "grunt-pngmin": "^1.4.0"
   }
 }
