@@ -1,3 +1,7 @@
+import { Game, Debug } from './game';
+
+export let setupScenes = () => {
+
 // Game scene
 // -------------
 Crafty.scene('Game', function() {
@@ -169,3 +173,6 @@ Crafty.scene('Loading', function(){
   });
 
 });
+
+
+};

@@ -1,4 +1,4 @@
-var LEVELS = [
+export let LEVELS = [
 // ---- Level 1 ----
   { "height":100,
     "layers":[

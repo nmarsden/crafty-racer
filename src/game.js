@@ -1,4 +1,10 @@
-Game = {
+import { LEVELS } from './levels';
+import { setupComponents } from "./components";
+import { Editor } from './editor';
+import { setupScenes } from './scenes';
+let bodyTemplate = require("./bodyTemplate.handlebars");
+
+export let Game = {
   // This defines our grid's size and the size of each of its tiles
   map_grid:{
     width: 100, //7 * 4,
@@ -139,8 +145,8 @@ Game = {
 
   createGlassOverlay: function() {
     var overlay = Crafty.e('2D, Canvas, spr_glass_overlay');
-    x = Crafty.viewport.width/2 - Crafty.viewport.x - (700 / 2);
-    y = Crafty.viewport.height/2 - Crafty.viewport.y - (450 / 2);
+    var x = Crafty.viewport.width/2 - Crafty.viewport.x - (700 / 2);
+    var y = Crafty.viewport.height/2 - Crafty.viewport.y - (450 / 2);
     overlay.attr({ x: x, y: y, z: 7000, w: 700, h: 450 });
     return overlay;
   },
@@ -565,21 +571,10 @@ Game = {
       ]
     };
 
-    Handlebars.registerHelper('toolbarItems', function() {
-      var output = '';
-      if (this.type === 'button') {
-        output += '<a href="#">';
-        output += '<span class="tooltip"><img class="callout" src="assets/images/callout.png" />' + this.tooltip + '<br/>';
-        output += '<span class="hotkey">Hotkey: ' + this.hotKey + '</span></span>';
-        output += '<span class="' + this.type + '"><img src="assets/images/editorToolbar.png" id="' + this.id + '"/></span>';
-        output += '</a>';
-      } else {
-        output += '<div class="' + this.type + '"></div>';
-      }
-      return new Handlebars.SafeString(output);
-    });
-
-    HTMLtoDOM(JST['templates/bodyTemplate.hbs'](context), document);
+    let bodyElem = document.getElementsByTagName('body')[0];
+    let div = document.createElement('div');
+    div.innerHTML = bodyTemplate(context);
+    bodyElem.appendChild(div);
   },
 
   start:function () {
@@ -598,12 +593,17 @@ Game = {
       max:{x:Game.width(), y:Game.height()}
     };
     Crafty.background('rgb(130,192,255)');
+
+    setupComponents();
+    Editor.setup();
+    setupScenes();
+
     Crafty.scene('Loading');
   }
 
 }
 
-RecordUtils = {
+export let RecordUtils = {
   recording : false,
   recordedData : [],
 
@@ -690,7 +690,7 @@ RecordUtils = {
   }
 };
 
-VectorUtils = {
+export let VectorUtils = {
   // Finds the normal point from p to a line segment defined by points a and b
   getNormalPoint: function(p, a, b) {
     var ap = p.clone().subtract(a);
@@ -708,7 +708,7 @@ VectorUtils = {
 
 };
 
-Debug = {
+export let Debug = {
   isEnabled:false,
 
   findEntitiesWithName: function(entityName) {

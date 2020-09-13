@@ -1,4 +1,6 @@
-Editor = {
+import { Game } from './game';
+
+export let Editor = {
   TILE_WIDTH: 128,
   TILE_HEIGHT: 64,
 
@@ -549,8 +551,9 @@ Editor = {
     Editor.mostRecentDeleteLayer = null;
     // trigger edit mode changed
     Crafty.trigger("EditModeChanged", editMode);
-  }
-};
+  },
+
+  setup: function() {
 
 Crafty.c('EditModeControl', {
   init: function() {
@@ -792,3 +795,7 @@ Crafty.c('IsoTileOutline', {
   }
 
 });
+
+  }
+};
+

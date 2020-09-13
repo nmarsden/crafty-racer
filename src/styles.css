@@ -1,24 +1,24 @@
 @font-face {
     font-family: UNICODE0;
-    src: url(assets/unicode0.ttf);
+    src: url('../assets/unicode0.ttf');
     font-weight:400;
 }
 
 @font-face {
     font-family: ARCADE;
-    src: url(assets/arcade.ttf);
+    src: url('../assets/arcade.ttf');
     font-weight:400;
 }
 
 @font-face {
     font-family: SIMPLETYPE;
-    src: url(assets/simpletype.ttf);
+    src: url('../assets/simpletype.ttf');
     font-weight:400;
 }
 
 @font-face {
     font-family: QBO;
-    src: url(assets/qbo.ttf);
+    src: url('../assets/qbo.ttf');
     font-weight:400;
 }
 
@@ -277,11 +277,11 @@ img {
 }
 
 .sfx {
-    background-image: url(assets/images/sound.png);
+    background-image: url(../assets/images/sound.png);
 }
 
 .music {
-    background-image: url(assets/images/music.png);
+    background-image: url(../assets/images/music.png);
 }
 
 .off:before {

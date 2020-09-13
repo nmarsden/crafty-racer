@@ -6,10 +6,10 @@
     <div id="game">
         <div id="editorToolbar">
             <div class="leftButtons">
-              {{#each leftToolbarItems}}{{toolbarItems}}{{/each}}
+              {{#each leftToolbarItems}}{{$toolbarItems this}}{{/each}}
             </div>
             <div class="rightButtons">
-              {{#each rightToolbarItems}}{{toolbarItems}}{{/each}}
+              {{#each rightToolbarItems}}{{$toolbarItems this}}{{/each}}
             </div>
         </div>
         <div id="cr-stage"></div>
