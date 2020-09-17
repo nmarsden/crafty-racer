@@ -207,6 +207,14 @@ export let Editor = {
     Game.initLevel();
   },
 
+  sizeViewport: function() {
+    Editor.resetZoom();
+
+    Game.sizeViewport();
+
+    Editor.zoom(0.5);
+  },
+
   initEditor: function() {
     Editor.initEditModes();
     Editor.addMouseEvents();
@@ -215,6 +223,9 @@ export let Editor = {
     Crafty.e('EditModeControl');
     Editor.zoom(0.5);
     Editor.initToolbar();
+
+    Crafty.removeEvent(Game, window, "resize", Game.sizeViewport);
+    Crafty.addEvent(Editor, window, "resize", Editor.sizeViewport);
   },
 
   initToolbar: function() {
@@ -260,16 +271,17 @@ export let Editor = {
   },
 
   toggleToolbar: function() {
-    Game.toggleClass(document.getElementById("container"), 'editMode');
     Game.toggleClass(document.getElementById("editorToolbar"), 'editMode');
-    // Ensure Crafty.stage.x and Crafty.stage.x are updated
-    Crafty.viewport.reload();
   },
 
   shutdownEditor: function() {
     Crafty('Editor').each(function() {
       this.destroy();
     })
+
+    Crafty.removeEvent(Editor, window, "resize", Editor.sizeViewport);
+    Crafty.addEvent(Game, window, "resize", Game.sizeViewport);
+
     Editor.removeMouseEvents();
     Editor.unbindToolbarButtonClickHandlers();
     Editor.toggleToolbar();

@@ -354,7 +354,7 @@ export let setupComponents = () => {
 
       this.bind("PlayerMoved", function () {
         this.x = (Crafty.viewport.width / 2) - Crafty.viewport.x - (this.w / 2);
-        this.y = Game.viewportHeight() - this.h - Crafty.viewport.y - 10;
+        this.y = Crafty.viewport.height - this.h - Crafty.viewport.y - 10;
       });
 
       this.bind('WaypointReached', function () {
@@ -397,8 +397,8 @@ export let setupComponents = () => {
       });
 
       this.bind("PlayerMoved", function (playerPosition) {
-        this.x = Game.viewportWidth() - this.w - Crafty.viewport.x + 5;
-        this.y = Game.viewportHeight() - this.h - Crafty.viewport.y + 5;
+        this.x = Crafty.viewport.width - this.w - Crafty.viewport.x + 5;
+        this.y = Crafty.viewport.height - this.h - Crafty.viewport.y + 5;
 
         if (!this.waypointPosition) {
           this.rotation = 0;
@@ -584,7 +584,7 @@ export let setupComponents = () => {
 
     updatePosition: function () {
       this.x = 10 - Crafty.viewport.x;
-      this.y = Game.viewportHeight() - this.h - Crafty.viewport.y;
+      this.y = Crafty.viewport.height - this.h - Crafty.viewport.y;
     }
   });
 

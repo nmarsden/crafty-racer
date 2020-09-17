@@ -28,6 +28,7 @@ body {
     color: red;
     font-family: UNICODE0;
     font-size: 20px;
+    margin: 0;
 }
 
 @-moz-keyframes flash {
@@ -68,36 +69,27 @@ body {
 
 #editorToolbar {
     display: none;
-    width: 138px;
-    height: 640px;
-    float: left;
-    border-color: black;
-    border-width: 0 1px;
-    border-style: solid;
-    background-color: rgba(130,192,255,1.0);
+    flex-wrap: wrap;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 140px;
+    z-index: 1000;
 }
 
 #editorToolbar.editMode {
-    display: block;
-}
-
-.leftButtons {
-    display: inline;
-    float: left;
-}
-
-.rightButtons {
-    display: inline;
+    display: flex;
 }
 
 #container {
-    margin: 0 auto 0;
-    width: 1024px;
-    height: 680px;
-}
-
-#container.editMode {
-    width: 1164px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
 }
 
 .button {
@@ -127,7 +119,7 @@ body {
 }
 
 .separator {
-    width: 64px;
+    width: 100px;
     height: 16px;
     margin: 3px 3px;
 }
@@ -262,28 +254,29 @@ img {
 #cr-stage {
 }
 
-#options {
-    margin: 0 auto 5px;
-    height: 32px;
-}
+/* TODO provide options for music & effects */
+/*#options {*/
+/*    margin: 0 auto 5px;*/
+/*    height: 32px;*/
+/*}*/
 
-.option {
-    width: 32px;
-    height: 32px;
-    float: right;
-    color: red;
-    font-family: Arial;
-    font-size: 28px;
-}
+/*.option {*/
+/*    width: 32px;*/
+/*    height: 32px;*/
+/*    float: right;*/
+/*    color: red;*/
+/*    font-family: Arial;*/
+/*    font-size: 28px;*/
+/*}*/
 
-.sfx {
-    background-image: url(../assets/images/sound.png);
-}
+/*.sfx {*/
+/*    background-image: url(../assets/images/sound.png);*/
+/*}*/
 
-.music {
-    background-image: url(../assets/images/music.png);
-}
+/*.music {*/
+/*    background-image: url(../assets/images/music.png);*/
+/*}*/
 
-.off:before {
-    content: "X";
-}
+/*.off:before {*/
+/*    content: "X";*/
+/*}*/

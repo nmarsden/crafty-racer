@@ -133,14 +133,15 @@ export let Game = {
   },
 
   initOptions:function () {
-    document.getElementsByClassName("music")[0].onclick = function() {
-      Game.toggleClass(this, 'off');
-      Game.toggleMusic();
-    }
-    document.getElementsByClassName("sfx")[0].onclick = function() {
-      Game.toggleClass(this, 'off');
-      Game.toggleSoundEffects();
-    };
+    // TODO provide options for music & effects
+    // document.getElementsByClassName("music")[0].onclick = function() {
+    //   Game.toggleClass(this, 'off');
+    //   Game.toggleMusic();
+    // }
+    // document.getElementsByClassName("sfx")[0].onclick = function() {
+    //   Game.toggleClass(this, 'off');
+    //   Game.toggleSoundEffects();
+    // };
   },
 
   createGlassOverlay: function() {
@@ -549,25 +550,21 @@ export let Game = {
 
   initHtmlBody: function() {
     var context = {
-      leftToolbarItems: [
+      toolbarItems: [
         {type: 'button', id: 'btnSolidWall', hotKey:'1', tooltip:'Wall'},
+        {type: 'emptyButton'},
         {type: 'separator'},
         {type: 'button', id: 'btnNormalGround', hotKey:'2', tooltip:'Ground'},
-        {type: 'button', id: 'btnMudGround', hotKey:'4', tooltip:'Mud'},
-        {type: 'separator'},
-        {type: 'button', id: 'btnCar', hotKey:'Q', tooltip:'Car'},
-        {type: 'button', id: 'btnOneWay', hotKey:'E', tooltip:'One Way'},
-        {type: 'separator'},
-        {type: 'button', id: 'btnDelete', hotKey:'Delete', tooltip:'Delete Tool'}
-      ],
-      rightToolbarItems: [
-        {type: 'emptyButton'},
         {type: 'button', id: 'btnBreakingGround', hotKey:'3', tooltip:'Breaking Ground'},
+        {type: 'button', id: 'btnMudGround', hotKey:'4', tooltip:'Mud'},
         {type: 'button', id: 'btnIceGround', hotKey:'5', tooltip:'Ice'},
         {type: 'separator'},
+        {type: 'button', id: 'btnCar', hotKey:'Q', tooltip:'Car'},
         {type: 'button', id: 'btnWaypoint', hotKey:'W', tooltip:'Waypoint'},
+        {type: 'button', id: 'btnOneWay', hotKey:'E', tooltip:'One Way'},
         {type: 'button', id: 'btnOil', hotKey:'R', tooltip:'Oil'},
-        {type: 'separator'}
+        {type: 'separator'},
+        {type: 'button', id: 'btnDelete', hotKey:'Delete', tooltip:'Delete Tool'}
       ]
     };
 
@@ -575,6 +572,68 @@ export let Game = {
     let div = document.createElement('div');
     div.innerHTML = bodyTemplate(context);
     bodyElem.appendChild(div);
+  },
+
+  updateCraftyMobile: function() {
+    let ua = navigator.userAgent.toLowerCase(),
+        match = /(webkit)[ \/]([\w.]+)/.exec(ua) ||
+            /(o)pera(?:.*version)?[ \/]([\w.]+)/.exec(ua) ||
+            /(ms)ie ([\w.]+)/.exec(ua) ||
+            /(moz)illa(?:.*? rv:([\w.]+))?/.exec(ua) || [],
+        mobile = /iPad|iPod|iPhone|Android|webOS|IEMobile/i.exec(ua);
+    if (mobile) {
+      Crafty.mobile = mobile[0];
+    } else {
+      Crafty.mobile = undefined;
+    }
+  },
+
+  calcViewportRect: function() {
+    const width = window.innerWidth || (window.document.documentElement.clientWidth || window.document.body.clientWidth);
+    const height = window.innerHeight || (window.document.documentElement.clientHeight || window.document.body.clientHeight);
+
+    if (Crafty.mobile) {
+      return {width, height};
+    } else {
+      const viewportWidth = (width > Game.viewportWidth() ? Game.viewportWidth() : width);
+      const viewportHeight = (height > Game.viewportHeight() ? Game.viewportHeight() : height);
+      return {width: viewportWidth, height: viewportHeight};
+    }
+  },
+
+  sizeViewport: function() {
+
+    // TODO fix scale issue when starting with non-mobile and switching to mobile
+    // TODO  - Note: something to do with window.innerWidth & window.innerHeight giving different results if starting with mobile or non-mobile
+    Game.updateCraftyMobile();
+
+    const viewportRect = Game.calcViewportRect();
+    Crafty.viewport.width = viewportRect.width;
+    Crafty.viewport.height = viewportRect.height;
+    const elem = Crafty.stage.elem.style
+    elem.width = viewportRect.width + "px";
+    elem.height = viewportRect.height + "px";
+    elem.position = Crafty.mobile ? "absolute" : "relative";
+
+    if (Crafty.canvas._canvas) {
+      // Resize main canvas
+      let storedTransform = Crafty.canvas.context.getTransform();
+      Crafty.canvas._canvas.width = viewportRect.width;
+      Crafty.canvas._canvas.height = viewportRect.height;
+      Crafty.canvas.context.setTransform(storedTransform);
+
+      // Resize particles canvas
+      let particlesCanvas = Crafty.stage.elem.children[3];
+      if (particlesCanvas) {
+        particlesCanvas.width = viewportRect.width;
+        particlesCanvas.height = viewportRect.height;
+      }
+
+      Crafty.DrawManager.drawAll();
+    }
+    const offset = Crafty.DOM.inner(Crafty.stage.elem);
+    Crafty.stage.x = offset.x;
+    Crafty.stage.y = offset.y;
   },
 
   start:function () {
@@ -586,12 +645,20 @@ export let Game = {
     Game.gamePad.init();
 
     Crafty.init(Game.width(), Game.height());
-    Crafty.viewport.init(Game.viewportWidth(), Game.viewportHeight());
+
+    const viewportRect = Game.calcViewportRect();
+    Crafty.viewport.init(viewportRect.width, viewportRect.height);
+
+    Crafty.removeEvent(Crafty, window, "resize", Crafty.viewport.reload);
+
     Crafty.viewport.clampToEntities=false;
     Crafty.viewport.bounds = {
       min:{x:0, y:0},
       max:{x:Game.width(), y:Game.height()}
     };
+
+    Crafty.addEvent(Game, window, "resize", Game.sizeViewport);
+
     Crafty.background('rgb(130,192,255)');
 
     setupComponents();
