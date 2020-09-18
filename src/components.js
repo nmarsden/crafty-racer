@@ -767,7 +767,7 @@ export let setupComponents = () => {
       // display menu items
       for (var i = 0; i < this.menuItems.length; i++) {
         var item = this.menuItems[i];
-        var menuItem = Crafty.e('OutlineText, Tween');
+        var menuItem = Crafty.e('OutlineText, Tween, Mouse');
         menuItem.setName("MenuItem");
         var textColor = (i === 0) ? this.selectedColour : this.colour;
         menuItem.text(item.displayName);
@@ -784,6 +784,8 @@ export let setupComponents = () => {
             '-webkit-animation-iteration-count': 'infinite'
           });
         }
+        let clickHandler = (menuIndex) => { return () => this.menuItemSelected(menuIndex); };
+        menuItem.bind('Click', clickHandler(i));
         item.entity = menuItem;
       }
 
@@ -878,6 +880,12 @@ export let setupComponents = () => {
       }
     },
 
+    menuItemSelected: function (menuIndex) {
+      this.hideMenu();
+      let selectedMenuItem = this.menuItems[menuIndex];
+      selectedMenuItem.menuItemFunction();
+    },
+
     handleKeyDown: function () {
       this.timeIdle = 0;
       var selectedMenuItem = null;
@@ -898,9 +906,7 @@ export let setupComponents = () => {
         Crafty.trigger("SelectionChanged", {oldIndex: previousIndex, newIndex: this.selectedMenuIndex});
 
       } else if (this.isDown('ENTER')) {
-        this.hideMenu();
-        selectedMenuItem = this.menuItems[this.selectedMenuIndex];
-        selectedMenuItem.menuItemFunction();
+        this.menuItemSelected(this.selectedMenuIndex);
 
       } else if ((selectedMenuItem = this.menuItemSelectedViaHotKey()) != null) {
         this.hideMenu();
