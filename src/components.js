@@ -323,8 +323,8 @@ export let setupComponents = () => {
   Crafty.c('WaypointIndicator', {
     init: function () {
       this.requires('Actor, spr_waypoint_indicator, SpriteAnimation');
-      this.w = 21;
-      this.h = 21;
+      this.w = 11;
+      this.h = 11;
       this.z = 7000;
       this.animate('Collected', 0, 0, 0); //setup animation
       this.animate('NotFound', 1, 0, 1);  //setup animation
@@ -345,16 +345,17 @@ export let setupComponents = () => {
   Crafty.c('WaypointsCollectedIndicator', {
     init: function () {
       this.requires('Actor, Level');
-      this.w = 10 * (21 + 5);
-      this.h = 21;
+      this.size = 11;
+      this.w = 10 * (this.size + 2);
+      this.h = this.size;
       this.z = 7000;
       this.numberCollected = 0;
 
       this.waypointIndicators = this._createWaypointIndicators();
 
       this.bind("PlayerMoved", function () {
-        this.x = (Crafty.viewport.width / 2) - Crafty.viewport.x - (this.w / 2);
-        this.y = Crafty.viewport.height - this.h - Crafty.viewport.y - 10;
+        this.x = -Crafty.viewport.x + 10;
+        this.y = -Crafty.viewport.y + 45;
       });
 
       this.bind('WaypointReached', function () {
@@ -379,7 +380,7 @@ export let setupComponents = () => {
         wps.push(wp);
 
         this.attach(wp);
-        x += (21 + 5);
+        x += (this.size + 2);
       }
       return wps;
     }
@@ -390,15 +391,17 @@ export let setupComponents = () => {
     init: function () {
       this.requires('Actor, spr_navigator, Level');
       this.z = 7000;
-      this.origin(96 / 2, 96 / 2);
+      this.w = 100;
+      this.h = 100;
+      this.origin(this.w / 2, this.h / 2);
 
       this.bind("WaypointMoved", function (waypointPosition) {
         this.waypointPosition = waypointPosition;
       });
 
       this.bind("PlayerMoved", function (playerPosition) {
-        this.x = Crafty.viewport.width - this.w - Crafty.viewport.x + 5;
-        this.y = Crafty.viewport.height - this.h - Crafty.viewport.y + 5;
+        this.x = -Crafty.viewport.x + Crafty.viewport.width - (this.w/2) - 115;
+        this.y = -Crafty.viewport.y - (this.h/2) + 60;
 
         if (!this.waypointPosition) {
           this.rotation = 0;
@@ -483,8 +486,8 @@ export let setupComponents = () => {
     },
 
     _updatePosition: function () {
-      var x = (Crafty.viewport.width / 2) - Crafty.viewport.x - 70;
-      var y = -Crafty.viewport.y + 105;
+      var x = -Crafty.viewport.x + 10;
+      var y = -Crafty.viewport.y + 165;
       this.minutes.x = x;
       this.minutes.y = y - 100;
       this.seconds.x = x + 70;
@@ -571,9 +574,9 @@ export let setupComponents = () => {
   Crafty.c('LevelIndicator', {
     init: function () {
       this.requires('2D, DOM, Text, Level');
-      this.h = 45;
+      this.h = 30;
       this.w = 300;
-      this.textFont({type: 'normal', weight: 'normal', size: '40px', family: Game.fontFamily});
+      this.textFont({type: 'normal', weight: 'normal', size: '30px', family: Game.fontFamily});
       this.css('text-align', 'left');
       this.textColor('#0061FF', 0.6);
       this.text("LEVEL " + Game.getLevelNumber());
@@ -583,8 +586,8 @@ export let setupComponents = () => {
     },
 
     updatePosition: function () {
-      this.x = 10 - Crafty.viewport.x;
-      this.y = Crafty.viewport.height - this.h - Crafty.viewport.y;
+      this.x = -Crafty.viewport.x + 10;
+      this.y = -Crafty.viewport.y + 5;
     }
   });
 
