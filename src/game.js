@@ -16,7 +16,7 @@ export let Game = {
   },
 
   options:{
-    music:true,
+    music:false,
     sfx:true
   },
 
@@ -659,7 +659,7 @@ export let Game = {
 
     Crafty.addEvent(Game, window, "resize", Game.sizeViewport);
 
-    Crafty.background('rgb(130,192,255)');
+    Crafty.background('rgb(0,0,0)');
 
     setupComponents();
     Editor.setup();

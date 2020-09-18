@@ -593,9 +593,9 @@ export let setupComponents = () => {
       this.requires('Menu');
 
       this.addMenuItem("Play", this.showLevelMenu.bind(this), "P");
-      this.addMenuItem("Instructions", this.comingSoonHandler("Instructions").bind(this), "I");
-      this.addMenuItem("Settings", this.comingSoonHandler("Settings").bind(this), "S");
-      this.addMenuItem("Credits", this.comingSoonHandler("Credits").bind(this), "C");
+      // this.addMenuItem("Instructions", this.comingSoonHandler("Instructions").bind(this), "I");
+      // this.addMenuItem("Settings", this.comingSoonHandler("Settings").bind(this), "S");
+      // this.addMenuItem("Credits", this.comingSoonHandler("Credits").bind(this), "C");
     },
 
     showLevelMenu: function () {
@@ -641,6 +641,7 @@ export let setupComponents = () => {
   Crafty.c('Menu', {
     init: function () {
       this.requires('2D, Canvas, Text, Keyboard');
+      this.backgroundImageDim = { width: 922, height: 555 };
       this.z = 2000;
       this.menuItems = [];
       this.selectedMenuIndex = 0;
@@ -657,18 +658,42 @@ export let setupComponents = () => {
 
       this.overlay = Crafty.e('2D, Canvas, spr_menu_background, Tween');
       this.overlay.setName("MenuBackground")
-      var x = 51 - Crafty.viewport.x;
-      var y = Crafty.viewport.y - 555;
-      this.overlay.attr({x: x, y: y, w: Crafty.viewport.width - 102, h: Crafty.viewport.height - 102});
+      this.overlay.attr({alpha:0.5});
 
-      this.displayMenuInstructions();
+      this._resizeMenu();
 
+      // this.displayMenuInstructions();
+
+      Crafty.addEvent(this, window, "resize", this._resizeMenu.bind(this));
       this.bind('EnterFrame', this._enterFrame);
 
       this.options = {
         parentMenu: null,
         escapeKeyHidesMenu: true
       }
+    },
+
+    _resizeMenu: function() {
+      if (Crafty.viewport.height > Crafty.viewport.width) {
+        // Fit to width
+        let scaleHeight = Crafty.viewport.width / this.backgroundImageDim.width;
+        let x = 0;
+        let width = Crafty.viewport.width;
+        let height = scaleHeight * this.backgroundImageDim.height;
+        let y = (Crafty.viewport.height - height)/2;
+
+        this.overlay.attr({x: x, y: y, w: width, h: height});
+      } else {
+        // Fit to Height
+        let scaleWidth = Crafty.viewport.height / this.backgroundImageDim.height;
+        let y = 0;
+        let height = Crafty.viewport.height;
+        let width = scaleWidth * this.backgroundImageDim.width;
+        let x = (Crafty.viewport.width - width)/2;
+
+        this.overlay.attr({x: x, y: y, w: width, h: height});
+      }
+      this._resizeMenuItems();
     },
 
     setMenuOptions: function (options) {
@@ -716,11 +741,21 @@ export let setupComponents = () => {
       });
     },
 
+    _resizeMenuItems: function () {
+      var width = 800;
+      var totalHeight = (100 * this.menuItems.length) - (100 - 60);
+      var x = Crafty.viewport.width / 2 - (width / 2);
+      var y = Crafty.viewport.height / 2 - (totalHeight / 2);
+      for (var i = 0; i < this.menuItems.length; i++) {
+        this.menuItems[i].entity.attr({x: x, y: y});
+        y += 100;
+      }
+    },
+
     showMenu: function () {
       var width = 800;
       var height = 100;
       var alpha = 1.0;
-      var totalHeight = 100 * this.menuItems.length;
 
       this.selectedMenuIndex = 0;
 
@@ -730,17 +765,14 @@ export let setupComponents = () => {
       this.bind('SelectionChanged', this.handleSelectionChanged);
 
       // display menu items
-      var x = Crafty.viewport.width / 2 - Crafty.viewport.x - (width / 2) - 10;
-      var y = this.overlay.y + Crafty.viewport.height / 2 - (totalHeight / 2) - 55;
-
       for (var i = 0; i < this.menuItems.length; i++) {
         var item = this.menuItems[i];
         var menuItem = Crafty.e('OutlineText, Tween');
         menuItem.setName("MenuItem");
         var textColor = (i === 0) ? this.selectedColour : this.colour;
         menuItem.text(item.displayName);
-        menuItem.attr({x: x, y: y, w: width, h: height, alpha: alpha});
-        menuItem.textFont({type: 'normal', weight: 'normal', size: '80px', family: Game.fontFamily});
+        menuItem.attr({w: width, h: height, alpha: alpha});
+        menuItem.textFont({type: 'normal', weight: 'normal', size: '60px', family: Game.fontFamily});
         menuItem.textColor(textColor, 1.0);
         if (i === 0) {
           menuItem.css({
@@ -752,18 +784,10 @@ export let setupComponents = () => {
             '-webkit-animation-iteration-count': 'infinite'
           });
         }
-        menuItem.css({
-          'padding': '5px'
-        });
         item.entity = menuItem;
-
-        this.overlay.attach(menuItem);
-
-        y += 100;
       }
 
-      this.overlay.attr({y: (Crafty.viewport.y - 555)});
-      this.overlay.tween({y: (51 - Crafty.viewport.y)}, 15);
+      this._resizeMenuItems();
 
       Game.playSoundEffect('menu_change_page', 1, 1.0);
 
@@ -832,7 +856,6 @@ export let setupComponents = () => {
       for (var i = 0; i < this.menuItems.length; i++) {
         this.menuItems[i].entity.destroy();
       }
-      this.overlay.tween({y: (Crafty.viewport.y + Crafty.viewport.height)}, 15);
     },
 
     menuItemSelectedViaHotKey: function () {
