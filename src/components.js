@@ -289,8 +289,8 @@ export let setupComponents = () => {
     },
 
     _playerMovedHandler: function (playerPosition) {
-      this.x = Crafty.viewport.width - Crafty.viewport.x - this.w - 5;
-      this.y = (-Crafty.viewport.y + 5);
+      this.x = Crafty.viewport.width - Crafty.viewport.x - this.w + 5;
+      this.y = -Crafty.viewport.y;
 
       var offsetX = this.x + 10;
       var offsetY = this.y + 5;
@@ -355,7 +355,7 @@ export let setupComponents = () => {
 
       this.bind("PlayerMoved", function () {
         this.x = -Crafty.viewport.x + 10;
-        this.y = -Crafty.viewport.y + 45;
+        this.y = -Crafty.viewport.y + 48;
       });
 
       this.bind('WaypointReached', function () {
@@ -400,8 +400,8 @@ export let setupComponents = () => {
       });
 
       this.bind("PlayerMoved", function (playerPosition) {
-        this.x = -Crafty.viewport.x + Crafty.viewport.width - (this.w/2) - 115;
-        this.y = -Crafty.viewport.y - (this.h/2) + 60;
+        this.x = -Crafty.viewport.x + Crafty.viewport.width - (this.w/2) - 105;
+        this.y = -Crafty.viewport.y - (this.h/2) + 55;
 
         if (!this.waypointPosition) {
           this.rotation = 0;
@@ -487,7 +487,7 @@ export let setupComponents = () => {
 
     _updatePosition: function () {
       var x = -Crafty.viewport.x + 10;
-      var y = -Crafty.viewport.y + 165;
+      var y = -Crafty.viewport.y + 170;
       this.minutes.x = x;
       this.minutes.y = y - 100;
       this.seconds.x = x + 70;
