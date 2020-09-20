@@ -85,7 +85,7 @@ export let setupComponents = () => {
 
       if (!this.animating && timeElapsed > this.delay) {
         this.animating = true;
-        this.tween(this.alphaZero, 60);
+        this.tween(this.alphaZero, 1000);
       }
     }
   });
@@ -103,8 +103,8 @@ export let setupComponents = () => {
 
       this.waypointPosition = {x: 0, y: 0};
 
-      this.animate('ChangeColour', 4, 0, 5); //setup animation
-      this.animate('ChangeColour', 30, -1); // start animation
+      this.reel('ChangeColour', 1000, 4, 0, 2);
+      this.animate('ChangeColour', -1);
       this.isReached = false;
 
       this.waypointReachedText = Crafty.e('TipText');
@@ -326,18 +326,19 @@ export let setupComponents = () => {
       this.w = 11;
       this.h = 11;
       this.z = 7000;
-      this.animate('Collected', 0, 0, 0); //setup animation
-      this.animate('NotFound', 1, 0, 1);  //setup animation
+
+      this.reel('Collected', 1, 0, 0, 1);
+      this.reel('NotFound', 1000, 1, 0, 1);
 
       this.notFound();
     },
 
     collected: function () {
-      this.animate('Collected', 1, 1);
+      this.animate('Collected', -1);
     },
 
     notFound: function () {
-      this.animate('NotFound', 1, 1);
+      this.animate('NotFound', -1);
     }
 
   });
@@ -352,16 +353,19 @@ export let setupComponents = () => {
       this.numberCollected = 0;
 
       this.waypointIndicators = this._createWaypointIndicators();
+      this.updatePosition();
 
-      this.bind("PlayerMoved", function () {
-        this.x = -Crafty.viewport.x + 10;
-        this.y = -Crafty.viewport.y + 48;
-      });
+      this.bind("PlayerMoved", this.updatePosition);
 
       this.bind('WaypointReached', function () {
         this.waypointIndicators[this.numberCollected].collected();
         this.numberCollected++;
       });
+    },
+
+    updatePosition: function () {
+      this.x = -Crafty.viewport.x + 10;
+      this.y = -Crafty.viewport.y + 48;
     },
 
     resetNumberCollected: function () {
@@ -394,14 +398,14 @@ export let setupComponents = () => {
       this.w = 100;
       this.h = 100;
       this.origin(this.w / 2, this.h / 2);
+      this._updatePosition();
 
       this.bind("WaypointMoved", function (waypointPosition) {
         this.waypointPosition = waypointPosition;
       });
 
       this.bind("PlayerMoved", function (playerPosition) {
-        this.x = -Crafty.viewport.x + Crafty.viewport.width - (this.w/2) - 105;
-        this.y = -Crafty.viewport.y - (this.h/2) + 55;
+        this._updatePosition();
 
         if (!this.waypointPosition) {
           this.rotation = 0;
@@ -414,6 +418,11 @@ export let setupComponents = () => {
           this.rotation = (angle - 90) % 360;
         }
       });
+    },
+
+    _updatePosition: function() {
+      this.x = -Crafty.viewport.x + Crafty.viewport.width - (this.w/2) - 105;
+      this.y = -Crafty.viewport.y - (this.h/2) + 55;
     }
   });
 
@@ -548,6 +557,7 @@ export let setupComponents = () => {
         msecsPadding = "0";
       }
       if (this.playWarningSound && msecs <= 3) {
+        Game.stopSound('low_time');
         Game.playSoundEffect('low_time', 1, 1.0);
       }
       this.minutes.text(secsPadding + secs + ":");
@@ -1722,11 +1732,11 @@ export let setupComponents = () => {
       var pos, spriteSheet;
       for (pos = 0; pos < 32; pos++) {
         spriteSheet = this.spriteSheetXY(pos);
-        this.animate('Straight_' + pos, spriteSheet.x, spriteSheet.y, spriteSheet.x)
+        this.reel('Straight_' + pos, 1, spriteSheet.x, spriteSheet.y, 1);
         spriteSheet = this.spriteSheetXY(32 + pos);
-        this.animate('TurnLeft_' + pos, spriteSheet.x, spriteSheet.y, spriteSheet.x)
+        this.reel('TurnLeft_' + pos, 1, spriteSheet.x, spriteSheet.y, 1);
         spriteSheet = this.spriteSheetXY(64 + pos);
-        this.animate('TurnRight_' + pos, spriteSheet.x, spriteSheet.y, spriteSheet.x)
+        this.reel('TurnRight_' + pos, 1, spriteSheet.x, spriteSheet.y, 1);
       }
 
       // Init exhaust
@@ -1924,7 +1934,7 @@ export let setupComponents = () => {
         return;
       }
       this.currentReelId = reelId;
-      this.animate(reelId, 1, 1);
+      this.animate(reelId, -1);
     },
 
     _adjustDirectionIndexForSnapToDirection: function () {
@@ -1984,10 +1994,10 @@ export let setupComponents = () => {
       }
     },
 
-    _playSoundEffect: function (soundName, repeat, volume, startTime) {
+    _playSoundEffect: function (soundName, repeat, volume) {
       if (!this.playingSounds[soundName].playing) {
         this.playingSounds[soundName].playing = true;
-        Game.playSoundEffect(soundName, repeat, volume, startTime);
+        Game.playSoundEffect(soundName, repeat, volume);
       }
     },
 

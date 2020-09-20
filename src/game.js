@@ -92,10 +92,10 @@ export let Game = {
     }
   },
 
-  playSoundEffect: function (effectName, repeat, volume, startTime) {
+  playSoundEffect: function (effectName, repeat, volume) {
     if (Game.options.sfx) {
 //      Game.stopAllSoundsExcept(effectName, Game.musicPlaying, "woop", "low_time", "disappear");
-      Game.playSound(effectName, repeat, volume, startTime);
+      Game.playSound(effectName, repeat, volume);
     }
   },
 
@@ -103,8 +103,8 @@ export let Game = {
     Crafty.audio.stop(sound);
   },
 
-  playSound: function (soundName, repeat, volume, startTime) {
-    Crafty.audio.play(soundName, repeat, volume, startTime);
+  playSound: function (soundName, repeat, volume) {
+    Crafty.audio.play(soundName, repeat, volume);
   },
 
 
@@ -656,6 +656,7 @@ export let Game = {
       min:{x:0, y:0},
       max:{x:Game.width(), y:Game.height()}
     };
+    Game.sizeViewport();
 
     Crafty.addEvent(Game, window, "resize", Game.sizeViewport);
 

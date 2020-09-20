@@ -74,80 +74,8 @@ Crafty.scene('Loading', function(){
 
   Crafty.e('LoadingText');
 
-  Crafty.load([
-    'assets/audio/engine_idle.mp3',
-    'assets/audio/engine_speed_up.mp3',
-    'assets/audio/engine_slow_down.mp3',
-    'assets/audio/engine_top_speed.mp3',
-    'assets/audio/wheel_spin.mp3',
-    'assets/audio/woop.ogg',
-    'assets/audio/car_horn.ogg',
-    'assets/audio/menu_nav.mp3',
-    'assets/audio/low_time_warning.mp3',
-    'assets/audio/menu_change_page.mp3',
-    'assets/audio/falling.mp3',
-    'assets/audio/game_over.mp3',
-    'assets/audio/disappear.mp3',
-    'assets/audio/Mighty_Eight_Bit_Ranger.mp3',
-    'assets/audio/Ring_Road.mp3',
-    'assets/audio/Bloom_Full_Groove.mp3',
-    'assets/images/car.png',
-    'assets/images/waypoint_animation.png',
-    'assets/images/navigator.png',
-    "assets/images/waypoint_indicator.png",
-    "assets/images/up_arrow_51x48.png",
-    "assets/images/right_arrow_51x48.png",
-    "assets/images/down_arrow_51x48.png",
-    "assets/images/left_arrow_51x48.png",
-    "assets/images/escape_key_51x48.png",
-    "assets/images/enter_key_100x48.png",
-    "assets/images/glass_overlay.png",
-    "assets/images/menu_background.png",
-    "assets/images/tiles.png",
-    "assets/images/tiles2.png"
-  ], function(){
-    Crafty.sprite(98, 'assets/images/car.png', {
-      spr_car:  [6, 1]
-    }, 0, 0);
-    Crafty.sprite(64, 'assets/images/waypoint_animation.png', {
-      spr_waypoint:  [0, 0]
-    }, 0, 0);
-    Crafty.sprite(21, 'assets/images/waypoint_indicator.png', {
-      spr_waypoint_indicator:  [0, 0]
-    }, 0, 0);
-    Crafty.sprite(96, 'assets/images/navigator.png', {
-      spr_navigator:  [0, 0]
-    }, 0, 0);
-    Crafty.sprite(51, 48, 'assets/images/up_arrow_51x48.png', {
-      spr_up_arrow:  [0, 0]
-    }, 0, 0);
-    Crafty.sprite(51, 48, 'assets/images/right_arrow_51x48.png', {
-      spr_right_arrow:  [0, 0]
-    }, 0, 0);
-    Crafty.sprite(51, 48, 'assets/images/down_arrow_51x48.png', {
-      spr_down_arrow:  [0, 0]
-    }, 0, 0);
-    Crafty.sprite(51, 48, 'assets/images/left_arrow_51x48.png', {
-      spr_left_arrow:  [0, 0]
-    }, 0, 0);
-    Crafty.sprite(51, 48, 'assets/images/escape_key_51x48.png', {
-      spr_escape_key:  [0, 0]
-    }, 0, 0);
-    Crafty.sprite(100, 48, 'assets/images/enter_key_100x48.png', {
-      spr_enter_key:  [0, 0]
-    }, 0, 0);
-    Crafty.sprite(922, 555, 'assets/images/menu_background.png', {
-      spr_menu_background:  [0, 0]
-    }, 0, 0);
-    Crafty.sprite(700, 450, 'assets/images/glass_overlay.png', {
-      spr_glass_overlay:  [0, 0]
-    }, 0, 0);
-    Crafty.sprite(128, 64, 'assets/images/delete.png', {
-      spr_delete:  [0, 0]
-    }, 0, 0);
-
-    // Define our sounds for later use
-    Crafty.audio.add({
+  Crafty.load({
+    "audio": {
       engine_idle:        ['assets/audio/engine_idle.mp3'],
       engine_speed_up:    ['assets/audio/engine_speed_up.mp3'],
       engine_slow_down:   ['assets/audio/engine_slow_down.mp3'],
@@ -164,12 +92,30 @@ Crafty.scene('Loading', function(){
       level_music:        ['assets/audio/Mighty_Eight_Bit_Ranger.mp3'],
       menu_music:         ['assets/audio/Ring_Road.mp3'],
       end_level_music:    ['assets/audio/Bloom_Full_Groove.mp3']
-    });
-
+    },
+    "sprites": {
+      'assets/images/car.png':                { 'tile': 98, 'tileh': 98, map: { "spr_car": [6,1] } },
+      'assets/images/waypoint_animation.png': { 'tile': 64, 'tileh': 64, map: { "spr_waypoint": [0,0] } },
+      "assets/images/waypoint_indicator.png": { 'tile': 21, 'tileh': 21, map: { "spr_waypoint_indicator": [0,0] } },
+      'assets/images/navigator.png':          { 'tile': 96, 'tileh': 96, map: { "spr_navigator": [0,0] } },
+      "assets/images/up_arrow_51x48.png":     { 'tile': 51, 'tileh': 48, map: { "spr_up_arrow": [0,0] } },
+      "assets/images/right_arrow_51x48.png":  { 'tile': 51, 'tileh': 48, map: { "spr_right_arrow": [0,0] } },
+      "assets/images/down_arrow_51x48.png":   { 'tile': 51, 'tileh': 48, map: { "spr_down_arrow": [0,0] } },
+      "assets/images/left_arrow_51x48.png":   { 'tile': 51, 'tileh': 48, map: { "spr_left_arrow": [0,0] } },
+      "assets/images/escape_key_51x48.png":   { 'tile': 51, 'tileh': 48, map: { "spr_escape_key": [0,0] } },
+      "assets/images/enter_key_100x48.png":   { 'tile': 100, 'tileh': 48, map: { "spr_enter_key": [0,0] } },
+      "assets/images/menu_background.png":    { 'tile': 922, 'tileh': 555, map: { "spr_menu_background": [0,0] } },
+      "assets/images/glass_overlay.png":      { 'tile': 700, 'tileh': 450, map: { "spr_glass_overlay": [0,0] } },
+      "assets/images/delete.png":             { 'tile': 128, 'tileh': 64, map: { "spr_delete": [0,0] } }
+    }
+  }, function(){
     Crafty.scene('Game');
   }, function(e) {
     // Progress
     //console.log("Progress:", e.percent);
+  }, function(e) {
+    // Error
+    //console.log("Loading Error:", e);
   });
 
 });

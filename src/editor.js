@@ -147,17 +147,12 @@ export let Editor = {
     if (Editor.isScaleZoomLevelPrevented(scale)) {
       return;
     }
-    var centerX = Crafty.viewport.width/2 - Crafty.viewport.x;
-    var centerY = Crafty.viewport.height/2 - Crafty.viewport.y;
-    Crafty.viewport.scrollXY(0,0);
-    Crafty.viewport.width = Crafty.viewport.width / scale;
-    Crafty.viewport.height = Crafty.viewport.height / scale;
-    Crafty.viewport.scale(scale);
-    Crafty.viewport.scrollXY((Crafty.viewport.width/2) - centerX, (Crafty.viewport.height/2) - centerY);
+    let centerX = (Crafty.viewport._width / Crafty.viewport._scale)/2 - Crafty.viewport._x;
+    let centerY = (Crafty.viewport._height / Crafty.viewport._scale)/2 - Crafty.viewport._y;
+    Crafty.viewport.zoom(scale, centerX, centerY, 0);
 
     Editor.zoomLevel *= scale;
     Crafty.trigger("ZoomLevelChanged", Editor.zoomLevel);
-    Crafty.trigger("ViewportChanged");
   },
 
   resetZoom: function() {
@@ -208,11 +203,12 @@ export let Editor = {
   },
 
   sizeViewport: function() {
-    Editor.resetZoom();
-
     Game.sizeViewport();
+    Editor.triggerViewportChanged();
+  },
 
-    Editor.zoom(0.5);
+  triggerViewportChanged: function() {
+      Crafty.trigger("ViewportChanged");
   },
 
   initEditor: function() {
@@ -221,6 +217,7 @@ export let Editor = {
     Editor.tileCursor = Crafty.e('TileCursor');
     Crafty.e('ScaleIndicator');
     Crafty.e('EditModeControl');
+    Crafty.bind("CameraAnimationDone", Editor.triggerViewportChanged);
     Editor.zoom(0.5);
     Editor.initToolbar();
 
@@ -377,8 +374,8 @@ export let Editor = {
   // Note: this is a copy of Crafty.DOM.translate, the only difference is that viewport x and y are multiplied by the zoom factor (might be a bug in Crafty that it doesn't do that?)
   mouseToWorld: function (x, y) {
     return {
-      x: (x - Crafty.stage.x + document.body.scrollLeft + document.documentElement.scrollLeft - (Crafty.viewport._x*Crafty.viewport._zoom))/Crafty.viewport._zoom,
-      y: (y - Crafty.stage.y + document.body.scrollTop + document.documentElement.scrollTop - (Crafty.viewport._y*Crafty.viewport._zoom))/Crafty.viewport._zoom
+      x: (x - Crafty.stage.x - (Crafty.viewport._x * Crafty.viewport._scale)) / Crafty.viewport._scale,
+      y: (y - Crafty.stage.y - (Crafty.viewport._y * Crafty.viewport._scale)) / Crafty.viewport._scale
     }
   },
 
@@ -696,9 +693,9 @@ Crafty.c('ScaleIndicator', {
 
   _updatePosition: function() {
     // Update position to be in bottom-left corner of viewport
-    // Note: Dividing by zoomLevel to undo the effects of Crafty applying a scale transform to the stage when the viewport is scaled
-    this.x = (this.margin - Crafty.viewport.x) / Editor.zoomLevel;
-    this.y = (640 - (this.fontSize + this.margin) - Crafty.viewport.y) / Editor.zoomLevel;
+    // Note: Dividing by viewport._scale to undo the effects of the viewport being scaled
+    this.x = -Crafty.viewport.x + (this.margin / Crafty.viewport._scale);
+    this.y = -Crafty.viewport.y + (Crafty.viewport._height - this.fontSize - this.margin)/ Crafty.viewport._scale;
   },
 
   _updateScalePercentage: function(zoomLevel) {
@@ -759,7 +756,7 @@ Crafty.c('TileCursor', {
   },
 
   _tweenAlphaTo: function(targetAlpha) {
-    this.tween({alpha: targetAlpha}, 30);
+    this.tween({alpha: targetAlpha}, 500);
   }
 });
 
