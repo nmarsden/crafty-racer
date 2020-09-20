@@ -240,6 +240,13 @@ export let Game = {
     Game.player.setPosition(playerPos.x, playerPos.y);
   },
 
+  initTouchControl: function() {
+    if (Crafty.mobile) {
+      Game.touchControl = Crafty.e('TouchControl');
+      Game.touchControl.setName("TouchControl");
+    }
+  },
+
   initRecordControl: function() {
     Game.recordControl = Crafty.e('RecordControl');
   },
@@ -256,6 +263,7 @@ export let Game = {
     Game.initWaypoint();
     Game.initWaypointsCollectedIndicator();
     Game.initPlayer();
+    Game.initTouchControl();
     Game.initRecordControl();
   },
 

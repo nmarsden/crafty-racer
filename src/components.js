@@ -426,6 +426,81 @@ export let setupComponents = () => {
     }
   });
 
+  Crafty.c('TouchControl', {
+    buttons: [
+      {
+        key: 'LEFT_ARROW',
+        rotation: -90,
+        updatePosFn: (b) => {
+          b.x = -Crafty.viewport.x;
+          b.y = -Crafty.viewport.y + Crafty.viewport.height - b.w
+        }
+      },
+      {
+        key: 'RIGHT_ARROW',
+        rotation: 90,
+        updatePosFn: (b) => {
+          b.x = -Crafty.viewport.x + b.w;
+          b.y = -Crafty.viewport.y + Crafty.viewport.height - b.w
+        }
+      },
+      {
+        key: 'UP_ARROW',
+        rotation: 0,
+        updatePosFn: (b) => {
+          b.x = -Crafty.viewport.x + Crafty.viewport.width - b.w;
+          b.y = -Crafty.viewport.y + Crafty.viewport.height - b.w
+        }
+      },
+      {
+        key: 'DOWN_ARROW',
+        rotation: 180,
+        updatePosFn: (b) => {
+          b.x = -Crafty.viewport.x + Crafty.viewport.width - (2 * b.w);
+          b.y = -Crafty.viewport.y + Crafty.viewport.height - b.w
+        }
+      }
+    ],
+    arrowButtons: [],
+    buttonSize: 80,
+
+    init: function () {
+      this.requires('Actor, Level');
+
+      this.arrowButtons = this.buttons.map(button => this.createArrowButton(button));
+
+      this.updatePosition();
+
+      this.bind("PlayerMoved", this.updatePosition);
+    },
+
+    createArrowButton: function(button) {
+      let arrow = Crafty.e('Actor, spr_navigator, Level, Mouse');
+      arrow.w = this.buttonSize;
+      arrow.h = this.buttonSize;
+      arrow.z = 7000;
+      arrow.origin(this.buttonSize / 2, this.buttonSize / 2);
+      arrow.rotation = button.rotation;
+
+      arrow.updatePosition = () => button.updatePosFn(arrow);
+      arrow.bind('MouseDown', () => this.mouseDownHandler(button.key));
+      arrow.bind('MouseUp', () => this.mouseUpHandler(button.key));
+      return arrow;
+    },
+
+    mouseDownHandler: function(key) {
+      Game.dispatchKeyDown(key);
+    },
+
+    mouseUpHandler: function(key) {
+      Game.dispatchKeyUp(key);
+    },
+
+    updatePosition: function() {
+      this.arrowButtons.forEach((arrowButton) => arrowButton.updatePosition());
+    }
+  });
+
   Crafty.c('ShowFPS', {
     init: function () {
       this.requires('2D, DOM, FPS, Text');
