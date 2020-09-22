@@ -144,14 +144,6 @@ export let Game = {
     // };
   },
 
-  createGlassOverlay: function() {
-    var overlay = Crafty.e('2D, Canvas, spr_glass_overlay');
-    var x = Crafty.viewport.width/2 - Crafty.viewport.x - (700 / 2);
-    var y = Crafty.viewport.height/2 - Crafty.viewport.y - (450 / 2);
-    overlay.attr({ x: x, y: y, z: 7000, w: 700, h: 450 });
-    return overlay;
-  },
-
   showMainMenu: function() {
     Game.playMusic('menu_music');
     Game.mainMenu = Crafty.e('MainMenu');
@@ -283,7 +275,7 @@ export let Game = {
   },
 
   getLevelCompleteMessage: function () {
-    return 'LEVEL ' + Game.getLevelNumber() + ' COMPLETE!';
+    return 'LEVEL ' + Game.getLevelNumber() + ' DONE!';
   },
 
   initWaypoint: function () {
@@ -454,7 +446,7 @@ export let Game = {
     this.levelIndex = levelIndex;
 
     Game.destroyAll2DEntities();
-    Crafty.viewport.scrollXY(0, 0);
+    Game.scrollXYViewport(0, 0);
     var loadingText = Crafty.e('LoadingText');
 
     var startLevelLoading = function() {
@@ -482,7 +474,7 @@ export let Game = {
 
     Debug.logEntitiesAndHandlers("startLevel: after destroyAll2DEntities");
 
-    Crafty.viewport.scrollXY(0, 0);
+    Game.scrollXYViewport(0, 0);
 
     var loadingText = Crafty.e('LoadingText');
 
@@ -546,13 +538,13 @@ export let Game = {
 
   dispatchKeyDown: function(key) {
     if (key != undefined) {
-      Crafty.keyboardDispatch({ keyCode:Crafty.keys[key], type:"keydown" });
+      Crafty.s('Keyboard').processEvent({ keyCode:Crafty.keys[key], type:"keydown" });
     }
   },
 
   dispatchKeyUp: function(key) {
     if (key != undefined) {
-      Crafty.keyboardDispatch({ keyCode:Crafty.keys[key], type:"keyup" });
+      Crafty.s('Keyboard').processEvent({ keyCode:Crafty.keys[key], type:"keyup" });
     }
   },
 
@@ -609,10 +601,13 @@ export let Game = {
     }
   },
 
+  scrollXYViewport: function (x, y) {
+    Crafty.viewport.scroll('_x', x);
+    Crafty.viewport.scroll('_y', y);
+  },
+
   sizeViewport: function() {
 
-    // TODO fix scale issue when starting with non-mobile and switching to mobile
-    // TODO  - Note: something to do with window.innerWidth & window.innerHeight giving different results if starting with mobile or non-mobile
     Game.updateCraftyMobile();
 
     const viewportRect = Game.calcViewportRect();
@@ -623,25 +618,11 @@ export let Game = {
     elem.height = viewportRect.height + "px";
     elem.position = Crafty.mobile ? "absolute" : "relative";
 
-    if (Crafty.canvas._canvas) {
-      // Resize main canvas
-      let storedTransform = Crafty.canvas.context.getTransform();
-      Crafty.canvas._canvas.width = viewportRect.width;
-      Crafty.canvas._canvas.height = viewportRect.height;
-      Crafty.canvas.context.setTransform(storedTransform);
-
-      // Resize particles canvas
-      let particlesCanvas = Crafty.stage.elem.children[3];
-      if (particlesCanvas) {
-        particlesCanvas.width = viewportRect.width;
-        particlesCanvas.height = viewportRect.height;
-      }
-
-      Crafty.DrawManager.drawAll();
-    }
-    const offset = Crafty.DOM.inner(Crafty.stage.elem);
+    const offset = Crafty.domHelper.innerPosition(Crafty.stage.elem);
     Crafty.stage.x = offset.x;
     Crafty.stage.y = offset.y;
+
+    Crafty.trigger("ViewportChanged");
   },
 
   start:function () {
@@ -669,6 +650,8 @@ export let Game = {
     Crafty.addEvent(Game, window, "resize", Game.sizeViewport);
 
     Crafty.background('rgb(0,0,0)');
+
+    Crafty.createLayer("UILayer", "DOM", {scaleResponse: 0, xResponse: 0, yResponse: 0, z:40})
 
     setupComponents();
     Editor.setup();

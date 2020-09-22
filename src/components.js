@@ -7,8 +7,9 @@ export let setupComponents = () => {
 
   Crafty.c('OutlineText', {
     init: function () {
-      this.requires('2D, DOM, Text');
+      this.requires('UILayer, 2D, DOM, Text');
       this.css({'text-shadow': '1px 0 0 #000000, 0 -1px 0 #000000, 0 1px 0 #000000, -1px 0 0 #000000'})
+      this.textAlign('center');
     }
   });
 
@@ -32,12 +33,15 @@ export let setupComponents = () => {
       this.text('LOADING')
           .textFont({type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE'})
           .textColor('#0061FF')
-          .attr({w: 320})
-          .attr({
-            x: Crafty.viewport.width / 2 - Crafty.viewport.x - 160,
-            y: Crafty.viewport.height / 2 - Crafty.viewport.y + 60
-          });
-    }
+          .attr({w: 320});
+      this._updatePosition();
+
+      this.bind("ViewportChanged", this._updatePosition.bind(this));
+    },
+
+    _updatePosition: function () {
+      this.attr({x: Crafty.viewport.width / 2 - 160, y: Crafty.viewport.height / 2 - 15});
+    },
   });
 
   Crafty.c('TipText', {
@@ -54,10 +58,9 @@ export let setupComponents = () => {
       this.textFont({type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE'})
       this.textColor('#0061FF', 1.0);
 
-      var x = Crafty.viewport.width / 2 - Crafty.viewport.x - 160;
-      var y = Crafty.viewport.height / 2 - Crafty.viewport.y;
+      this._updatePosition();
 
-      this.attr({x: x, y: y - 100});
+      this.bind("ViewportChanged", this._updatePosition.bind(this));
     },
 
     show: function () {
@@ -67,6 +70,10 @@ export let setupComponents = () => {
       this.bind("EnterFrame", this._enterFrameHandler.bind(this));
     },
 
+    _updatePosition: function () {
+      this.attr({x: Crafty.viewport.width / 2 - 160, y: Crafty.viewport.height / 2 - 100});
+    },
+
     _enterFrameHandler: function () {
       var timeElapsed = Date.now() - this.startTime;
       if (timeElapsed > this.totalShowDuration) {
@@ -74,10 +81,6 @@ export let setupComponents = () => {
         this.unbind("EnterFrame", this._enterFrameHandler);
         return;
       }
-      var x = Crafty.viewport.width / 2 - Crafty.viewport.x - 160;
-      var y = Crafty.viewport.height / 2 - Crafty.viewport.y;
-      this.x = x;
-      this.y = y - 100;
 
       if (!this.visible) {
         this.visible = true;
@@ -99,7 +102,7 @@ export let setupComponents = () => {
   Crafty.c('Waypoint', {
     init: function () {
       this.requires('Actor, spr_waypoint, SpriteAnimation, Collision, Level');
-      this.collision(new Crafty.polygon([32, 0], [64, 16], [64, 48], [32, 64], [0, 48], [0, 16]));
+      this.collision(new Crafty.polygon([32, 0, 64, 16, 64, 48, 32, 64, 0, 48, 0, 16]));
 
       this.waypointPosition = {x: 0, y: 0};
 
@@ -322,10 +325,9 @@ export let setupComponents = () => {
 
   Crafty.c('WaypointIndicator', {
     init: function () {
-      this.requires('Actor, spr_waypoint_indicator, SpriteAnimation');
+      this.requires('UILayer, 2D, DOM, spr_waypoint_indicator, SpriteAnimation');
       this.w = 11;
       this.h = 11;
-      this.z = 7000;
 
       this.reel('Collected', 1, 0, 0, 1);
       this.reel('NotFound', 1000, 1, 0, 1);
@@ -345,27 +347,20 @@ export let setupComponents = () => {
 
   Crafty.c('WaypointsCollectedIndicator', {
     init: function () {
-      this.requires('Actor, Level');
+      this.requires('UILayer, 2D, DOM, Level');
       this.size = 11;
+      this.x = 10;
+      this.y = 48;
       this.w = 10 * (this.size + 2);
       this.h = this.size;
-      this.z = 7000;
       this.numberCollected = 0;
 
       this.waypointIndicators = this._createWaypointIndicators();
-      this.updatePosition();
-
-      this.bind("PlayerMoved", this.updatePosition);
 
       this.bind('WaypointReached', function () {
         this.waypointIndicators[this.numberCollected].collected();
         this.numberCollected++;
       });
-    },
-
-    updatePosition: function () {
-      this.x = -Crafty.viewport.x + 10;
-      this.y = -Crafty.viewport.y + 48;
     },
 
     resetNumberCollected: function () {
@@ -376,11 +371,11 @@ export let setupComponents = () => {
     },
 
     _createWaypointIndicators: function () {
-      var wps = [], i = 0, wp, x = 0;
+      var wps = [], i = 0, wp, x = this.x;
       for (; i < 10; i++) {
         wp = Crafty.e('WaypointIndicator');
         wp.setName('WaypointIndicator');
-        wp.attr({x: x, y: 0});
+        wp.attr({x: x, y: this.y});
         wps.push(wp);
 
         this.attach(wp);
@@ -523,7 +518,7 @@ export let setupComponents = () => {
 
   Crafty.c('Countdown', {
     init: function () {
-      this.requires('2D, Level');
+      this.requires('UILayer, 2D, Level');
       this.playWarningSound = false;
       this.lowTime = false;
       this.noAnimation = {
@@ -543,17 +538,19 @@ export let setupComponents = () => {
         '-webkit-animation-iteration-count': 'infinite'
       };
 
-      this.minutes = Crafty.e('2D, DOM, Text');
+      this.minutes = Crafty.e('UILayer, 2D, DOM, Text');
       this.minutes.setName("Minutes");
       this.minutes.textFont({type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE'});
       this.minutes.textColor('#000000', 1.0);
       this.minutes.attr({w: 70});
+      this.minutes.textAlign('center');
 
-      this.seconds = Crafty.e('2D, DOM, Text');
+      this.seconds = Crafty.e('UILayer, 2D, DOM, Text');
       this.seconds.setName("Seconds");
       this.seconds.textFont({type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE'});
       this.seconds.textColor('#000000', 1.0);
       this.seconds.attr({w: 70});
+      this.seconds.textAlign('center');
 
       this._updatePosition();
 
@@ -563,15 +560,14 @@ export let setupComponents = () => {
       this.startTime = 0;
       this.totalTime = 0;
 
-      this.bind("PlayerMoved", this._updatePosition);
       this.bind("EnterFrame", this._enterFrame);
       this.bind("PauseGame", this._pauseGame);
       this.bind("UnpauseGame", this._unpauseGame);
     },
 
     _updatePosition: function () {
-      var x = -Crafty.viewport.x + 10;
-      var y = -Crafty.viewport.y + 170;
+      var x = 10;
+      var y = 170;
       this.minutes.x = x;
       this.minutes.y = y - 100;
       this.seconds.x = x + 70;
@@ -658,21 +654,12 @@ export let setupComponents = () => {
 
   Crafty.c('LevelIndicator', {
     init: function () {
-      this.requires('2D, DOM, Text, Level');
-      this.h = 30;
-      this.w = 300;
+      this.requires('UILayer, 2D, DOM, Text, Level');
+      this.attr({x:10, y:5, w:300, h:30});
       this.textFont({type: 'normal', weight: 'normal', size: '30px', family: Game.fontFamily});
       this.css('text-align', 'left');
       this.textColor('#0061FF', 0.6);
       this.text("LEVEL " + Game.getLevelNumber());
-      this.updatePosition();
-
-      this.bind("PlayerMoved", this.updatePosition);
-    },
-
-    updatePosition: function () {
-      this.x = -Crafty.viewport.x + 10;
-      this.y = -Crafty.viewport.y + 5;
     }
   });
 
@@ -728,9 +715,8 @@ export let setupComponents = () => {
 
   Crafty.c('Menu', {
     init: function () {
-      this.requires('2D, Canvas, Text, Keyboard');
+      this.requires('UILayer, 2D, DOM, Text, Keyboard');
       this.backgroundImageDim = { width: 922, height: 555 };
-      this.z = 2000;
       this.menuItems = [];
       this.selectedMenuIndex = 0;
       this.colour = '#0061FF';
@@ -744,7 +730,7 @@ export let setupComponents = () => {
         'X': 'ESC'
       };
 
-      this.overlay = Crafty.e('2D, Canvas, spr_menu_background, Tween');
+      this.overlay = Crafty.e('UILayer, 2D, DOM, spr_menu_background, Tween');
       this.overlay.setName("MenuBackground")
       this.overlay.attr({alpha:0.5});
 
@@ -1016,12 +1002,29 @@ export let setupComponents = () => {
 
   });
 
-  Crafty.c('LevelCompleteControl', {
+  Crafty.c('GlassOverlay', {
     init: function () {
-      this.requires('2D, DOM, Text');
-      var width = 650;
-      var height = 100;
-      var textColour = "#0061FF";
+      this.requires('UILayer, 2D, DOM, spr_glass_overlay');
+      this.attr({ w: 700, h: 450 });
+      this.bind("ViewportChanged", this._updatePosition.bind(this));
+
+      this._updatePosition();
+    },
+
+    _updatePosition: function () {
+      let x = Crafty.viewport.width/2 - (this.w / 2);
+      let y = Crafty.viewport.height/2 - (this.h / 2);
+      this.attr({x: x, y: y});
+    },
+  });
+
+  Crafty.c('LevelCompleteControl', {
+    textWidth:  320,
+    textHeight: 100,
+    textColour: "#0061FF",
+
+    init: function () {
+      this.requires('UILayer, 2D, DOM, Text');
 
       this.showLoadingMessage = false;
       this.keyPressDelay = true;
@@ -1029,20 +1032,18 @@ export let setupComponents = () => {
       this.levelComplete = Crafty.e('OutlineText');
       this.levelComplete.setName("LevelCompleteText");
       this.levelComplete.text(Game.getLevelCompleteMessage)
-      var x = Crafty.viewport.width / 2 - Crafty.viewport.x - (width / 2);
-      var y = Crafty.viewport.height / 2 - Crafty.viewport.y - 140;
-      this.levelComplete.attr({x: x, y: y, w: width, h: height})
-      this.levelComplete.textFont({type: 'normal', weight: 'normal', size: '80px', family: Game.fontFamily})
-      this.levelComplete.textColor(textColour);
+      this.levelComplete.attr({w: this.textWidth, z:50})
+      this.levelComplete.textFont({type: 'normal', weight: 'normal', size: '60px', family: Game.fontFamily})
+      this.levelComplete.textColor(this.textColour);
 
       this.pressAnyKey = Crafty.e('FlashingText');
       this.pressAnyKey.setName("PressAnyKeyText");
-      this.pressAnyKey.attr({x: x, y: y + 260, w: width, h: height})
+      this.pressAnyKey.attr({w: this.textWidth, h: this.textHeight, z:50})
       this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
       this.pressAnyKey.textFont({type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE'})
-      this.pressAnyKey.textColor(textColour);
+      this.pressAnyKey.textColor(this.textColour);
 
-      this.overlay = Game.createGlassOverlay();
+      this.overlay = Crafty.e('GlassOverlay');
 
       // After a short delay, watch for the player to press a key, then restart
       // the game when a key is pressed
@@ -1052,6 +1053,16 @@ export let setupComponents = () => {
       Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this.showLoading.bind(this));
 
       this.bind('EnterFrame', this.restartGame);
+      this.bind("ViewportChanged", this._updatePosition.bind(this));
+
+      this._updatePosition();
+    },
+
+    _updatePosition: function () {
+      var x = Crafty.viewport.width / 2 - this.textWidth/2;
+      var y = Crafty.viewport.height / 2;
+      this.levelComplete.attr({x: x , y: y - 140})
+      this.pressAnyKey.attr({x: x, y: y + 80})
     },
 
     enableKeyPress: function () {
@@ -1086,39 +1097,38 @@ export let setupComponents = () => {
   });
 
   Crafty.c('GameOverControl', {
+    textWidth: 320,
+    textHeight: 100,
+    textColour: '#0061FF',
+
     init: function () {
-      this.requires('2D, DOM, Text');
-      var width = 600;
-      var height = 100;
+      this.requires('UILayer, 2D, DOM, Text');
       this.showLoadingMessage = false;
       this.keyPressDelay = true;
-      var textColour = '#0061FF';
 
       this.reasonText = Crafty.e('OutlineText');
       this.reasonText.setName("GameOverReason");
-      var x = Crafty.viewport.width / 2 - Crafty.viewport.x - (width / 2);
-      var y = Crafty.viewport.height / 2 - Crafty.viewport.y - 180;
-      this.reasonText.attr({x: x, y: y, w: width, height: height})
-      this.reasonText.textFont({type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE'})
-      this.reasonText.textColor(textColour, 1.0);
+      this.reasonText.attr({w: this.textWidth, height: this.textHeight, z:50})
+      this.reasonText.textFont({type: 'normal', weight: 'normal', size: '40px', family: 'ARCADE'})
+      this.reasonText.textColor(this.textColour, 1.0);
 
       this.gameOverText = Crafty.e('OutlineText');
       this.gameOverText.setName("GameOver");
       this.gameOverText.text('GAME OVER!')
-      this.gameOverText.attr({x: x, y: y + 70, w: width, height: height})
-      this.gameOverText.textFont({type: 'normal', weight: 'normal', size: '100px', family: Game.fontFamily})
-      this.gameOverText.textColor(textColour);
+      this.gameOverText.attr({w: this.textWidth, height: this.textHeight, z:50})
+      this.gameOverText.textFont({type: 'normal', weight: 'normal', size: '60px', family: Game.fontFamily})
+      this.gameOverText.textColor(this.textColour);
 
       this.pressAnyKey = Crafty.e('FlashingText');
       this.pressAnyKey.setName("GameOverPressAnyKey");
-      this.pressAnyKey.attr({x: x, y: y + 290, w: width, height: height})
+      this.pressAnyKey.attr({w: this.textWidth, height: this.textHeight, z:50})
       this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
       this.pressAnyKey.textFont({type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE'})
-      this.pressAnyKey.textColor(textColour);
+      this.pressAnyKey.textColor(this.textColour);
 
       Game.playSoundEffect('game_over', 1, 1.0);
 
-      this.overlay = Game.createGlassOverlay();
+      this.overlay = Crafty.e('GlassOverlay');
 
       // After a short delay, watch for the player to press a key, then restart
       // the game when a key is pressed
@@ -1128,6 +1138,17 @@ export let setupComponents = () => {
       Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this.showLoading.bind(this));
 
       this.bind('EnterFrame', this.restartGame);
+      this.bind("ViewportChanged", this._updatePosition.bind(this));
+
+      this._updatePosition();
+    },
+
+    _updatePosition: function () {
+      var x = Crafty.viewport.width / 2 - (this.textWidth / 2);
+      var y = Crafty.viewport.height / 2;
+      this.reasonText.attr({x: x, y: y - 120})
+      this.gameOverText.attr({x: x, y: y - 70})
+      this.pressAnyKey.attr({x: x, y: y + 80})
     },
 
     setReason: function (reason) {
@@ -1213,25 +1234,40 @@ export let setupComponents = () => {
 
   Crafty.c('PauseControl', {
     init: function () {
-      this.requires('2D, Keyboard, Level');
+      this.requires('UILayer, 2D, Keyboard, Level');
       this.paused = false;
       this.enabled = true;
       var textColour = "#0061FF";
 
       this.pauseText = Crafty.e('OutlineText');
       this.pauseText.setName("PauseText");
-      this.pauseText.attr({w: 320})
+      this.pauseText.attr({w: 320, z:50})
       this.pauseText.textFont({type: 'normal', weight: 'normal', size: '60px', family: Game.fontFamily})
       this.pauseText.textColor(textColour);
 
       this.pressAnyKey = Crafty.e('FlashingText');
       this.pressAnyKey.setName("PausePressAnyKeyText");
-      this.pressAnyKey.attr({w: 320})
+      this.pressAnyKey.attr({w: 320, z:50})
       this.pressAnyKey.textFont({type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE'})
       this.pressAnyKey.textColor(textColour);
 
+      this._updatePosition();
+
+      this.bind("ViewportChanged", this._updatePosition.bind(this));
+
       this.bind('KeyDown', this._handleKeyDownOrButtonDown);
       Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this._handleKeyDownOrButtonDown.bind(this));
+    },
+
+    _updatePosition: function () {
+      if (!this.enabled) {
+        return;
+      }
+      let x = Crafty.viewport.width / 2;
+      let y = Crafty.viewport.height / 2;
+
+      this.pauseText.attr({x: x - (this.pauseText.w/2), y: y - 100});
+      this.pressAnyKey.attr({x: x - (this.pressAnyKey.w/2), y: y + 30});
     },
 
     _isBackButton: function (e) {
@@ -1264,16 +1300,10 @@ export let setupComponents = () => {
       Game.pauseGame();
       Crafty.audio.mute();
 
-      var x = Crafty.viewport.width / 2 - Crafty.viewport.x - 160;
-      var y = Crafty.viewport.height / 2 - Crafty.viewport.y;
-
-      this.pauseText.attr({x: x, y: y - 100});
       this.pauseText.text("PAUSED");
-
-      this.pressAnyKey.attr({x: x, y: y + 30});
       this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
 
-      this.overlay = Game.createGlassOverlay();
+      this.overlay = Crafty.e("GlassOverlay");
     },
 
     unpause: function () {
@@ -1293,7 +1323,7 @@ export let setupComponents = () => {
     init: function () {
       this.requires('Collision');
       this.z = Math.floor(this._y + 64);
-      var polygon = new Crafty.polygon([0, 32], [64, 0], [128, 32], [64, 64]);
+      var polygon = new Crafty.polygon([0, 32, 64, 0, 128, 32, 64, 64]);
       polygon.shift(0, 64);
       this.collision(polygon);
     }
@@ -1303,7 +1333,7 @@ export let setupComponents = () => {
     init: function () {
       this.requires('Collision');
       this.z = Math.floor(this._y - 64 - 10);
-      this.collision(new Crafty.polygon([0, 32], [64, 0], [128, 32], [64, 64]));
+      this.collision(new Crafty.polygon([0, 32, 64, 0, 128, 32, 64, 64]));
     }
   });
 
@@ -1399,7 +1429,7 @@ export let setupComponents = () => {
       this.addComponent("Collision")
 //    this.z = Math.floor(this._y);
       this.z = Math.floor(this._y - 64 - 10);
-      this.collision(new Crafty.polygon([0, 32], [64, 0], [128, 32], [64, 64]));
+      this.collision(new Crafty.polygon([0, 32, 64, 0, 128, 32, 64, 64]));
     },
 
     setOneWayType: function (type) {
@@ -1452,6 +1482,7 @@ export let setupComponents = () => {
 
     init: function () {
       this.requires('Actor,Particles,Level');
+      this.attr({ w: 12800, h: 6400, x:-6400, y:0, z:7000 });
 
       // Note: reusing exhaustPosition which is allocated only once to reduce GC
       this.exhaustPosition = new Crafty.math.Vector2D(0, 0);
@@ -1518,7 +1549,8 @@ export let setupComponents = () => {
         fastMode: false,
         gravity: {x: 0, y: -0.01},
         // sensible values are 0-3
-        jitter: 1 //0
+        jitter: 1, //0
+        originOffset: {x: 0, y: 0}
       }
 
       this.particles(options);
@@ -1593,8 +1625,7 @@ export let setupComponents = () => {
       this.exhaustPosition.translate(46, 36);
       this.exhaustPosition.add(directionVector);
 
-      this.x = this.exhaustPosition.x;
-      this.y = this.exhaustPosition.y;
+      this._Particles.originOffset = {x: 6400 + this.exhaustPosition.x, y: this.exhaustPosition.y};
     },
 
     updateAngle: function (carAngle) {
@@ -1637,7 +1668,7 @@ export let setupComponents = () => {
     init: function () {
       this.addComponent("Collision")
       this.z = Math.floor(this._y - 64 - 10);
-      this.collision(new Crafty.polygon([0, 32], [64, 0], [128, 32], [64, 64]));
+      this.collision(new Crafty.polygon([0, 32, 64, 0, 128, 32, 64, 64]));
     }
   });
 
@@ -1763,7 +1794,7 @@ export let setupComponents = () => {
         newVelocity: new Crafty.math.Vector2D(0, 0)
       };
       // Note: re-using collisionPolygon to avoid memory allocation per frame
-      this.collisionPolygon = new Crafty.polygon([35, 15], [63, 15], [63, 68], [35, 68]);
+      this.collisionPolygon = new Crafty.polygon([35, 15, 63, 15, 63, 68, 35, 68]);
 
       this.fallingText = Crafty.e('TipText');
       this.fallingText.setName("FallingText");
@@ -2328,15 +2359,15 @@ export let setupComponents = () => {
     _updateCollisionBoundingBox: function () {
       var bb = this.BOUNDING_BOXES[this.directionIndex];
       var len = bb.length;
-      for (var i = 0; i < len; i++) {
-        this.collisionPolygon.points[i][0] = bb[i][0];
-        this.collisionPolygon.points[i][1] = bb[i][1];
+      for (var i = 0, j=0; i < len; i++, j=j+2) {
+        this.collisionPolygon.points[j]   = bb[i][0];
+        this.collisionPolygon.points[j+1] = bb[i][1];
       }
       this.collision(this.collisionPolygon);
     },
 
     _updateViewportWithPlayerInCenter: function () {
-      Crafty.viewport.scrollXY((Crafty.viewport.width / 2 - this.x - this.w / 2), (Crafty.viewport.height / 2 - this.y - this.h / 2));
+      Game.scrollXYViewport((Crafty.viewport.width / 2 - this.x - this.w / 2), (Crafty.viewport.height / 2 - this.y - this.h / 2));
     },
 
     _triggerPlayerMoved: function () {
@@ -2519,8 +2550,8 @@ export let setupComponents = () => {
       // move away from obstacle
       // Note: not exactly sure what 'normal' is, but adding it x and y seems to avoid the car getting stuck :-)
       var hd = hitData[0];
-      this.x += hd.normal.x;
-      this.y += hd.normal.y;
+      this.x += hd.nx;
+      this.y += hd.ny;
     },
 
     oilHit: function (hitData) {
@@ -2730,71 +2761,56 @@ export let setupComponents = () => {
   });
 
   Crafty.c('AttractModeControl', {
+    textWidth: 650,
+    textHeight: 60,
+    titleColour: "#AD0000",
+    pressAnyKeyColour: "#0061FF",
+
     init: function () {
-      this.requires('2D, DOM, Text, Persist');
-      var width = 650;
-      var height = 60;
-      var titleColour = "#AD0000";
-      var pressAnyKeyColour = "#0061FF";
-
-      var x = Crafty.viewport.width / 2 - Crafty.viewport.x - (width / 2);
-      var y = Crafty.viewport.height / 2 - Crafty.viewport.y - 140;
-
-      this.title = Crafty.e('OutlineText');
-      this.title.addComponent("Persist");
-      this.title.setName("TitleText");
-      this.title.attr({x: x, y: y - 130, w: width, h: height})
-      this.title.text("CRAFTY RACER");
-      this.title.textFont({type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE'})
-      this.title.textColor(titleColour);
-      this.title.visible = false;
+      this.requires('UILayer, 2D, DOM, Text, Persist');
 
       this.demo = Crafty.e('FlashingText');
       this.demo.addComponent("Persist");
       this.demo.setName("TitleText");
-      this.demo.attr({x: x, y: y + 300, w: width, h: height})
+      this.demo.attr({w: this.textWidth, h: this.textHeight, z:50});
       this.demo.text("DEMO");
       this.demo.textFont({type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE'})
-      this.demo.textColor(titleColour);
+      this.demo.textColor(this.titleColour);
       this.demo.visible = false;
 
       this.pressAnyKey = Crafty.e('FlashingText');
       this.pressAnyKey.addComponent("Persist");
       this.pressAnyKey.setName("PressAnyKeyText");
-      this.pressAnyKey.attr({x: x, y: y + 360, w: width, h: height})
+      this.pressAnyKey.attr({w: this.textWidth, h: this.textHeight, z:50});
       this.pressAnyKey.text("PRESS ANY KEY");
       this.pressAnyKey.textFont({type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE'})
-      this.pressAnyKey.textColor(pressAnyKeyColour);
+      this.pressAnyKey.textColor(this.pressAnyKeyColour);
       this.pressAnyKey.visible = false;
 
+      this.bind("ViewportChanged", this._updatePosition.bind(this));
       this.bind("PlaybackStarted", this._playbackStarted);
       this.bind("PlaybackEnded", this._playbackEnded);
-      this.bind("PlayerMoved", this._updatePosition);
       this.bind('KeyDown', this._handleKeyDownOrButtonDown);
       Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this._handleKeyDownOrButtonDown.bind(this));
+
+      this._updatePosition()
     },
 
     stop: function () {
-      this.title.visible = false;
       this.demo.visible = false;
       this.pressAnyKey.visible = false;
       Game.stopAttractMode();
     },
 
     _updatePosition: function () {
-      var x = Crafty.viewport.width / 2 - Crafty.viewport.x - (650 / 2);
-      var y = Crafty.viewport.height / 2 - Crafty.viewport.y - 140;
+      let x = Crafty.viewport.width / 2 - (this.textWidth / 2);
+      let y = Crafty.viewport.height;
 
-      this.title.x = x;
-      this.title.y = y - 130;
-      this.demo.x = x;
-      this.demo.y = y + 300;
-      this.pressAnyKey.x = x;
-      this.pressAnyKey.y = y + 360;
+      this.demo.attr({x: x, y: y - 150})
+      this.pressAnyKey.attr({x: x, y: y - 90})
     },
 
     _playbackStarted: function () {
-      this.title.visible = true;
       this.demo.visible = true;
       this.pressAnyKey.visible = true;
     },

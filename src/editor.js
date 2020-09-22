@@ -583,7 +583,7 @@ Crafty.c('EditModeControl', {
     }
     else if (this.isDown('0')) {
       // Scroll (0,0)
-      Crafty.viewport.scrollXY(0,0);
+      Game.scrollXYViewport(0,0);
       Crafty.trigger("ViewportChanged");
     }
     else if (this.isDown('UP_ARROW')) {
