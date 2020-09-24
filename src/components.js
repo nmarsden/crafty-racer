@@ -470,7 +470,7 @@ export let setupComponents = () => {
     },
 
     createArrowButton: function(button) {
-      let arrow = Crafty.e('Actor, spr_navigator, Level, Mouse');
+      let arrow = Crafty.e('Actor, spr_navigator, Level, Button');
       arrow.w = this.buttonSize;
       arrow.h = this.buttonSize;
       arrow.z = 7000;
@@ -480,6 +480,8 @@ export let setupComponents = () => {
       arrow.updatePosition = () => button.updatePosFn(arrow);
       arrow.bind('MouseDown', () => this.mouseDownHandler(button.key));
       arrow.bind('MouseUp', () => this.mouseUpHandler(button.key));
+      arrow.bind('TouchStart', () => this.mouseDownHandler(button.key));
+      arrow.bind('TouchEnd', () => this.mouseUpHandler(button.key));
       return arrow;
     },
 
@@ -841,7 +843,7 @@ export let setupComponents = () => {
       // display menu items
       for (var i = 0; i < this.menuItems.length; i++) {
         var item = this.menuItems[i];
-        var menuItem = Crafty.e('OutlineText, Tween, Mouse');
+        var menuItem = Crafty.e('OutlineText, Tween, Button');
         menuItem.setName("MenuItem");
         var textColor = (i === 0) ? this.selectedColour : this.colour;
         menuItem.text(item.displayName);
@@ -860,6 +862,7 @@ export let setupComponents = () => {
         }
         let clickHandler = (menuIndex) => { return () => this.menuItemSelected(menuIndex); };
         menuItem.bind('Click', clickHandler(i));
+        menuItem.bind('TouchStart', clickHandler(i));
         item.entity = menuItem;
       }
 

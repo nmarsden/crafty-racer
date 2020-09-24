@@ -653,6 +653,10 @@ export let Game = {
 
     Crafty.createLayer("UILayer", "DOM", {scaleResponse: 0, xResponse: 0, yResponse: 0, z:40})
 
+    if (Crafty.mobile) {
+      Crafty.multitouch(true);
+    }
+
     setupComponents();
     Editor.setup();
     setupScenes();

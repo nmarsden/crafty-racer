@@ -242,6 +242,7 @@ export let Editor = {
         if (buttonIds.indexOf(buttonId) === -1) {
           buttonIds.push(buttonId);
           document.getElementById(buttonId).onclick = Editor.buttonHandlerFor(editMode, Editor.hotKeyFor(editMode));
+          document.getElementById(buttonId).ontouchstart = Editor.buttonHandlerFor(editMode, Editor.hotKeyFor(editMode));
         }
       }
     }
@@ -255,6 +256,7 @@ export let Editor = {
         if (buttonIds.indexOf(buttonId) === -1) {
           buttonIds.push(buttonId);
           document.getElementById(buttonId).onclick = null;
+          document.getElementById(buttonId).ontouchstart = null;
         }
       }
     }
@@ -307,21 +309,23 @@ export let Editor = {
   },
 
   mouseMoveHandler: function(e) {
+    let event = (e.type === 'touchmove') ? e.touches[0] : e;
     // Move Tile Cursor
-    Editor.tileCursor.updatePosition(e.clientX, e.clientY);
+    Editor.tileCursor.updatePosition(event.clientX, event.clientY);
     // Draw fill grid if shift key is down
-    var iso = Editor.mouseToIso(e.clientX, e.clientY);
+    var iso = Editor.mouseToIso(event.clientX, event.clientY);
     Editor.drawFillGrid(iso);
 
     if (Editor.leftMouseButtonDown) {
-      Editor.performEditOperation(e);
+      Editor.performEditOperation(event);
     }
   },
 
   mouseDownHandler: function(e) {
-    if(e.button == Crafty.mouseButtons.LEFT) {
+    if(e.type === 'touchstart' || e.button == Crafty.mouseButtons.LEFT) {
       Editor.leftMouseButtonDown = true;
-      Editor.performEditOperation(e);
+      let event = (e.type === 'touchstart') ? e.touches[0] : e;
+      Editor.performEditOperation(event);
 
     } else if(e.button == Crafty.mouseButtons.MIDDLE) {
       Editor.scrollOnMouseMove(e);
@@ -338,12 +342,20 @@ export let Editor = {
     Crafty.addEvent(this, Crafty.stage.elem, "mousemove", Editor.mouseMoveHandler);
     Crafty.addEvent(this, Crafty.stage.elem, "mousedown", Editor.mouseDownHandler);
     Crafty.addEvent(this, Crafty.stage.elem, "mouseup", Editor.mouseUpHandler);
+
+    Crafty.addEvent(this, Crafty.stage.elem, "touchmove", Editor.mouseMoveHandler);
+    Crafty.addEvent(this, Crafty.stage.elem, "touchstart", Editor.mouseDownHandler);
+    Crafty.addEvent(this, Crafty.stage.elem, "touchend", Editor.mouseUpHandler);
   },
 
   removeMouseEvents: function() {
     Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", Editor.mouseMoveHandler);
     Crafty.removeEvent(this, Crafty.stage.elem, "mousedown", Editor.mouseDownHandler);
     Crafty.removeEvent(this, Crafty.stage.elem, "mouseup", Editor.mouseUpHandler);
+
+    Crafty.removeEvent(this, Crafty.stage.elem, "touchmove", Editor.mouseMoveHandler);
+    Crafty.removeEvent(this, Crafty.stage.elem, "touchstart", Editor.mouseDownHandler);
+    Crafty.removeEvent(this, Crafty.stage.elem, "touchend", Editor.mouseUpHandler);
   },
 
   scrollOnMouseMove: function(e) {

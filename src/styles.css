@@ -125,7 +125,15 @@ body {
     margin: 3px 3px;
 }
 
-.button:hover,
+@media(hover: hover) and (pointer: fine) {
+    .button:hover {
+        background: rgb(98, 160, 255);
+        -webkit-box-shadow: 0 0 1px rgba(0, 0, 0, .75);
+        -moz-box-shadow: 0 0 1px rgba(0, 0, 0, .75);
+        box-shadow: 0 0 1px rgba(0, 0, 0, .75);
+    }
+}
+
 .button:focus {
     background: rgb(98, 160, 255);
     -webkit-box-shadow: 0 0 1px rgba(0,0,0, .75);
@@ -141,8 +149,10 @@ a strong {
     line-height: 30px;
 }
 
-a:hover {
-    text-decoration: none;
+@media(hover: hover) and (pointer: fine) {
+    a:hover {
+        text-decoration: none;
+    }
 }
 
 .tooltip {
@@ -156,12 +166,15 @@ a:hover {
     font-family: sans-serif;
     font-size: 16px;
 }
-a:hover span.tooltip {
-    display: inline;
-    position: absolute;
-    color: #111;
-    border: 1px solid #DCA;
-    background: #fffAF0;
+
+@media(hover: hover) and (pointer: fine) {
+    a:hover span.tooltip {
+        display: inline;
+        position: absolute;
+        color: #111;
+        border: 1px solid #DCA;
+        background: #fffAF0;
+    }
 }
 
 .callout {
