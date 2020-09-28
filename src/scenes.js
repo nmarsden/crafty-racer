@@ -94,19 +94,20 @@ Crafty.scene('Loading', function(){
       end_level_music:    ['assets/audio/Bloom_Full_Groove.mp3']
     },
     "sprites": {
-      'assets/images/car.png':                { 'tile': 98, 'tileh': 98, map: { "spr_car": [6,1] } },
-      'assets/images/waypoint_animation.png': { 'tile': 64, 'tileh': 64, map: { "spr_waypoint": [0,0] } },
-      "assets/images/waypoint_indicator.png": { 'tile': 21, 'tileh': 21, map: { "spr_waypoint_indicator": [0,0] } },
-      'assets/images/navigator.png':          { 'tile': 96, 'tileh': 96, map: { "spr_navigator": [0,0] } },
-      "assets/images/up_arrow_51x48.png":     { 'tile': 51, 'tileh': 48, map: { "spr_up_arrow": [0,0] } },
-      "assets/images/right_arrow_51x48.png":  { 'tile': 51, 'tileh': 48, map: { "spr_right_arrow": [0,0] } },
-      "assets/images/down_arrow_51x48.png":   { 'tile': 51, 'tileh': 48, map: { "spr_down_arrow": [0,0] } },
-      "assets/images/left_arrow_51x48.png":   { 'tile': 51, 'tileh': 48, map: { "spr_left_arrow": [0,0] } },
-      "assets/images/escape_key_51x48.png":   { 'tile': 51, 'tileh': 48, map: { "spr_escape_key": [0,0] } },
-      "assets/images/enter_key_100x48.png":   { 'tile': 100, 'tileh': 48, map: { "spr_enter_key": [0,0] } },
+      'assets/images/car.png':                { 'tile': 98,  'tileh': 98,  map: { "spr_car": [6,1] } },
+      'assets/images/waypoint_animation.png': { 'tile': 64,  'tileh': 64,  map: { "spr_waypoint": [0,0] } },
+      "assets/images/waypoint_indicator.png": { 'tile': 21,  'tileh': 21,  map: { "spr_waypoint_indicator": [0,0] } },
+      'assets/images/navigator.png':          { 'tile': 96,  'tileh': 96,  map: { "spr_navigator": [0,0] } },
+      "assets/images/up_arrow_51x48.png":     { 'tile': 51,  'tileh': 48,  map: { "spr_up_arrow": [0,0] } },
+      "assets/images/right_arrow_51x48.png":  { 'tile': 51,  'tileh': 48,  map: { "spr_right_arrow": [0,0] } },
+      "assets/images/down_arrow_51x48.png":   { 'tile': 51,  'tileh': 48,  map: { "spr_down_arrow": [0,0] } },
+      "assets/images/left_arrow_51x48.png":   { 'tile': 51,  'tileh': 48,  map: { "spr_left_arrow": [0,0] } },
+      "assets/images/escape_key_51x48.png":   { 'tile': 51,  'tileh': 48,  map: { "spr_escape_key": [0,0] } },
+      "assets/images/enter_key_100x48.png":   { 'tile': 100, 'tileh': 48,  map: { "spr_enter_key": [0,0] } },
       "assets/images/menu_background.png":    { 'tile': 922, 'tileh': 555, map: { "spr_menu_background": [0,0] } },
       "assets/images/glass_overlay.png":      { 'tile': 700, 'tileh': 450, map: { "spr_glass_overlay": [0,0] } },
-      "assets/images/delete.png":             { 'tile': 128, 'tileh': 64, map: { "spr_delete": [0,0] } }
+      "assets/images/delete.png":             { 'tile': 128, 'tileh': 64,  map: { "spr_delete": [0,0] } },
+      "assets/images/menu_icon.svg":          { 'tile': 32, 'tileh': 32, map: { "spr_menu_icon": [0,0] } }
     }
   }, function(){
     Crafty.scene('Game');

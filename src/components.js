@@ -159,7 +159,7 @@ export let setupComponents = () => {
 
     drawDiamond: function (ctx, offsetX, offsetY) {
       ctx.save();
-      ctx.strokeStyle = "rgba(0,0,0,0.2)";
+      ctx.strokeStyle = "#0061FF";
       ctx.beginPath();
       ctx.moveTo(offsetX + this.w / 2 - 1, offsetY - 1);
       ctx.lineTo(offsetX + this.w, offsetY + this.h / 2 - 1);
@@ -179,7 +179,7 @@ export let setupComponents = () => {
       this.w = 200;
       this.h = 100;
       this.miniMapPosition = {x: 0, y: 0};
-      this.colour = "#000000";
+      this.colour = "#0061FF";
 
       this.bind("Draw", function (e) {
         this.drawHandler(e);
@@ -277,7 +277,7 @@ export let setupComponents = () => {
 
       this.waypointMarker = Crafty.e("MiniMapMarker");
       this.waypointMarker.setName("MiniMapMarker");
-      this.waypointMarker.setColour("#000000");
+      this.waypointMarker.setColour("#568a20");
 
       this.playerMarker = Crafty.e("MiniMapMarker");
       this.playerMarker.setName("MiniMapMarker");
@@ -422,79 +422,118 @@ export let setupComponents = () => {
   });
 
   Crafty.c('TouchControl', {
-    buttons: [
+    buttonConfigs: [
+      {
+        key: 'ESC',
+        sprite: 'spr_menu_icon',
+        rotation: 0,
+        imageSize: 32,
+        updatePosFn: (b) => {
+          b.x = (Crafty.viewport.width / 2) - (b.w / 2);
+          b.y = Crafty.viewport.height - b.w
+        }
+      },
       {
         key: 'LEFT_ARROW',
+        sprite: 'spr_navigator',
         rotation: -90,
+        imageSize: 96,
         updatePosFn: (b) => {
-          b.x = -Crafty.viewport.x;
-          b.y = -Crafty.viewport.y + Crafty.viewport.height - b.w
+          b.x = - 10;
+          b.y = Crafty.viewport.height - b.w
         }
       },
       {
         key: 'RIGHT_ARROW',
+        sprite: 'spr_navigator',
         rotation: 90,
+        imageSize: 96,
         updatePosFn: (b) => {
-          b.x = -Crafty.viewport.x + b.w;
-          b.y = -Crafty.viewport.y + Crafty.viewport.height - b.w
+          b.x = b.w - 30;
+          b.y = Crafty.viewport.height - b.w
         }
       },
       {
         key: 'UP_ARROW',
+        sprite: 'spr_navigator',
         rotation: 0,
+        imageSize: 96,
         updatePosFn: (b) => {
-          b.x = -Crafty.viewport.x + Crafty.viewport.width - b.w;
-          b.y = -Crafty.viewport.y + Crafty.viewport.height - b.w
+          b.x = Crafty.viewport.width - b.w + 5;
+          b.y = Crafty.viewport.height - b.w
         }
       },
       {
         key: 'DOWN_ARROW',
+        sprite: 'spr_navigator',
         rotation: 180,
+        imageSize: 96,
         updatePosFn: (b) => {
-          b.x = -Crafty.viewport.x + Crafty.viewport.width - (2 * b.w);
-          b.y = -Crafty.viewport.y + Crafty.viewport.height - b.w
+          b.x = Crafty.viewport.width - (2 * b.w) + 30;
+          b.y = Crafty.viewport.height - b.w
         }
       }
     ],
-    arrowButtons: [],
+    buttons: [],
     buttonSize: 80,
 
     init: function () {
       this.requires('Actor, Level');
 
-      this.arrowButtons = this.buttons.map(button => this.createArrowButton(button));
+      this.buttons = this.buttonConfigs.map(config => this.createButton(config));
 
       this.updatePosition();
 
-      this.bind("PlayerMoved", this.updatePosition);
+      this.bind("ViewportChanged", () => this.updatePosition());
+      this.bind("PauseGame", () => this._pauseGame());
+      this.bind("UnpauseGame", () => this._unpauseGame());
     },
 
-    createArrowButton: function(button) {
-      let arrow = Crafty.e('Actor, spr_navigator, Level, Button');
-      arrow.w = this.buttonSize;
-      arrow.h = this.buttonSize;
-      arrow.z = 7000;
-      arrow.origin(this.buttonSize / 2, this.buttonSize / 2);
-      arrow.rotation = button.rotation;
+    createButton: function(config) {
+      let button = Crafty.e('UILayer, 2D, DOM, Level, Button');
+      button.requires(config.sprite);
+      button.img.width = config.imageSize;
+      button.img.height = config.imageSize;
+      button.w = this.buttonSize;
+      button.h = this.buttonSize;
+      button.z = 7000;
+      button.origin(this.buttonSize / 2, this.buttonSize / 2);
+      button.rotation = config.rotation;
 
-      arrow.updatePosition = () => button.updatePosFn(arrow);
-      arrow.bind('MouseDown', () => this.mouseDownHandler(button.key));
-      arrow.bind('MouseUp', () => this.mouseUpHandler(button.key));
-      arrow.bind('TouchStart', () => this.mouseDownHandler(button.key));
-      arrow.bind('TouchEnd', () => this.mouseUpHandler(button.key));
-      return arrow;
+      button.updatePosition = () => config.updatePosFn(button);
+      button.bind('MouseDown', () => this.mouseDownHandler(config.key));
+      button.bind('MouseUp', () => this.mouseUpHandler(config.key));
+      button.bind('TouchStart', () => this.mouseDownHandler(config.key));
+      button.bind('TouchEnd', () => this.mouseUpHandler(config.key));
+      return button;
     },
 
     mouseDownHandler: function(key) {
+      if (this.paused) {
+        return;
+      }
       Game.dispatchKeyDown(key);
     },
 
     mouseUpHandler: function(key) {
+      if (this.paused) {
+        return;
+      }
       Game.dispatchKeyUp(key);
     },
 
+    _pauseGame: function () {
+      this.paused = true;
+      this.buttons.forEach(b => b.css({'display': 'none'}));
+    },
+
+    _unpauseGame: function () {
+      this.paused = false;
+      this.buttons.forEach(b => b.css({'display': 'block'}));
+    },
+
     updatePosition: function() {
-      this.arrowButtons.forEach((arrowButton) => arrowButton.updatePosition());
+      this.buttons.forEach((button) => button.updatePosition());
     }
   });
 
@@ -543,14 +582,14 @@ export let setupComponents = () => {
       this.minutes = Crafty.e('UILayer, 2D, DOM, Text');
       this.minutes.setName("Minutes");
       this.minutes.textFont({type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE'});
-      this.minutes.textColor('#000000', 1.0);
+      this.minutes.textColor('#0061FF');
       this.minutes.attr({w: 70});
       this.minutes.textAlign('center');
 
       this.seconds = Crafty.e('UILayer, 2D, DOM, Text');
       this.seconds.setName("Seconds");
       this.seconds.textFont({type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE'});
-      this.seconds.textColor('#000000', 1.0);
+      this.seconds.textColor('#0061FF');
       this.seconds.attr({w: 70});
       this.seconds.textAlign('center');
 
@@ -731,6 +770,7 @@ export let setupComponents = () => {
         'B': 'ENTER',
         'X': 'ESC'
       };
+      this.buttonHeight = 60;
 
       this.overlay = Crafty.e('UILayer, 2D, DOM, spr_menu_background, Tween');
       this.overlay.setName("MenuBackground")
@@ -818,19 +858,20 @@ export let setupComponents = () => {
     },
 
     _resizeMenuItems: function () {
-      var width = 800;
-      var totalHeight = (100 * this.menuItems.length) - (100 - 60);
-      var x = Crafty.viewport.width / 2 - (width / 2);
+      let margin = 5;
+
+      var totalHeight = (this.buttonHeight + (2 * margin)) * this.menuItems.length;
       var y = Crafty.viewport.height / 2 - (totalHeight / 2);
       for (var i = 0; i < this.menuItems.length; i++) {
-        this.menuItems[i].entity.attr({x: x, y: y});
-        y += 100;
+        let item = this.menuItems[i].entity;
+        let x = Crafty.viewport.width / 2 - (item.w / 2);
+        item.attr({x: x, y: y});
+        y += this.buttonHeight + (2 * margin);
       }
     },
 
     showMenu: function () {
-      var width = 800;
-      var height = 100;
+      var width = 300;
       var alpha = 1.0;
 
       this.selectedMenuIndex = 0;
@@ -847,9 +888,13 @@ export let setupComponents = () => {
         menuItem.setName("MenuItem");
         var textColor = (i === 0) ? this.selectedColour : this.colour;
         menuItem.text(item.displayName);
-        menuItem.attr({w: width, h: height, alpha: alpha});
-        menuItem.textFont({type: 'normal', weight: 'normal', size: '60px', family: Game.fontFamily});
+        menuItem.attr({w: width, h: this.buttonHeight, alpha: alpha});
+        menuItem.textFont({type: 'normal', weight: 'normal', size: '50px', family: Game.fontFamily});
         menuItem.textColor(textColor, 1.0);
+        menuItem.css({
+          'line-height': `${this.buttonHeight}px`,
+          'border': `2px solid ${this.colour}`,
+        });
         if (i === 0) {
           menuItem.css({
             '-moz-animation-duration': '1s',
@@ -1009,6 +1054,7 @@ export let setupComponents = () => {
     init: function () {
       this.requires('UILayer, 2D, DOM, spr_glass_overlay');
       this.attr({ w: 700, h: 450 });
+      this.css({'display':'none'});
       this.bind("ViewportChanged", this._updatePosition.bind(this));
 
       this._updatePosition();
@@ -1022,12 +1068,14 @@ export let setupComponents = () => {
   });
 
   Crafty.c('LevelCompleteControl', {
-    textWidth:  320,
+    textWidth:  300,
     textHeight: 100,
     textColour: "#0061FF",
 
     init: function () {
-      this.requires('UILayer, 2D, DOM, Text');
+      this.requires('UILayer, 2D, DOM, Text, Color');
+      this.attr({z:10});
+      this.color('#000000', 0.8);
 
       this.showLoadingMessage = false;
       this.keyPressDelay = true;
@@ -1036,15 +1084,21 @@ export let setupComponents = () => {
       this.levelComplete.setName("LevelCompleteText");
       this.levelComplete.text(Game.getLevelCompleteMessage)
       this.levelComplete.attr({w: this.textWidth, z:50})
-      this.levelComplete.textFont({type: 'normal', weight: 'normal', size: '60px', family: Game.fontFamily})
+      this.levelComplete.textFont({type: 'normal', weight: 'normal', size: '50px', family: Game.fontFamily})
       this.levelComplete.textColor(this.textColour);
 
-      this.pressAnyKey = Crafty.e('FlashingText');
-      this.pressAnyKey.setName("PressAnyKeyText");
-      this.pressAnyKey.attr({w: this.textWidth, h: this.textHeight, z:50})
-      this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
-      this.pressAnyKey.textFont({type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE'})
+      this.pressAnyKey = Crafty.e('OutlineText, Button');
+      this.pressAnyKey.setName("PausePressAnyKeyText");
+      this.pressAnyKey.attr({w: this.textWidth, h: 60, z:50})
+      this.pressAnyKey.text("CONTINUE");
+      this.pressAnyKey.textFont({type: 'normal', weight: 'normal', size: '50px', family: 'ARCADE'})
       this.pressAnyKey.textColor(this.textColour);
+      this.pressAnyKey.css({
+        'line-height': '70px',
+        'border': `2px solid ${this.textColour}`,
+      });
+      this.pressAnyKey.bind('MouseDown', this.showLoading.bind(this));
+      this.pressAnyKey.bind('TouchStart', this.showLoading.bind(this));
 
       this.overlay = Crafty.e('GlassOverlay');
 
@@ -1064,6 +1118,7 @@ export let setupComponents = () => {
     _updatePosition: function () {
       var x = Crafty.viewport.width / 2 - this.textWidth/2;
       var y = Crafty.viewport.height / 2;
+      this.attr({w:Crafty.viewport.width, h:Crafty.viewport.height});
       this.levelComplete.attr({x: x , y: y - 140})
       this.pressAnyKey.attr({x: x, y: y + 80})
     },
@@ -1080,6 +1135,9 @@ export let setupComponents = () => {
       if (!this.keyPressDelay) {
         this.overlay.destroy();
         this.pressAnyKey.text("LOADING");
+        this.pressAnyKey.css({
+          'border': 'none',
+        });
         this.levelComplete.text("");
         // Introduce delay to ensure Loading... text is rendered before next level or restart
         setTimeout(this.enableRestart.bind(this), 100);
@@ -1100,12 +1158,14 @@ export let setupComponents = () => {
   });
 
   Crafty.c('GameOverControl', {
-    textWidth: 320,
+    textWidth: 300,
     textHeight: 100,
     textColour: '#0061FF',
 
     init: function () {
-      this.requires('UILayer, 2D, DOM, Text');
+      this.requires('UILayer, 2D, DOM, Text, Color');
+      this.attr({z:10});
+      this.color('#000000', 0.8);
       this.showLoadingMessage = false;
       this.keyPressDelay = true;
 
@@ -1122,12 +1182,18 @@ export let setupComponents = () => {
       this.gameOverText.textFont({type: 'normal', weight: 'normal', size: '60px', family: Game.fontFamily})
       this.gameOverText.textColor(this.textColour);
 
-      this.pressAnyKey = Crafty.e('FlashingText');
-      this.pressAnyKey.setName("GameOverPressAnyKey");
-      this.pressAnyKey.attr({w: this.textWidth, height: this.textHeight, z:50})
-      this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
-      this.pressAnyKey.textFont({type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE'})
+      this.pressAnyKey = Crafty.e('OutlineText, Button');
+      this.pressAnyKey.setName("PausePressAnyKeyText");
+      this.pressAnyKey.attr({w: this.textWidth, h: 60, z:50})
+      this.pressAnyKey.text("RETRY");
+      this.pressAnyKey.textFont({type: 'normal', weight: 'normal', size: '50px', family: 'ARCADE'})
       this.pressAnyKey.textColor(this.textColour);
+      this.pressAnyKey.css({
+        'line-height': '70px',
+        'border': `2px solid ${this.textColour}`,
+      });
+      this.pressAnyKey.bind('MouseDown', this.showLoading.bind(this));
+      this.pressAnyKey.bind('TouchStart', this.showLoading.bind(this));
 
       Game.playSoundEffect('game_over', 1, 1.0);
 
@@ -1149,6 +1215,7 @@ export let setupComponents = () => {
     _updatePosition: function () {
       var x = Crafty.viewport.width / 2 - (this.textWidth / 2);
       var y = Crafty.viewport.height / 2;
+      this.attr({w:Crafty.viewport.width, h:Crafty.viewport.height});
       this.reasonText.attr({x: x, y: y - 120})
       this.gameOverText.attr({x: x, y: y - 70})
       this.pressAnyKey.attr({x: x, y: y + 80})
@@ -1171,6 +1238,10 @@ export let setupComponents = () => {
         this.reasonText.text("");
         this.gameOverText.text("");
         this.pressAnyKey.text("LOADING");
+        this.pressAnyKey.css({
+          'border': 'none',
+        });
+
         // Introduce delay to ensure Loading... text is rendered before next level or restart
         setTimeout(this.enableRestart.bind(this), 100);
       }
@@ -1237,7 +1308,11 @@ export let setupComponents = () => {
 
   Crafty.c('PauseControl', {
     init: function () {
-      this.requires('UILayer, 2D, Keyboard, Level');
+      this.requires('UILayer, 2D, Keyboard, Button, Level, Color');
+      this.attr({z:10});
+      this.color('#000000', 0.8);
+      this.css({'display':'none'});
+
       this.paused = false;
       this.enabled = true;
       var textColour = "#0061FF";
@@ -1245,20 +1320,30 @@ export let setupComponents = () => {
       this.pauseText = Crafty.e('OutlineText');
       this.pauseText.setName("PauseText");
       this.pauseText.attr({w: 320, z:50})
+      this.pauseText.text("PAUSED");
       this.pauseText.textFont({type: 'normal', weight: 'normal', size: '60px', family: Game.fontFamily})
       this.pauseText.textColor(textColour);
+      this.pauseText.css({'display': 'none'});
 
-      this.pressAnyKey = Crafty.e('FlashingText');
+      this.pressAnyKey = Crafty.e('OutlineText, Button');
       this.pressAnyKey.setName("PausePressAnyKeyText");
-      this.pressAnyKey.attr({w: 320, z:50})
-      this.pressAnyKey.textFont({type: 'normal', weight: 'normal', size: '30px', family: 'ARCADE'})
+      this.pressAnyKey.attr({w: 300, h: 60, z:50})
+      this.pressAnyKey.text("RESUME");
+      this.pressAnyKey.textFont({type: 'normal', weight: 'normal', size: '50px', family: 'ARCADE'})
       this.pressAnyKey.textColor(textColour);
+      this.pressAnyKey.css({
+        'display': 'none',
+        'line-height': '70px',
+        'border': `2px solid ${textColour}`,
+      });
+      this.pressAnyKey.bind('MouseDown', this._handleKeyDownOrButtonDown.bind(this));
+      this.pressAnyKey.bind('TouchStart', this._handleKeyDownOrButtonDown.bind(this));
 
       this._updatePosition();
 
       this.bind("ViewportChanged", this._updatePosition.bind(this));
 
-      this.bind('KeyDown', this._handleKeyDownOrButtonDown);
+      this.bind('KeyDown', this._handleKeyDownOrButtonDown.bind(this));
       Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this._handleKeyDownOrButtonDown.bind(this));
     },
 
@@ -1269,6 +1354,7 @@ export let setupComponents = () => {
       let x = Crafty.viewport.width / 2;
       let y = Crafty.viewport.height / 2;
 
+      this.attr({w:Crafty.viewport.width, h:Crafty.viewport.height});
       this.pauseText.attr({x: x - (this.pauseText.w/2), y: y - 100});
       this.pressAnyKey.attr({x: x - (this.pressAnyKey.w/2), y: y + 30});
     },
@@ -1282,8 +1368,10 @@ export let setupComponents = () => {
         return;
       }
       if (!this.paused && (this.isDown('ESC') || this._isBackButton(e))) {
+        Crafty.s('Keyboard').resetKeyDown();
         this.pause();
       } else if (this.paused) {
+        Crafty.s('Keyboard').resetKeyDown();
         this.unpause();
       }
     },
@@ -1303,16 +1391,18 @@ export let setupComponents = () => {
       Game.pauseGame();
       Crafty.audio.mute();
 
-      this.pauseText.text("PAUSED");
-      this.pressAnyKey.text("PRESS ANY KEY TO CONTINUE");
+      this.css({'display':'block'});
+      this.pauseText.css({'display':'block'});
+      this.pressAnyKey.css({'display':'block'});
 
       this.overlay = Crafty.e("GlassOverlay");
     },
 
     unpause: function () {
       this.paused = false;
-      this.pauseText.text("");
-      this.pressAnyKey.text("");
+      this.css({'display':'none'});
+      this.pauseText.css({'display':'none'});
+      this.pressAnyKey.css({'display':'none'});
       this.overlay.destroy();
 
       Crafty.audio.unmute();
