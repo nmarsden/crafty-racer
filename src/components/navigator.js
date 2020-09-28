@@ -4,8 +4,8 @@ Crafty.c('Navigator', {
     init: function () {
         this.requires('Actor, spr_navigator, Level');
         this.z = 7000;
-        this.w = 100;
-        this.h = 100;
+        this.w = 80;
+        this.h = 80;
         this.origin(this.w / 2, this.h / 2);
         this._updatePosition();
 

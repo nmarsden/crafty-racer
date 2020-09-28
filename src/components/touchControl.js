@@ -8,55 +8,51 @@ Crafty.c('TouchControl', {
             key: 'ESC',
             sprite: 'spr_menu_icon',
             rotation: 0,
-            imageSize: 32,
             updatePosFn: (b) => {
                 b.x = (Crafty.viewport.width / 2) - (b.w / 2);
-                b.y = Crafty.viewport.height - b.w
+                b.y = Crafty.viewport.height - (b.padding + b.w)
             }
         },
         {
             key: 'LEFT_ARROW',
-            sprite: 'spr_navigator',
+            sprite: 'spr_arrow',
             rotation: -90,
-            imageSize: 96,
             updatePosFn: (b) => {
-                b.x = - 10;
-                b.y = Crafty.viewport.height - b.w
+                b.x = b.padding;
+                b.y = Crafty.viewport.height - (b.padding + b.w)
             }
         },
         {
             key: 'RIGHT_ARROW',
-            sprite: 'spr_navigator',
+            sprite: 'spr_arrow',
             rotation: 90,
-            imageSize: 96,
             updatePosFn: (b) => {
-                b.x = b.w - 30;
-                b.y = Crafty.viewport.height - b.w
+                b.x = b.padding + b.w + b.padding/2;
+                b.y = Crafty.viewport.height - (b.padding + b.w)
             }
         },
         {
             key: 'UP_ARROW',
-            sprite: 'spr_navigator',
+            sprite: 'spr_arrow',
             rotation: 0,
-            imageSize: 96,
             updatePosFn: (b) => {
-                b.x = Crafty.viewport.width - b.w + 5;
-                b.y = Crafty.viewport.height - b.w
+                b.x = Crafty.viewport.width - (b.padding + b.w);
+                b.y = Crafty.viewport.height - (b.padding + b.w)
             }
         },
         {
             key: 'DOWN_ARROW',
-            sprite: 'spr_navigator',
+            sprite: 'spr_arrow',
             rotation: 180,
-            imageSize: 96,
             updatePosFn: (b) => {
-                b.x = Crafty.viewport.width - (2 * b.w) + 30;
-                b.y = Crafty.viewport.height - b.w
+                b.x = Crafty.viewport.width - (b.padding + b.w + b.padding/2 + b.w);
+                b.y = Crafty.viewport.height - (b.padding + b.w)
             }
         }
     ],
     buttons: [],
-    buttonSize: 80,
+    buttonSize: 62,
+    padding: 8,
 
     init: function () {
         this.requires('Actor, Level');
@@ -73,13 +69,12 @@ Crafty.c('TouchControl', {
     createButton: function(config) {
         let button = Crafty.e('UILayer, 2D, DOM, Level, Button');
         button.requires(config.sprite);
-        button.img.width = config.imageSize;
-        button.img.height = config.imageSize;
         button.w = this.buttonSize;
         button.h = this.buttonSize;
         button.z = 7000;
         button.origin(this.buttonSize / 2, this.buttonSize / 2);
         button.rotation = config.rotation;
+        button.padding = this.padding;
 
         button.updatePosition = () => config.updatePosFn(button);
         button.bind('MouseDown', () => this.mouseDownHandler(config.key));
