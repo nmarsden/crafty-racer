@@ -4,26 +4,27 @@ Crafty.c('Diamond', {
     init: function () {
         this.requires('2D, Canvas, Level');
         this.z = 7000;
-        this.w = 200;
-        this.h = 100;
+        this.miniMapConfig = {w:0, h:0, paddingTop:0, paddingRight:0};
 
-        this.bind("Draw", this.drawHandler.bind(this));
+        this.bind("MiniMapConfigChanged", (miniMapConfig) => {
+            this.miniMapConfig = miniMapConfig;
+            this.w = this.miniMapConfig.w;
+            this.h = this.miniMapConfig.h;
+        });
+        this.bind("Draw", this.drawDiamond.bind(this));
 
         this.ready = true;
     },
 
-    drawHandler: function (e) {
-        this.drawDiamond(e.ctx, this.x, this.y);
-    },
-
-    drawDiamond: function (ctx, offsetX, offsetY) {
+    drawDiamond: function (e) {
+        let ctx = e.ctx;
         ctx.save();
         ctx.strokeStyle = "#FFFFFF";
         ctx.beginPath();
-        ctx.moveTo(offsetX + this.w / 2 - 1, offsetY - 1);
-        ctx.lineTo(offsetX + this.w, offsetY + this.h / 2 - 1);
-        ctx.lineTo(offsetX + this.w / 2 - 1, offsetY + this.h);
-        ctx.lineTo(offsetX - 1, offsetY + this.h / 2 - 1);
+        ctx.moveTo(this.x + this.miniMapConfig.w / 2  - this.miniMapConfig.paddingRight - 1, this.y + this.miniMapConfig.paddingTop - 1);
+        ctx.lineTo(this.x + this.miniMapConfig.w - this.miniMapConfig.paddingRight, this.y + this.miniMapConfig.h / 2 + this.miniMapConfig.paddingTop - 1);
+        ctx.lineTo(this.x + this.miniMapConfig.w / 2  - this.miniMapConfig.paddingRight - 1, this.y + this.miniMapConfig.h + this.miniMapConfig.paddingTop);
+        ctx.lineTo(this.x  - this.miniMapConfig.paddingRight - 1, this.y + this.miniMapConfig.h / 2 + this.miniMapConfig.paddingTop - 1);
         ctx.closePath();
         ctx.stroke();
         ctx.restore();

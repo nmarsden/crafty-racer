@@ -6,13 +6,16 @@ Crafty.c('MiniMapViewport', {
     init: function () {
         this.requires('2D, Canvas, Level');
         this.z = 7000;
-        this.w = 200;
-        this.h = 100;
+        this.miniMapConfig = {w:0, h:0, paddingTop:0, paddingRight:0};
         this.miniMapPosition = {x: 0, y: 0};
         this.viewportSize = {w: 0, h: 0};
 
-        this.updateViewportSize();
-
+        this.bind("MiniMapConfigChanged", (miniMapConfig) => {
+            this.miniMapConfig = miniMapConfig;
+            this.w = this.miniMapConfig.w;
+            this.h = this.miniMapConfig.h;
+            this.updateViewportSize();
+        });
         this.bind("Draw", this.drawViewport.bind(this));
         this.bind("ViewportChanged", this.updateViewportSize.bind(this));
 
@@ -25,8 +28,8 @@ Crafty.c('MiniMapViewport', {
     },
 
     setPosition: function (position) {
-        this.miniMapPosition.x = position ? Math.round(((6200 + position.x) / Game.width()) * 200) : 0;
-        this.miniMapPosition.y = position ? Math.round((position.y / Game.height()) * 100) : 0;
+        this.miniMapPosition.x = position ? Math.round(((6200 + position.x) / Game.width()) * this.miniMapConfig.w) : 0;
+        this.miniMapPosition.y = position ? Math.round((position.y / Game.height()) * this.miniMapConfig.h) : 0;
     },
 
     drawViewport: function (e) {
@@ -35,17 +38,17 @@ Crafty.c('MiniMapViewport', {
         ctx.strokeStyle = "rgba(255,0,0,0.2)";
         ctx.stroke
         ctx.beginPath();
-        ctx.moveTo(this.miniMapPosition.x + this.x - (this.viewportSize.w/2), this.miniMapPosition.y + this.y - (this.viewportSize.h/2));
-        ctx.lineTo(this.miniMapPosition.x + this.x + (this.viewportSize.w/2), this.miniMapPosition.y + this.y - (this.viewportSize.h/2));
-        ctx.lineTo(this.miniMapPosition.x + this.x + (this.viewportSize.w/2), this.miniMapPosition.y + this.y + (this.viewportSize.h/2));
-        ctx.lineTo(this.miniMapPosition.x + this.x - (this.viewportSize.w/2), this.miniMapPosition.y + this.y + (this.viewportSize.h/2));
+        ctx.moveTo(this.miniMapPosition.x + this.x - (this.viewportSize.w/2) - this.miniMapConfig.paddingRight, this.miniMapPosition.y + this.y - (this.viewportSize.h/2) + this.miniMapConfig.paddingTop);
+        ctx.lineTo(this.miniMapPosition.x + this.x + (this.viewportSize.w/2) - this.miniMapConfig.paddingRight, this.miniMapPosition.y + this.y - (this.viewportSize.h/2) + this.miniMapConfig.paddingTop);
+        ctx.lineTo(this.miniMapPosition.x + this.x + (this.viewportSize.w/2) - this.miniMapConfig.paddingRight, this.miniMapPosition.y + this.y + (this.viewportSize.h/2) + this.miniMapConfig.paddingTop);
+        ctx.lineTo(this.miniMapPosition.x + this.x - (this.viewportSize.w/2) - this.miniMapConfig.paddingRight, this.miniMapPosition.y + this.y + (this.viewportSize.h/2) + this.miniMapConfig.paddingTop);
         ctx.closePath();
         ctx.stroke();
         ctx.restore();
     },
 
     updateViewportSize: function() {
-        this.viewportSize.w = Math.round((Crafty.viewport.width / Game.width()) * this.w);
-        this.viewportSize.h = Math.round((Crafty.viewport.height / Game.height()) * this.h);
+        this.viewportSize.w = Math.round((Crafty.viewport.width / Game.width()) * this.miniMapConfig.w);
+        this.viewportSize.h = Math.round((Crafty.viewport.height / Game.height()) * this.miniMapConfig.h);
     }
 });

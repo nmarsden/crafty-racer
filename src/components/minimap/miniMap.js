@@ -6,7 +6,12 @@ Crafty.c('MiniMap', {
         this.z = 7000;
         this.w = 200;
         this.h = 100;
+        this.miniMapConfig = {w:this.w, h:this.h, paddingTop:5, paddingRight:5};
+
         this.ready = true;
+
+        this.navigator = Crafty.e('Navigator');
+        this.navigator.setName("Navigator");
 
         this.diamond = Crafty.e("Diamond");
         this.diamond.setName("Diamond");
@@ -22,17 +27,16 @@ Crafty.c('MiniMap', {
         this.viewportOutline = Crafty.e("MiniMapViewport");
         this.viewportOutline.setName("MiniMapViewport");
 
+        Crafty.trigger("MiniMapConfigChanged", this.miniMapConfig);
+
         this.bind("PlayerMoved", this._playerMovedHandler.bind(this));
 
         this.bind("WaypointMoved", this._waypointMovedHandler.bind(this));
     },
 
     _playerMovedHandler: function (playerPosition) {
-        this.x = Crafty.viewport.width - Crafty.viewport.x - this.w;
-        this.y = -Crafty.viewport.y;
-
-        var offsetX = this.x;
-        var offsetY = this.y;
+        let offsetX = Crafty.viewport.width - Crafty.viewport.x - this.w;
+        let offsetY = -Crafty.viewport.y;
 
         this.diamond.x = offsetX;
         this.diamond.y = offsetY;
@@ -47,11 +51,8 @@ Crafty.c('MiniMap', {
     },
 
     _waypointMovedHandler: function (waypointPosition) {
-        this.x = Crafty.viewport.width - Crafty.viewport.x - this.w;
-        this.y = -Crafty.viewport.y;
-
-        var offsetX = this.x;
-        var offsetY = this.y;
+        let offsetX = Crafty.viewport.width - Crafty.viewport.x - this.w;
+        let offsetY = -Crafty.viewport.y;
 
         this.waypointMarker.setPosition(waypointPosition);
         this.waypointMarker.setOffset(offsetX, offsetY);

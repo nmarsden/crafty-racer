@@ -28,7 +28,6 @@ export let Game = {
   levelIndex:0,
   currentWaypointNum:1,
   waypoint:null,
-  navigator:null,
   countdown:null,
   levelIndicator:null,
   NUMBER_OF_WAYPOINTS:10,
@@ -178,11 +177,6 @@ export let Game = {
     Game.pauseControl.enable();
   },
 
-  initNavigator: function () {
-    this.navigator = Crafty.e('Navigator');
-    this.navigator.setName("Navigator");
-  },
-
   initCountdown: function () {
     this.countdown = Crafty.e('Countdown');
     this.countdown.setName("Countdown");
@@ -249,7 +243,6 @@ export let Game = {
     Game.hideMarkers();
     Game.initOptionsControl();
     Game.initPauseControl();
-    Game.initNavigator();
     Game.initCountdown();
     Game.initMiniMap();
     Game.initLevelIndicator();

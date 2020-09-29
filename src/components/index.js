@@ -7,7 +7,6 @@ import './waypoint';
 import './minimap';
 import './waypointIndicator';
 import './waypointsCollectedIndicator';
-import './navigator';
 import './touchControl';
 import './showFPS';
 import './countdown';

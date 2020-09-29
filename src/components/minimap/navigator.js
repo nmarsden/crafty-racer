@@ -1,4 +1,4 @@
-require('../../lib/crafty_0.9.0');
+require('../../../lib/crafty_0.9.0');
 
 Crafty.c('Navigator', {
     init: function () {
@@ -6,9 +6,11 @@ Crafty.c('Navigator', {
         this.z = 7000;
         this.w = 70;
         this.h = 70;
-        this.miniMapSize = {w:200, h:100};
+        this.miniMapConfig = {w:0, h:0, paddingTop:0, paddingRight:0};
         this.origin(this.w / 2, this.h / 2);
         this._updatePosition();
+
+        this.bind("MiniMapConfigChanged", (miniMapConfig) => { this.miniMapConfig = miniMapConfig });
 
         this.bind("WaypointMoved", function (waypointPosition) {
             this.waypointPosition = waypointPosition;
@@ -31,7 +33,7 @@ Crafty.c('Navigator', {
     },
 
     _updatePosition: function() {
-        this.x = -Crafty.viewport.x + Crafty.viewport.width - (this.w/2) - (this.miniMapSize.w/2);
-        this.y = -Crafty.viewport.y - (this.h/2) + (this.miniMapSize.h/2);
+        this.x = -Crafty.viewport.x + Crafty.viewport.width - (this.w/2) - (this.miniMapConfig.w/2) - this.miniMapConfig.paddingRight;
+        this.y = -Crafty.viewport.y - (this.h/2) + (this.miniMapConfig.h/2) + this.miniMapConfig.paddingTop;
     }
 });
