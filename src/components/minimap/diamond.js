@@ -7,9 +7,7 @@ Crafty.c('Diamond', {
         this.w = 200;
         this.h = 100;
 
-        this.bind("Draw", function (e) {
-            this.drawHandler(e);
-        }.bind(this));
+        this.bind("Draw", this.drawHandler.bind(this));
 
         this.ready = true;
     },
@@ -20,7 +18,7 @@ Crafty.c('Diamond', {
 
     drawDiamond: function (ctx, offsetX, offsetY) {
         ctx.save();
-        ctx.strokeStyle = "#0061FF";
+        ctx.strokeStyle = "#FFFFFF";
         ctx.beginPath();
         ctx.moveTo(offsetX + this.w / 2 - 1, offsetY - 1);
         ctx.lineTo(offsetX + this.w, offsetY + this.h / 2 - 1);

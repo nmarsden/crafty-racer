@@ -4,8 +4,8 @@ Crafty.c('MiniMap', {
     init: function () {
         this.requires('2D, Canvas, Level');
         this.z = 7000;
-        this.w = 220;
-        this.h = 110;
+        this.w = 200;
+        this.h = 100;
         this.ready = true;
 
         this.diamond = Crafty.e("Diamond");
@@ -28,11 +28,11 @@ Crafty.c('MiniMap', {
     },
 
     _playerMovedHandler: function (playerPosition) {
-        this.x = Crafty.viewport.width - Crafty.viewport.x - this.w + 5;
+        this.x = Crafty.viewport.width - Crafty.viewport.x - this.w;
         this.y = -Crafty.viewport.y;
 
-        var offsetX = this.x + 10;
-        var offsetY = this.y + 5;
+        var offsetX = this.x;
+        var offsetY = this.y;
 
         this.diamond.x = offsetX;
         this.diamond.y = offsetY;
@@ -47,11 +47,11 @@ Crafty.c('MiniMap', {
     },
 
     _waypointMovedHandler: function (waypointPosition) {
-        this.x = Crafty.viewport.width - Crafty.viewport.x - this.w - 5;
-        this.y = (-Crafty.viewport.y + 5);
+        this.x = Crafty.viewport.width - Crafty.viewport.x - this.w;
+        this.y = -Crafty.viewport.y;
 
-        var offsetX = this.x + 10;
-        var offsetY = this.y + 5;
+        var offsetX = this.x;
+        var offsetY = this.y;
 
         this.waypointMarker.setPosition(waypointPosition);
         this.waypointMarker.setOffset(offsetX, offsetY);

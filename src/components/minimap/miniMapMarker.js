@@ -10,6 +10,7 @@ Crafty.c('MiniMapMarker', {
         this.h = 100;
         this.miniMapPosition = {x: 0, y: 0};
         this.colour = "#0061FF";
+        this.markerSize = {w:4, h:2};
 
         this.bind("Draw", function (e) {
             this.drawHandler(e);
@@ -38,12 +39,8 @@ Crafty.c('MiniMapMarker', {
 
     drawMarker: function (ctx) {
         ctx.save();
-        ctx.strokeStyle = this.colour;
-        ctx.beginPath();
-        ctx.moveTo(this.miniMapPosition.x + this.x - 1, this.miniMapPosition.y + this.y);
-        ctx.lineTo(this.miniMapPosition.x + this.x + 2, this.miniMapPosition.y + this.y);
-        ctx.closePath();
-        ctx.stroke();
+        ctx.fillStyle = this.colour;
+        ctx.fillRect(this.miniMapPosition.x + this.x - (this.markerSize.w/2), this.miniMapPosition.y + this.y - (this.markerSize.h/2), 4, 2);
         ctx.restore();
     }
 

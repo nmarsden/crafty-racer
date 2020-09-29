@@ -4,8 +4,9 @@ Crafty.c('Navigator', {
     init: function () {
         this.requires('Actor, spr_navigator, Level');
         this.z = 7000;
-        this.w = 80;
-        this.h = 80;
+        this.w = 70;
+        this.h = 70;
+        this.miniMapSize = {w:200, h:100};
         this.origin(this.w / 2, this.h / 2);
         this._updatePosition();
 
@@ -30,7 +31,7 @@ Crafty.c('Navigator', {
     },
 
     _updatePosition: function() {
-        this.x = -Crafty.viewport.x + Crafty.viewport.width - (this.w/2) - 105;
-        this.y = -Crafty.viewport.y - (this.h/2) + 55;
+        this.x = -Crafty.viewport.x + Crafty.viewport.width - (this.w/2) - (this.miniMapSize.w/2);
+        this.y = -Crafty.viewport.y - (this.h/2) + (this.miniMapSize.h/2);
     }
 });

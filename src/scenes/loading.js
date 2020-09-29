@@ -31,7 +31,7 @@ Crafty.scene('Loading', function(){
             'assets/images/waypoint_animation.png': { 'tile': 64,  'tileh': 64,  map: { "spr_waypoint": [0,0] } },
             "assets/images/waypoint_indicator.png": { 'tile': 21,  'tileh': 21,  map: { "spr_waypoint_indicator": [0,0] } },
             'assets/images/arrow.svg':              { 'tile': 576.556, 'tileh': 576.556, map: { "spr_arrow": [0,0] } },
-            'assets/images/navigator.svg':          { 'tile': 512, 'tileh': 512, map: { "spr_navigator": [0,0] } },
+            'assets/images/nav_arrow.svg':          { 'tile': 512, 'tileh': 512, map: { "spr_navigator": [0,0] } },
             "assets/images/up_arrow_51x48.png":     { 'tile': 51,  'tileh': 48,  map: { "spr_up_arrow": [0,0] } },
             "assets/images/right_arrow_51x48.png":  { 'tile': 51,  'tileh': 48,  map: { "spr_right_arrow": [0,0] } },
             "assets/images/down_arrow_51x48.png":   { 'tile': 51,  'tileh': 48,  map: { "spr_down_arrow": [0,0] } },
