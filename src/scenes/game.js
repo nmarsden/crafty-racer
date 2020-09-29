@@ -60,5 +60,11 @@ Crafty.scene('Game', function() {
     }
     Crafty.bind('OffTheEdge', this.show_game_over_off_the_edge);
 
+    this.quit = function() {
+        Game.destroyAll2DEntities();
+        Game.showMainMenu();
+    }
+    Crafty.bind('Quit', this.quit);
+
 }, function() {
 });
