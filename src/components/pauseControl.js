@@ -92,6 +92,7 @@ Crafty.c('PauseControl', {
         if (!this.paused) {
             return;
         }
+        Crafty.audio.unmute();
         Crafty.trigger('Quit');
     },
 

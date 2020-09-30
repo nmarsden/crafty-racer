@@ -62,6 +62,7 @@ Crafty.scene('Game', function() {
 
     this.quit = function() {
         Game.destroyAll2DEntities();
+        Game.stopAllSoundsExcept();
         Game.showMainMenu();
     }
     Crafty.bind('Quit', this.quit);
