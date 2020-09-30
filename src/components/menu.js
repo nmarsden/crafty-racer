@@ -5,7 +5,10 @@ import {Game} from "../game";
 Crafty.c('Menu', {
     init: function () {
         this.requires('UILayer, 2D, DOM, Text, Keyboard');
-        this.backgroundImageDim = { width: 922, height: 555 };
+        this.menuTitle = null;
+        this.menuTitleText = "";
+        this.menuTitleHeight = 120;
+        this.menuTitleCar = null;
         this.menuItems = [];
         this.selectedMenuIndex = 0;
         this.colour = '#0061FF';
@@ -20,13 +23,7 @@ Crafty.c('Menu', {
         };
         this.buttonHeight = 60;
 
-        this.overlay = Crafty.e('UILayer, 2D, DOM, spr_menu_background, Tween');
-        this.overlay.setName("MenuBackground")
-        this.overlay.attr({alpha:0.5});
-
         this._resizeMenu();
-
-        // this.displayMenuInstructions();
 
         Crafty.addEvent(this, window, "resize", this._resizeMenu.bind(this));
         this.bind('EnterFrame', this._enterFrame);
@@ -38,25 +35,9 @@ Crafty.c('Menu', {
     },
 
     _resizeMenu: function() {
-        if (Crafty.viewport.height > Crafty.viewport.width) {
-            // Fit to width
-            let scaleHeight = Crafty.viewport.width / this.backgroundImageDim.width;
-            let x = 0;
-            let width = Crafty.viewport.width;
-            let height = scaleHeight * this.backgroundImageDim.height;
-            let y = (Crafty.viewport.height - height)/2;
+        this.w = Crafty.viewport.width;
+        this.h = Crafty.viewport.height;
 
-            this.overlay.attr({x: x, y: y, w: width, h: height});
-        } else {
-            // Fit to Height
-            let scaleWidth = Crafty.viewport.height / this.backgroundImageDim.height;
-            let y = 0;
-            let height = Crafty.viewport.height;
-            let width = scaleWidth * this.backgroundImageDim.width;
-            let x = (Crafty.viewport.width - width)/2;
-
-            this.overlay.attr({x: x, y: y, w: width, h: height});
-        }
         this._resizeMenuItems();
     },
 
@@ -70,6 +51,10 @@ Crafty.c('Menu', {
         return this;
     },
 
+    addMenuTitle: function(titleText) {
+        this.menuTitleText = titleText;    
+    },
+    
     addMenuItem: function (displayName, menuItemFunction, hotKey) {
         this.menuItems.push({
             displayName: displayName,
@@ -107,9 +92,20 @@ Crafty.c('Menu', {
 
     _resizeMenuItems: function () {
         let margin = 5;
-
-        var totalHeight = (this.buttonHeight + (2 * margin)) * this.menuItems.length;
+        let titleHeight = (this.menuTitleText !== "") ? (this.menuTitleHeight + this.menuTitleCar.h + margin*2): 0;
+        var totalHeight = titleHeight + (this.buttonHeight + (2 * margin)) * this.menuItems.length;
         var y = Crafty.viewport.height / 2 - (totalHeight / 2);
+
+        if (this.menuTitleText !== "") {
+            let titleX = Crafty.viewport.width / 2 - (this.menuTitle.w / 2);
+            this.menuTitle.attr({x: titleX, y: y});
+            y += this.menuTitleHeight + margin;
+
+            let titleCarX = Crafty.viewport.width / 2 - (this.menuTitleCar.w / 2);
+            this.menuTitleCar.attr({x: titleCarX, y: y});
+            y += this.menuTitleCar.h + margin;
+        }
+
         for (var i = 0; i < this.menuItems.length; i++) {
             let item = this.menuItems[i].entity;
             let x = Crafty.viewport.width / 2 - (item.w / 2);
@@ -128,6 +124,20 @@ Crafty.c('Menu', {
         Game.gamePad.bind(Gamepad.Event.BUTTON_DOWN, this._gamePadButtonDown.bind(this));
         Game.gamePad.bind(Gamepad.Event.BUTTON_UP, this._gamePadButtonUp.bind(this));
         this.bind('SelectionChanged', this.handleSelectionChanged);
+
+        // display menu title
+        if (this.menuTitleText !== "") {
+            this.menuTitle = Crafty.e('OutlineText');
+            this.menuTitle.setName("PauseText");
+            this.menuTitle.attr({w: 320, z:50})
+            this.menuTitle.text(this.menuTitleText);
+            this.menuTitle.textFont({type: 'normal', weight: 'normal', size: '60px', family: Game.fontFamily})
+            this.menuTitle.textColor("#0061FF");
+
+            this.menuTitleCar = Crafty.e("2D, DOM, SpriteAnimation, spr_car");
+            this.menuTitleCar.reel('Menu_Title_Car', 2000, 4, 6, 32, 10);
+            this.menuTitleCar.animate('Menu_Title_Car', -1);
+        }
 
         // display menu items
         for (var i = 0; i < this.menuItems.length; i++) {
@@ -165,57 +175,6 @@ Crafty.c('Menu', {
 
     },
 
-    displayMenuInstructions: function () {
-        var x = this.overlay.x + this.overlay._w - 240;
-        var y = this.overlay.y + 555 - 130;
-        var alpha = 0.5
-        var textColour = '#0061FF';
-
-        // - up arrow / down arrow: navigate
-        var upArrow = Crafty.e('2D, Canvas, spr_up_arrow');
-        upArrow.setName("UpArrow");
-        upArrow.attr({x: x, y: y, w: 51, h: 48});
-        upArrow.alpha = alpha;
-        var downArrow = Crafty.e('2D, Canvas, spr_down_arrow');
-        downArrow.setName("DownArrow");
-        downArrow.attr({x: x + 56, y: y, w: 51, h: 48});
-        downArrow.alpha = alpha;
-        var navigate = Crafty.e('2D, DOM, Text');
-        navigate.setName("NavigateText");
-        navigate.text("navigate");
-        navigate.attr({x: x + 110, y: y, w: 100, h: 48});
-        navigate.textFont({type: 'normal', weight: 'normal', size: '32px', family: 'ARCADE'});
-        navigate.css({
-            'padding': '5px',
-            'text-align': 'left'
-        });
-        navigate.textColor(textColour, 1.0);
-        navigate.alpha = alpha;
-
-        this.overlay.attach(upArrow);
-        this.overlay.attach(downArrow);
-        this.overlay.attach(navigate);
-
-        // - enter: select
-        var enterKey = Crafty.e('2D, Canvas, spr_enter_key');
-        enterKey.setName("EnterKey");
-        enterKey.attr({x: x, y: y + 53, w: 100, h: 48});
-        enterKey.alpha = alpha;
-        var select = Crafty.e('2D, DOM, Text');
-        select.setName("SelectText");
-        select.text("select");
-        select.attr({x: x + 110, y: y + 53, w: 100, h: 48});
-        select.textFont({type: 'normal', weight: 'normal', size: '32px', family: 'ARCADE'});
-        select.css({
-            'padding': '5px',
-            'text-align': 'left'
-        });
-        select.textColor(textColour, 1.0);
-        select.alpha = alpha;
-
-        this.overlay.attach(enterKey);
-        this.overlay.attach(select);
-    },
 
     hideMenu: function () {
         // unbind event handlers
@@ -224,6 +183,11 @@ Crafty.c('Menu', {
         Game.gamePad.unbind(Gamepad.Event.BUTTON_DOWN);
         Game.gamePad.unbind(Gamepad.Event.BUTTON_UP);
         this.unbind('SelectionChanged', this.handleSelectionChanged);
+        // hide menu title
+        if (this.menuTitleText !== "") {
+            this.menuTitle.destroy();
+            this.menuTitleCar.destroy();
+        }
         // hide menu items
         for (var i = 0; i < this.menuItems.length; i++) {
             this.menuItems[i].entity.destroy();

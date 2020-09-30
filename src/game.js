@@ -145,6 +145,9 @@ export let Game = {
   },
 
   showMainMenu: function() {
+    Crafty.viewport.scroll('_x', 0);
+    Crafty.viewport.scroll('_y', 0);
+
     Game.playMusic('menu_music');
     Game.mainMenu = Crafty.e('MainMenu');
     Game.mainMenu.setName("MainMenu");
