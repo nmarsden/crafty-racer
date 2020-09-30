@@ -89,6 +89,9 @@ Crafty.c('PauseControl', {
     },
 
     _handleQuitButtonPressed: function() {
+        if (!this.paused) {
+            return;
+        }
         Crafty.trigger('Quit');
     },
 
