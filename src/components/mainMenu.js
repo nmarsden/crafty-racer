@@ -7,7 +7,7 @@ Crafty.c('MainMenu', {
         this.requires('Menu');
 
         this.addMenuTitle("Crafty Racer");
-        this.addMenuItem("Play", this.showLevelMenu.bind(this), "P");
+        this.addMenuItem("PLAY", this.showLevelMenu.bind(this), "P");
         // this.addMenuItem("Instructions", this.comingSoonHandler("Instructions").bind(this), "I");
         // this.addMenuItem("Settings", this.comingSoonHandler("Settings").bind(this), "S");
         // this.addMenuItem("Credits", this.comingSoonHandler("Credits").bind(this), "C");

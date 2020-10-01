@@ -5,7 +5,7 @@ import {Game} from "../game";
 
 Crafty.c('PauseControl', {
     init: function () {
-        this.requires('UILayer, 2D, Keyboard, Button, Level, Color');
+        this.requires('UILayer, 2D, Keyboard, Level, Color');
         this.attr({z:10});
         this.color('#000000', 0.8);
         this.css({'display':'none'});
@@ -22,33 +22,23 @@ Crafty.c('PauseControl', {
         this.pauseText.textColor(textColour);
         this.pauseText.css({'display': 'none'});
 
-        this.resumeButton = Crafty.e('OutlineText, Button');
+        this.resumeButton = Crafty.e('OutlineButton');
         this.resumeButton.setName("ResumeButton");
-        this.resumeButton.attr({w: 300, h: 60, z:50})
         this.resumeButton.text("RESUME");
-        this.resumeButton.textFont({type: 'normal', weight: 'normal', size: '50px', family: 'ARCADE'})
-        this.resumeButton.textColor(textColour);
         this.resumeButton.css({
             'display': 'none',
-            'line-height': '70px',
-            'border': `2px solid ${textColour}`,
         });
-        this.resumeButton.bind('MouseDown', this._handleKeyDownOrButtonDown.bind(this));
-        this.resumeButton.bind('TouchStart', this._handleKeyDownOrButtonDown.bind(this));
+        this.resumeButton.onClick(this._handleKeyDownOrButtonDown.bind(this));
+        this.resumeButton.disable();
 
-        this.quitButton = Crafty.e('OutlineText, Button');
+        this.quitButton = Crafty.e('OutlineButton');
         this.quitButton.setName("QuitButton");
-        this.quitButton.attr({w: 300, h: 60, z:50})
         this.quitButton.text("QUIT");
-        this.quitButton.textFont({type: 'normal', weight: 'normal', size: '50px', family: 'ARCADE'})
-        this.quitButton.textColor(textColour);
         this.quitButton.css({
             'display': 'none',
-            'line-height': '70px',
-            'border': `2px solid ${textColour}`,
         });
-        this.quitButton.bind('MouseDown', this._handleQuitButtonPressed.bind(this));
-        this.quitButton.bind('TouchStart', this._handleQuitButtonPressed.bind(this));
+        this.quitButton.onClick(this._handleQuitButtonPressed.bind(this));
+        this.quitButton.disable();
 
         this._updatePosition();
 
@@ -114,7 +104,9 @@ Crafty.c('PauseControl', {
         this.css({'display':'block'});
         this.pauseText.css({'display':'block'});
         this.resumeButton.css({'display':'block'});
+        this.resumeButton.enable();
         this.quitButton.css({'display':'block'});
+        this.quitButton.enable();
 
         this.overlay = Crafty.e("GlassOverlay");
     },
@@ -124,7 +116,9 @@ Crafty.c('PauseControl', {
         this.css({'display':'none'});
         this.pauseText.css({'display':'none'});
         this.resumeButton.css({'display':'none'});
+        this.resumeButton.disable();
         this.quitButton.css({'display':'none'});
+        this.quitButton.disable();
         this.overlay.destroy();
 
         Crafty.audio.unmute();

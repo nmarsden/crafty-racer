@@ -8,7 +8,7 @@ Crafty.c('LevelSelectMenu', {
 
         var numberOfLevels = Game.numberOfLevels();
         for (var i = 0; i < numberOfLevels; i++) {
-            this.addMenuItem("Level " + (i + 1), this.getLevelSelectHandler(i))
+            this.addMenuItem("LEVEL " + (i + 1), this.getLevelSelectHandler(i))
         }
 
     },

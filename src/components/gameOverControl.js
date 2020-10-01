@@ -27,18 +27,10 @@ Crafty.c('GameOverControl', {
         this.gameOverText.textFont({type: 'normal', weight: 'normal', size: '60px', family: Game.fontFamily})
         this.gameOverText.textColor(this.textColour);
 
-        this.pressAnyKey = Crafty.e('OutlineText, Button');
+        this.pressAnyKey = Crafty.e('OutlineButton');
         this.pressAnyKey.setName("PausePressAnyKeyText");
-        this.pressAnyKey.attr({w: this.textWidth, h: 60, z:50})
         this.pressAnyKey.text("RETRY");
-        this.pressAnyKey.textFont({type: 'normal', weight: 'normal', size: '50px', family: 'ARCADE'})
-        this.pressAnyKey.textColor(this.textColour);
-        this.pressAnyKey.css({
-            'line-height': '70px',
-            'border': `2px solid ${this.textColour}`,
-        });
-        this.pressAnyKey.bind('MouseDown', this.showLoading.bind(this));
-        this.pressAnyKey.bind('TouchStart', this.showLoading.bind(this));
+        this.pressAnyKey.onClick(this.showLoading.bind(this));
 
         Game.playSoundEffect('game_over', 1, 1.0);
 

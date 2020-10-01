@@ -1,4 +1,5 @@
 import './outlineText';
+import './outlineButton';
 import './flashingText';
 import './loadingText';
 import './tipText';

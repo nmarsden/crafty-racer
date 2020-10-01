@@ -142,17 +142,11 @@ Crafty.c('Menu', {
         // display menu items
         for (var i = 0; i < this.menuItems.length; i++) {
             var item = this.menuItems[i];
-            var menuItem = Crafty.e('OutlineText, Tween, Button');
+            var menuItem = Crafty.e('OutlineButton, Tween');
             menuItem.setName("MenuItem");
             var textColor = (i === 0) ? this.selectedColour : this.colour;
             menuItem.text(item.displayName);
-            menuItem.attr({w: width, h: this.buttonHeight, alpha: alpha});
-            menuItem.textFont({type: 'normal', weight: 'normal', size: '50px', family: Game.fontFamily});
             menuItem.textColor(textColor, 1.0);
-            menuItem.css({
-                'line-height': `${this.buttonHeight}px`,
-                'border': `2px solid ${this.colour}`,
-            });
             if (i === 0) {
                 menuItem.css({
                     '-moz-animation-duration': '1s',
@@ -164,8 +158,7 @@ Crafty.c('Menu', {
                 });
             }
             let clickHandler = (menuIndex) => { return () => this.menuItemSelected(menuIndex); };
-            menuItem.bind('Click', clickHandler(i));
-            menuItem.bind('TouchStart', clickHandler(i));
+            menuItem.onClick(clickHandler(i));
             item.entity = menuItem;
         }
 
