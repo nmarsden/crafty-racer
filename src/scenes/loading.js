@@ -40,7 +40,9 @@ Crafty.scene('Loading', function(){
             "assets/images/enter_key_100x48.png":   { 'tile': 100, 'tileh': 48,  map: { "spr_enter_key": [0,0] } },
             "assets/images/glass_overlay.png":      { 'tile': 700, 'tileh': 450, map: { "spr_glass_overlay": [0,0] } },
             "assets/images/delete.png":             { 'tile': 128, 'tileh': 64,  map: { "spr_delete": [0,0] } },
-            "assets/images/menu_icon.svg":          { 'tile': 32, 'tileh': 32, map: { "spr_menu_icon": [0,0] } }
+            "assets/images/menu_icon.svg":          { 'tile': 32, 'tileh': 32, map: { "spr_menu_icon": [0,0] } },
+            "assets/images/fullscreen_activate.svg":{ 'tile': 32, 'tileh': 32, map: { "spr_fullscreen_activate_icon": [0,0] } },
+            "assets/images/fullscreen_deactivate.svg":{ 'tile': 32, 'tileh': 32, map: { "spr_fullscreen_deactivate_icon": [0,0] } }
         }
     }, function(){
         Crafty.scene('Game');

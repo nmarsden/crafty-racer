@@ -1,5 +1,6 @@
 import './outlineText';
 import './outlineButton';
+import './fullscreenButton';
 import './flashingText';
 import './loadingText';
 import './tipText';

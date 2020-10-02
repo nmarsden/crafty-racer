@@ -15,6 +15,7 @@ Crafty.c('OutlineButton', {
             'border': `2px solid #0061FF`,
             'cursor': 'pointer'
         });
+        this.bind('Click', this.buttonClickHandler.bind(this));
         this.bind('MouseDown', this.buttonClickHandler.bind(this));
         this.bind('TouchStart', this.buttonClickHandler.bind(this));
     },

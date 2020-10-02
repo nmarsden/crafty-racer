@@ -1,10 +1,11 @@
-import {Game} from "../game";
-
 require('../../lib/crafty_0.9.0');
 
 Crafty.c('MainMenu', {
     init: function () {
         this.requires('Menu');
+
+        this.fullscreenButton = Crafty.e("FullscreenButton");
+        this.fullscreenButton.setName('FullscreenButton');
 
         this.addMenuTitle("Crafty Racer");
         this.addMenuItem("PLAY", this.showLevelMenu.bind(this), "P");
