@@ -81,6 +81,7 @@ Crafty.c('TouchControl', {
         button.bind('MouseUp', () => this.mouseUpHandler(config.key));
         button.bind('TouchStart', () => this.mouseDownHandler(config.key));
         button.bind('TouchEnd', () => this.mouseUpHandler(config.key));
+        button.bind('TouchOut', () => this.mouseUpHandler(config.key));
         return button;
     },
 
