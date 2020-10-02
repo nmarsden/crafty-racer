@@ -4,9 +4,6 @@ Crafty.c('MainMenu', {
     init: function () {
         this.requires('Menu');
 
-        this.fullscreenButton = Crafty.e("FullscreenButton");
-        this.fullscreenButton.setName('FullscreenButton');
-
         this.addMenuTitle("Crafty Racer");
         this.addMenuItem("PLAY", this.showLevelMenu.bind(this), "P");
         // this.addMenuItem("Instructions", this.comingSoonHandler("Instructions").bind(this), "I");

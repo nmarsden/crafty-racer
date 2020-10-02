@@ -7,6 +7,7 @@ Crafty.scene('Game', function() {
     Debug.logTriggeredEvents();
     Debug.logEntitiesAndHandlers("Before Menu");
 
+    Game.initFullscreenButton();
     Game.showMainMenu();
 
     // Show the victory screen once all waypoints are reached

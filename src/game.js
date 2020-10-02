@@ -144,6 +144,13 @@ export let Game = {
     // };
   },
 
+  initFullscreenButton: function() {
+    if (Crafty.mobile) {
+      Game.fullscreenButton = Crafty.e("FullscreenButton");
+      Game.fullscreenButton.setName('FullscreenButton');
+    }
+  },
+
   showMainMenu: function() {
     Crafty.viewport.scroll('_x', 0);
     Crafty.viewport.scroll('_y', 0);
