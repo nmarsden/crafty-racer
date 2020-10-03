@@ -24,19 +24,17 @@ Crafty.c('Countdown', {
             '-webkit-animation-iteration-count': 'infinite'
         };
 
-        this.minutes = Crafty.e('UILayer, 2D, DOM, Text');
+        this.minutes = Crafty.e('UILayer, 2D, DOM, OutlineText');
         this.minutes.setName("Minutes");
         this.minutes.textFont({type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE'});
         this.minutes.textColor('#0061FF');
         this.minutes.attr({w: 70});
-        this.minutes.textAlign('center');
 
-        this.seconds = Crafty.e('UILayer, 2D, DOM, Text');
+        this.seconds = Crafty.e('UILayer, 2D, DOM, OutlineText');
         this.seconds.setName("Seconds");
         this.seconds.textFont({type: 'normal', weight: 'normal', size: '60px', family: 'ARCADE'});
         this.seconds.textColor('#0061FF');
         this.seconds.attr({w: 70});
-        this.seconds.textAlign('center');
 
         this._updatePosition();
 
