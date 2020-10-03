@@ -4,18 +4,10 @@ Crafty.c('FullscreenButton', {
     currentState: 'ACTIVATE',
 
     init: function () {
-        this.requires('UILayer, 2D, DOM, Button, spr_fullscreen_activate_icon, Persist');
+        this.requires('UILayer', '2D', 'DOM', 'Button', 'Flashing', 'spr_fullscreen_activate_icon', 'Persist');
         this.attr({w: 60, h: 60, z:50})
         this.css({
             'cursor': 'pointer'
-        });
-        this.css({
-            '-moz-animation-duration': '2s',
-            '-webkit-animation-duration': '2s',
-            '-moz-animation-name': 'flash',
-            '-webkit-animation-name': 'flash',
-            '-moz-animation-iteration-count': 'infinite',
-            '-webkit-animation-iteration-count': 'infinite'
         });
         this.bind('Click', this.buttonClickHandler.bind(this));
         this.bind('MouseDown', this.buttonClickHandler.bind(this));
