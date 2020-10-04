@@ -7,6 +7,8 @@ Crafty.c('MiniMap', {
         this.w = 200;
         this.h = 100;
         this.miniMapConfig = {w:this.w, h:this.h, paddingTop:5, paddingRight:5};
+        this.waypointPosition = {x:0, y:0};
+        this.playerPosition = {x:0, y:0};
 
         this.ready = true;
 
@@ -18,44 +20,51 @@ Crafty.c('MiniMap', {
 
         this.waypointMarker = Crafty.e("MiniMapMarker");
         this.waypointMarker.setName("MiniMapMarker");
-        this.waypointMarker.setColour("#568a20");
+        this.waypointMarker.addComponent("spr_minimap_waypoint");
 
         this.playerMarker = Crafty.e("MiniMapMarker");
         this.playerMarker.setName("MiniMapMarker");
-        this.playerMarker.setColour("#FF0000");
-
-        this.viewportOutline = Crafty.e("MiniMapViewport");
-        this.viewportOutline.setName("MiniMapViewport");
+        this.playerMarker.addComponent("spr_minimap_car");
 
         Crafty.trigger("MiniMapConfigChanged", this.miniMapConfig);
+
+        this.bind("ViewportChanged", this._updatePosition.bind(this));
 
         this.bind("PlayerMoved", this._playerMovedHandler.bind(this));
 
         this.bind("WaypointMoved", this._waypointMovedHandler.bind(this));
+
+        this._updatePosition();
+    },
+
+    _updatePosition: function() {
+        this.diamond.x = Crafty.viewport.width - this.w - this.miniMapConfig.paddingRight;
+        this.diamond.y = this.miniMapConfig.paddingTop;
+
+        this.navigator.x = Crafty.viewport.width - (this.miniMapConfig.w/2) - this.miniMapConfig.paddingRight - (this.navigator.w/2);
+        this.navigator.y = this.miniMapConfig.paddingTop + (this.miniMapConfig.h/2) - (this.navigator.h/2);
+
+        this.playerMarker.setOffset(
+            Crafty.viewport.width - this.w - this.miniMapConfig.paddingRight - this.playerMarker.w/2,
+            this.miniMapConfig.paddingTop - this.playerMarker.h/2
+        );
+        this.playerMarker.setPosition(this.playerPosition);
+
+        this.waypointMarker.setOffset(
+            Crafty.viewport.width - this.w - this.miniMapConfig.paddingRight - this.waypointMarker.w/2,
+            this.miniMapConfig.paddingTop - this.waypointMarker.h/2
+        );
+        this.waypointMarker.setPosition(this.waypointPosition);
     },
 
     _playerMovedHandler: function (playerPosition) {
-        let offsetX = Crafty.viewport.width - Crafty.viewport.x - this.w;
-        let offsetY = -Crafty.viewport.y;
-
-        this.diamond.x = offsetX;
-        this.diamond.y = offsetY;
-
+        this.playerPosition = playerPosition;
         this.playerMarker.setPosition(playerPosition);
-        this.playerMarker.setOffset(offsetX, offsetY);
-
-        this.waypointMarker.setOffset(offsetX, offsetY);
-
-        this.viewportOutline.setPosition(playerPosition);
-        this.viewportOutline.setOffset(offsetX, offsetY);
     },
 
     _waypointMovedHandler: function (waypointPosition) {
-        let offsetX = Crafty.viewport.width - Crafty.viewport.x - this.w;
-        let offsetY = -Crafty.viewport.y;
-
+        this.waypointPosition = waypointPosition;
         this.waypointMarker.setPosition(waypointPosition);
-        this.waypointMarker.setOffset(offsetX, offsetY);
     }
 
 });

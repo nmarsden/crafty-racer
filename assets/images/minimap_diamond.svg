@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Icons" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="200px" height="100px" viewBox="0 0 200 100" style="enable-background:new 0 0 200 100;" xml:space="preserve">
+	<defs>
+		<g id="minimap_diamond" class="minimap-diamond">
+		    <path d="M2,50 L100,2 L198,50 L100,98z"/>
+		</g>
+	</defs>
+	<style type="text/css">
+		.minimap-diamond { opacity:0.8; fill:none; stroke-linecap:round; stroke-linejoin:round; stroke-miterlimit:10; }
+	</style>
+	<use xlink:href="#minimap_diamond" stroke="#555555" stroke-width="4"/>
+	<use xlink:href="#minimap_diamond" stroke="#ffffff" stroke-width="3"/>
+</svg>
