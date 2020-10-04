@@ -1,4 +1,4 @@
-import './navigator';
-import './diamond';
+import './miniMapArrow';
+import './miniMapDiamond';
 import './miniMapMarker';
 import './miniMap';
