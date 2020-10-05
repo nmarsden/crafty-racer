@@ -116,9 +116,6 @@ Crafty.c('Menu', {
     },
 
     showMenu: function () {
-        var width = 300;
-        var alpha = 1.0;
-
         this.selectedMenuIndex = 0;
 
         this.bind('KeyDown', this.handleKeyDown);
@@ -127,13 +124,10 @@ Crafty.c('Menu', {
         this.bind('SelectionChanged', this.handleSelectionChanged);
 
         if (this.options.parentMenu) {
-            this.backButton = Crafty.e('UILayer, 2D, DOM, Level, spr_back_icon, Button');
+            this.backButton = Crafty.e('Clickable, spr_back_icon');
             this.backButton.attr({x: 10, y: 10});
             this.backButton.attr({w: 62, h: 62});
-            this.backButton.css({'cursor': 'pointer'});
-            this.backButton.bind('Click', this.showParentMenu.bind(this));
-            this.backButton.bind('MouseDown', this.showParentMenu.bind(this));
-            this.backButton.bind('TouchStart', this.showParentMenu.bind(this));
+            this.backButton.onClick(this.showParentMenu.bind(this));
         }
 
         // display menu title
@@ -228,7 +222,6 @@ Crafty.c('Menu', {
     },
 
     showParentMenu: function() {
-        Crafty.s('Touch').resetTouchPoints();
         this.hideMenu();
         this.options.parentMenu.showMenu();
     },

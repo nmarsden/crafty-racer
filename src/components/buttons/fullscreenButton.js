@@ -1,17 +1,12 @@
-require('../../lib/crafty_0.9.0');
+require('../../../lib/crafty_0.9.0');
 
 Crafty.c('FullscreenButton', {
     currentState: 'ACTIVATE',
 
     init: function () {
-        this.requires('UILayer', '2D', 'DOM', 'Button', 'Flashing', 'spr_fullscreen_activate_icon', 'Persist');
-        this.attr({w: 60, h: 60, z:50})
-        this.css({
-            'cursor': 'pointer'
-        });
-        this.bind('Click', this.buttonClickHandler.bind(this));
-        this.bind('MouseDown', this.buttonClickHandler.bind(this));
-        this.bind('TouchStart', this.buttonClickHandler.bind(this));
+        this.requires('Clickable', 'Flashing', 'spr_fullscreen_activate_icon', 'Persist');
+        this.attr({w: 60, h: 60})
+        this.onClick(this.buttonClickHandler.bind(this));
 
         this.bind("ViewportChanged", this.viewportChanged.bind(this));
 

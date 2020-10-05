@@ -71,7 +71,7 @@ Crafty.c('TouchControl', {
         button.requires(config.sprite);
         button.w = this.buttonSize;
         button.h = this.buttonSize;
-        button.z = 7000;
+        button.z = 50;
         button.origin(this.buttonSize / 2, this.buttonSize / 2);
         button.rotation = config.rotation;
         button.padding = this.padding;
