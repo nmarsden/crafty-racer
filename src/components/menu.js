@@ -5,6 +5,7 @@ import {Game} from "../game";
 Crafty.c('Menu', {
     init: function () {
         this.requires('UILayer, 2D, DOM, Text, Keyboard');
+        this.backButton = null;
         this.menuTitle = null;
         this.menuTitleText = "";
         this.menuTitleHeight = 120;
@@ -125,6 +126,16 @@ Crafty.c('Menu', {
         Game.gamePad.bind(Gamepad.Event.BUTTON_UP, this._gamePadButtonUp.bind(this));
         this.bind('SelectionChanged', this.handleSelectionChanged);
 
+        if (this.options.parentMenu) {
+            this.backButton = Crafty.e('UILayer, 2D, DOM, Level, spr_back_icon, Button');
+            this.backButton.attr({x: 10, y: 10});
+            this.backButton.attr({w: 62, h: 62});
+            this.backButton.css({'cursor': 'pointer'});
+            this.backButton.bind('Click', this.showParentMenu.bind(this));
+            this.backButton.bind('MouseDown', this.showParentMenu.bind(this));
+            this.backButton.bind('TouchStart', this.showParentMenu.bind(this));
+        }
+
         // display menu title
         if (this.menuTitleText !== "") {
             this.menuTitle = Crafty.e('OutlineText');
@@ -168,7 +179,6 @@ Crafty.c('Menu', {
 
     },
 
-
     hideMenu: function () {
         // unbind event handlers
         this.unbind('KeyDown', this.handleKeyDown);
@@ -176,6 +186,10 @@ Crafty.c('Menu', {
         Game.gamePad.unbind(Gamepad.Event.BUTTON_DOWN);
         Game.gamePad.unbind(Gamepad.Event.BUTTON_UP);
         this.unbind('SelectionChanged', this.handleSelectionChanged);
+        // hide back button
+        if (this.backButton) {
+            this.backButton.destroy();
+        }
         // hide menu title
         if (this.menuTitleText !== "") {
             this.menuTitle.destroy();
@@ -211,6 +225,12 @@ Crafty.c('Menu', {
         this.hideMenu();
         let selectedMenuItem = this.menuItems[menuIndex];
         selectedMenuItem.menuItemFunction();
+    },
+
+    showParentMenu: function() {
+        Crafty.s('Touch').resetTouchPoints();
+        this.hideMenu();
+        this.options.parentMenu.showMenu();
     },
 
     handleKeyDown: function () {

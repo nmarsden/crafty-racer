@@ -41,6 +41,7 @@ Crafty.scene('Loading', function(){
             "glass_overlay.png":        { 'tile': 700, 'tileh': 450, map: { "spr_glass_overlay": [0,0] } },
             "delete.png":               { 'tile': 128, 'tileh': 64,  map: { "spr_delete": [0,0] } },
             "menu_icon.svg":            { 'tile': 36,  'tileh': 36,  map: { "spr_menu_icon": [0,0] } },
+            "back_icon.svg":            { 'tile': 36,  'tileh': 36,  map: { "spr_back_icon": [0,0] } },
             "fullscreen_activate.svg":  { 'tile': 32,  'tileh': 32,  map: { "spr_fullscreen_activate_icon": [0,0] } },
             "minimap_diamond.svg":      { 'tile': 200, 'tileh': 100, map: { "spr_minimap_diamond": [0,0] } },
             "minimap_car.svg":          { 'tile': 10,  'tileh': 10,  map: { "spr_minimap_car": [0,0] } },
