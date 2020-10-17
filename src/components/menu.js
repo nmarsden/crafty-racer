@@ -139,9 +139,7 @@ Crafty.c('Menu', {
             this.menuTitle.textFont({type: 'normal', weight: 'normal', size: '60px', family: Game.fontFamily})
             this.menuTitle.textColor("#0061FF");
 
-            this.menuTitleCar = Crafty.e("2D, DOM, SpriteAnimation, spr_car");
-            this.menuTitleCar.reel('Menu_Title_Car', 2000, 4, 6, 32, 10);
-            this.menuTitleCar.animate('Menu_Title_Car', -1);
+            this.menuTitleCar = Crafty.e("MenuTitleCar");
         }
 
         // display menu items
@@ -224,6 +222,7 @@ Crafty.c('Menu', {
     showParentMenu: function() {
         this.hideMenu();
         this.options.parentMenu.showMenu();
+        this.destroy();
     },
 
     handleKeyDown: function () {

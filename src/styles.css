@@ -55,6 +55,12 @@ body {
     to   { color: #0061FF; }
 }
 
+.UILayer,
+.MenuTitleCar {
+    opacity: 0;
+    transition: opacity 1s;
+}
+
 #editorToolbar {
     display: none;
     flex-wrap: wrap;

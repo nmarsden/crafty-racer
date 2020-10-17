@@ -16,6 +16,7 @@ import './levelIndicator';
 import './mainMenu';
 import './levelSelectMenu';
 import './menu';
+import './menuTitleCar';
 import './glassOverlay';
 import './levelCompleteControl';
 import './gameOverControl';
