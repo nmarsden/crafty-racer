@@ -5,8 +5,6 @@ Crafty.scene('Loading', function(){
     Crafty.viewport.scroll('_x', 0);
     Crafty.viewport.scroll('_y', 0);
 
-    Crafty.e('LoadingText');
-
     Crafty.paths({ audio: "assets/audio/", images: "assets/images/" });
     Crafty.load({
         "audio": {

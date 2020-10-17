@@ -7,6 +7,7 @@ Crafty.scene('Game', function() {
     Debug.logTriggeredEvents();
     Debug.logEntitiesAndHandlers("Before Menu");
 
+    Game.hideLoader();
     Game.initFullscreenButton();
     Game.showMainMenu();
 

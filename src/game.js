@@ -144,6 +144,10 @@ export let Game = {
     // };
   },
 
+  hideLoader: function() {
+    document.getElementById('loader').style.display = 'none';
+  },
+
   initFullscreenButton: function() {
     if (Crafty.mobile) {
       Game.fullscreenButton = Crafty.e("FullscreenButton");

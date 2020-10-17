@@ -5,7 +5,51 @@
     <link rel="shortcut icon" type="image/x-icon" href="assets/images/favicon.ico">
     <link rel="preload" href="assets/arcade.ttf" as="font" crossorigin="">
     <link rel="preload" href="assets/qbo.ttf" as="font" crossorigin="">
+    <style>
+        body {
+            background: black;
+        }
+        #loader {
+            position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .spinner {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+        }
+        .spinner:after {
+            content: " ";
+            display: block;
+            width: 64px;
+            height: 64px;
+            margin: 8px;
+            border-radius: 50%;
+            border: 6px solid rgb(0, 97, 255);
+            border-color: rgb(0, 97, 255) transparent rgb(0, 97, 255) transparent;
+            animation: spinner 1.2s linear infinite;
+        }
+        @keyframes spinner {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+    </style>
 </head>
 <body>
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
 </body>
 </html>
