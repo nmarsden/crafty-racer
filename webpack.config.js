@@ -30,7 +30,12 @@ module.exports = {
             },
             {
                 test: /\.ttf$/,
-                use: ['file-loader'],
+                use: [{
+                    loader: 'file-loader',
+                    options: {
+                        name: '/assets/[name].[ext]',
+                    }
+                }]
             },
             {
                 test: /\.png$/,
@@ -53,6 +58,6 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: 'src/index.html',
             hash: true
-        }),
+        })
     ]
 };

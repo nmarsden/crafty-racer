@@ -1,18 +1,6 @@
 @font-face {
-    font-family: UNICODE0;
-    src: url('../assets/unicode0.ttf');
-    font-weight:400;
-}
-
-@font-face {
     font-family: ARCADE;
     src: url('../assets/arcade.ttf');
-    font-weight:400;
-}
-
-@font-face {
-    font-family: SIMPLETYPE;
-    src: url('../assets/simpletype.ttf');
     font-weight:400;
 }
 
@@ -26,7 +14,7 @@ body {
     background: black;
     text-align: center;
     color: red;
-    font-family: UNICODE0;
+    font-family: ARCADE;
     font-size: 20px;
     margin: 0;
 }

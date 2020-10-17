@@ -23,7 +23,7 @@ export let Game = {
 
   player:null,
   gamePad:null,
-  fontFamily: 'QBO', //'SIMPLETYPE', //'UNICODE0',
+  fontFamily: 'QBO',
   levels:[],
   levelIndex:0,
   currentWaypointNum:1,
