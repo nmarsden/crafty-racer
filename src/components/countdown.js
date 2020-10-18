@@ -47,6 +47,7 @@ Crafty.c('Countdown', {
         this.bind("EnterFrame", this._enterFrame);
         this.bind("PauseGame", this._pauseGame);
         this.bind("UnpauseGame", this._unpauseGame);
+        this.bind("CarFallingStarted", this._pauseGame);
     },
 
     _updatePosition: function () {

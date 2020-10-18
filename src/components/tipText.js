@@ -27,7 +27,7 @@ Crafty.c('TipText', {
     },
 
     _updatePosition: function () {
-        this.attr({x: Crafty.viewport.width / 2 - 160, y: Crafty.viewport.height / 2 - 100});
+        this.attr({x: Crafty.viewport.width / 2 - 160, y: Crafty.viewport.height / 2 - 50});
     },
 
     _enterFrameHandler: function () {

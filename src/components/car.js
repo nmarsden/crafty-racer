@@ -578,6 +578,7 @@ Crafty.c('Car', {
     },
 
     _startFalling: function () {
+        Crafty.trigger("CarFallingStarted");
         // stop all car sounds except slow down & idle
         this._stopSoundEffect('wheel_spin');
         this._stopSoundEffect('engine_speed_up');
@@ -698,7 +699,7 @@ Crafty.c('Car', {
     },
 
     _updateViewportWithPlayerInCenter: function () {
-        Game.scrollXYViewport((Crafty.viewport.width / 2 - this.x - this.w / 2), (Crafty.viewport.height / 2 - this.y - this.h / 2));
+        Game.scrollXYViewport(((Crafty.viewport.width / Crafty.viewport._scale) / 2 - this.x - this.w / 2), ((Crafty.viewport.height / Crafty.viewport._scale) / 2 - this.y - this.h / 2));
     },
 
     _triggerPlayerMoved: function () {

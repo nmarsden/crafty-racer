@@ -140,7 +140,7 @@ export let Editor = {
   },
 
   isScaleZoomLevelPrevented: function(scale) {
-    return (scale > 1 && Editor.zoomLevel >= 1) || (scale < 1 && Editor.zoomLevel <= 0.0625);
+    return (scale > 1 && Crafty.viewport._scale >= 1) || (scale < 1 && Crafty.viewport._scale <= 0.0625);
   },
 
   zoom: function(scale) {
@@ -218,7 +218,7 @@ export let Editor = {
     Crafty.e('ScaleIndicator');
     Crafty.e('EditModeControl');
     Crafty.bind("CameraAnimationDone", Editor.triggerViewportChanged);
-    Editor.zoom(0.5);
+    Editor.zoom(1);
     Editor.initToolbar();
 
     Crafty.removeEvent(Game, window, "resize", Game.sizeViewport);

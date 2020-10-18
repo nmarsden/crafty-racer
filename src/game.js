@@ -158,6 +158,7 @@ export let Game = {
   showMainMenu: function() {
     Crafty.viewport.scroll('_x', 0);
     Crafty.viewport.scroll('_y', 0);
+    Crafty.viewport.scale(1);
 
     Game.playMusic('menu_music');
     Game.mainMenu = Crafty.e('MainMenu');
@@ -483,6 +484,7 @@ export let Game = {
     Debug.logEntitiesAndHandlers("startLevel: after destroyAll2DEntities");
 
     Game.scrollXYViewport(0, 0);
+    Crafty.viewport.scale(0.4);
 
     var loadingText = Crafty.e('LoadingText');
 
